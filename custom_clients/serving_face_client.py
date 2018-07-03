@@ -31,12 +31,13 @@ def main(_):
     # sending request
 
     data = imread(FLAGS.image)
+    h,w,c = data.shape
     request = predict_pb2.PredictRequest()
     request.model_spec.name = 'saved_model'
     request.inputs['in'].CopyFrom(
-        tf.make_tensor_proto(data, dtype='float32'))
+        tf.make_tensor_proto(data, dtype=tf.float32, shape=[1, h, w, c]))
     request.inputs['phase'].CopyFrom(
-        tf.make_tensor_proto(False, dtype='bool'))
+        tf.make_tensor_proto(False, dtype=tf.bool))
     result = stub.Predict(request, 10.0)
     print(result)
 
