@@ -1,6 +1,7 @@
 from __future__ import print_function
-import sys, os, requests, time, json, picamera
+import sys, os, requests, time, json, picamera, io
 import RPi.GPIO as GPIO
+from PIL import Image
 
 
 class PiClient:
@@ -24,6 +25,8 @@ class PiClient:
 
         # camera init
         self.camera = picamera.PiCamera()
+        self.camera.start_preview()
+        time.sleep(2)
 
         # image place holder
         self.image = None
@@ -48,7 +51,14 @@ class PiClient:
         Post request with image
         """
         
-
+    def capture(self):
+        """
+        Capture an image, and return as a PIL image
+        """
+        stream = io.BytesIO()
+        camera.capture(stream, format='jpeg')
+        stream.seek(0)
+        return Image.open(stream)
 
     def alert(self):
         """
