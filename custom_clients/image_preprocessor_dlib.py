@@ -4,7 +4,7 @@ HOG/CNN detector
 """
 import sys, dlib
 import numpy as np
-import config.config
+from config import config
 
 class DlibPreprocessor():
     def __init__(self):
@@ -38,6 +38,6 @@ class DlibPreprocessor():
             return None
         faces = dlib.full_object_detections()
         for detection in dets:
-            faces.append(self.sp(image, detection))
+            faces.append(self.sp(image, detection.rect))
         faces_list = dlib.get_face_chips(image, faces, size=config.IMAGE_SIZE)
         return faces_list
