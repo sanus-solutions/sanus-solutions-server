@@ -13,6 +13,13 @@ TF_PORT = '8500'
 MODEL_SPEC_NAME = '...'
 
 # PREPROCESSOR SETTINGS
+USE_DLIB = True
+USE_MTCNN = False
 IMAGE_SIZE = 200
+MIN_SIZE = 20
+MARGIN = 44
+GPU_FRACTION = 1.0
+MTCNN_THRESHOLD = [0.6, 0.7, 0.7]
+MTCNN_FACTOR = 0.709
 DETECTOR_PATH = '../model/mmod_human_face_detector.dat'
 PREDICTOR_PATH = '../model/shape_predictor_5_face_landmarks.dat'
