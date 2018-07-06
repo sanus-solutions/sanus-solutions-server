@@ -2,6 +2,8 @@ from __future__ import print_function
 import sys, os, requests, time, json, picamera, io
 import RPi.GPIO as GPIO
 from PIL import Image
+from config import config
+import base64
 
 
 class PiClient:
@@ -19,9 +21,11 @@ class PiClient:
                                             if breach, trigger alarm;
                                             if clean, continue.
     """
-    def __init__(self, client_type):
-        # init with client type
-        self.ctype = client_type
+    def __init__(self):
+        # TODO: set location in environment variable
+        # get location/deviceID from envvar and init with client type
+        self.ctype = os.environ['CLIENT_TYPE']
+        self.device_id = os.environ['LOCATION']
 
         # camera init
         self.camera = picamera.PiCamera()
@@ -40,25 +44,28 @@ class PiClient:
 
         if self.ctype == 'san':
             # sanitizer url?
-            self.url = 'sanushost/sanitizer'
+            self.url = 'http:' + config.SERVER_HOST + ':' + config.SERVER_PORT + '/sanushost/api/v1.0/sanitizer_img'
 
         if self.ctype == 'ent':
             # entry url?
-            self.url = 'sanushost/entry'
-
-    def post(self):
-        """
-        Post request with image
-        """
+            self.url = 'http:' + config.SERVER_HOST + ':' + config.SERVER_PORT + '/sanushost/api/v1.0/entry_img'
         
     def capture(self):
         """
-        Capture an image, and return as a PIL image
+        Capture an image, and post request with b64 string
         """
+        timestamp = time.time()
         stream = io.BytesIO()
         camera.capture(stream, format='jpeg')
         stream.seek(0)
-        return Image.open(stream)
+        image_64 = str(base64.b64encode(open(stream, 'rb').read()).decode('ascii'))
+        # timestamp here seconds since epoch, float
+        payload = {'Timestamp': timestamp, 'Location': self.device_id, 'Image': image_64}
+        headers = {'Content-Type': 'application/json', 'Accept': 'text/plain'}
+        result = requests.post(self.url, json=payload, headers=headers)
+
+        if self.ctype 
+        
 
     def alert(self):
         """
