@@ -63,7 +63,9 @@ class PiClient:
         # timestamp here seconds since epoch, float
         payload = {'Timestamp': timestamp, 'Location': self.device_id, 'Image': image_64}
         headers = {'Content-Type': 'application/json', 'Accept': 'text/plain'}
-        result = requests.post(self.url, json=payload, headers=headers)
+        result = None
+        while result != 'Success':
+            result = requests.post(self.url, json=payload, headers=headers)['Status']
 
         if self.ctype == 'ent' and result['Breach']:
             self.alert()
