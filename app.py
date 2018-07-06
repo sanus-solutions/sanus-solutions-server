@@ -1,39 +1,71 @@
 from __future__ import print_function
 import numpy as np
-from custom_clients import tf_serving_client
-from flask import Flask, jsonify, request
-import sys, json
+from custom_clients import tf_serving_client, graph
+from flask import Flask, request
+import sys, json, base64
+
 
 app = Flask(__name__)
 serving_client = tf_serving_client.TFServingClient()
 """
+route for adding node in graph
+request payload format:
+{'Location': location, 'Type': node_type}
 """
-@app.route('/sanushost/api/v1.0/get_shit', methods=['GET'])
-def image_response():
-    return jsonify({'tasks': 'lolshit'})
+@app.route('/sanushost/api/v1.0/add_node', methods=['POST'])
+def add_node():
+    json_data = request.get_json()
+    location = json_data['Location']
+    node_type = json_data['Type']
+    result = graph.add_node(location, node_type)
+    return json.dumps({'Status': result})
+
+"""
+route for removing node in graph
+request payload format:
+{'Location': location, 'Type': node_type}
+"""
+@app.route('/sanushost/api/v1.0/remove_node', methods=['POST'])
+def remove_node():
+    json_data = request.get_json()
+    location = json_data['Location']
+    node_type = json_data['Type']
+    result = graph.remove_node(location, node_type)
+    return json.dumps({'Status': result})
 
 """
 route for sanitizer clients
+request payload format:
+{'Timestamp': tiemstamp, 'Location': location, 'Image': image_64str}
 """
 @app.route('/sanushost/api/v1.0/sanitizer_img', methods=['POST'])
 def receive_sanitizer_image():
     json_data = request.get_json()
-    print(json_data)
-    # TODO: receive image in JSON base 64 format, convert to numpy array
-    result = serving_client.send_inference_request(json_data)
+    image_str = json_data['Image']
+    timestamp = json_data['Timestamp']
+    location = json_data['Location']
+    image = np.frombuffer(base64.decodestring(image_str), dtype=np.float64)
+    embeddings = serving_client.send_inference_request(image)
     # TODO: add embedding to graph with timestamp and location
+    result = graph.add_to_graph(embeddings, timestamp, location)
     return json.dumps(result)
 
 """
 route for entry clients
+request payload format:
+{'Timestamp': tiemstamp, 'Location': location, 'Image': image_64str}
 """
 @app.route('/sanushost/api/v1.0/entry_img', methods=['POST'])
 def receive_entry_image():
     json_data = request.get_json()
-    result = serving_client.send_inference_request(json_data)
-    # result is face embedding vector
+    image_str = json_datap['Image']
+    timestamp = json_data['Timestamp']
+    location = json_data['Location']
+    image = np.frombuffer(base64.decodestring(image_str), dtype=np.float64)
+    embeddings = serving_client.send_inference_request(image)
     # TODO: do graph search and compare here, determine if breach happend
-    return json.dumps('shit')
+    result = graph.check_breach(embeddings, timestamp, location)
+    return json.dumps(result)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
