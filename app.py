@@ -92,7 +92,7 @@ request payload format:
 @app.route('/sanushost/api/v1.0/entry_img', methods=['POST'])
 def receive_entry_image():
     json_data = request.get_json()
-    image_str = json_datap['Image']
+    image_str = json_data['Image']
     timestamp = json_data['Timestamp']
     location = json_data['Location']
     image = np.frombuffer(base64.decodestring(image_str), dtype=np.float64)
