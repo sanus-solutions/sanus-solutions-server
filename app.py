@@ -6,16 +6,20 @@ from flask import Flask, request
 import sys, json, base64
 import tensorflow as tf
 from scipy import misc
+from config import config
 
 
 app = Flask(__name__)
 serving_client = tf_serving_client.TFServingClient()
-dlib_preprocessor = image_preprocessor_dlib.DlibPreprocessor()
-with tf.Graph().as_default():
-    gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=config.GPU_FRACTION)
-    sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options, log_device_placement=False))
-    with sess.as_default():
-        pnet, rnet, onet = image_preprocessor.create_mtcnn(sess, None)
+if config.USE_DLIB:
+    dlib_preprocessor = image_preprocessor_dlib.DlibPreprocessor()
+
+if config.USE_MTCNN:
+    with tf.Graph().as_default():
+        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=config.GPU_FRACTION)
+        sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options, log_device_placement=False))
+        with sess.as_default():
+            pnet, rnet, onet = image_preprocessor.create_mtcnn(sess, None)
 
 """
 route for adding node in graph
@@ -56,7 +60,7 @@ def receive_sanitizer_image():
     location = json_data['Location']
     image = np.frombuffer(base64.decodestring(image_str), dtype=np.float64)
     if config.USE_DLIB:
-        image_preprocessed = dlib_preprocessor.process(image)
+        image_preprocessed = dlib_preprocessor.cnn_process(image)
     elif config.USE_MTCNN:
         img_list = []
         img_size = np.asarray(image.shape)[0:2]
@@ -76,9 +80,8 @@ def receive_sanitizer_image():
         prewhitened = image_preprocessor.prewhiten(aligned)
         img_list.append(prewhitened)
         image_preprocessed = np.stack(img_list)
-    # TODO: preprocessed image is list of face chips
-    # TODO: None if no faces detected
-    # TODO: enable batch inference, fail mechanism
+    if image_preprocessed == None:
+        return json.dumps({'Status': 'No Face'})
     embeddings = serving_client.send_inference_request(image_preprocessed)
     # TODO: add embedding to graph with timestamp and location
     result = graph.add_to_graph(embeddings, timestamp, location)
@@ -97,7 +100,7 @@ def receive_entry_image():
     location = json_data['Location']
     image = np.frombuffer(base64.decodestring(image_str), dtype=np.float64)
     if config.USE_DLIB:
-        image_preprocessed = dlib_preprocessor.process(image)
+        image_preprocessed = dlib_preprocessor.cnn_process(image)
     elif config.USE_MTCNN:
         img_list = []
         img_size = np.asarray(image.shape)[0:2]
@@ -117,9 +120,8 @@ def receive_entry_image():
         prewhitened = image_preprocessor.prewhiten(aligned)
         img_list.append(prewhitened)
         image_preprocessed = np.stack(img_list)
-    # TODO: preprocessed image is list of face chips
-    # TODO: None if no faces detected
-    # TODO: enable batch inference, fail mechanism
+    if image_preprocessed == None:
+        return json.dumps({'Status': 'No Face'})
     embeddings = serving_client.send_inference_request(image_preprocessed)
     # TODO: do graph search and compare here, determine if breach happend
     result = graph.check_breach(embeddings, timestamp, location)
