@@ -5,6 +5,7 @@ from grpc.beta import implementations
 from tensorflow_serving.apis import predict_pb2
 from tensorflow_serving.apis import prediction_service_pb2
 from config import config
+import json
 
 class TFServingClient():
     def __init__(self):
@@ -19,10 +20,10 @@ class TFServingClient():
         """
         input: image should be numpy array
         """
-        b, h, w, c = image.shape
         request = predict_pb2.PredictRequest()
         request.model_spec.name = self.model_spec_name
-        request.inputs['in'].CopyFrom(tf.make_tensor_proto(image, dtype=tf.float32, shape=[b, h, w, c]))
+        request.inputs['in'].CopyFrom(tf.make_tensor_proto(image_list, dtype=tf.float32))
         request.inputs['phase'].CopyFrom(tf.make_tensor_proto(False, dtype=tf.bool))
         result = self.stub.Predict(request, 10.0) # 10.0s timeout
-        return result
+        embeddings_list = result.outputs['out'].float_val
+        return {'embeddings': embeddings_list}, 200
