@@ -89,6 +89,7 @@ def receive_sanitizer_image():
     # if image_preprocessed == None:
     #     return json.dumps({'Status': 'No Face'})
     embeddings = serving_client.send_inference_request(image_preprocessed)
+    print(embeddings)
     # TODO: add embedding to graph with timestamp and location
     result = graph.add_to_graph(embeddings, timestamp, location)
     return json.dumps({'Status': result})
