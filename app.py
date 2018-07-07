@@ -8,6 +8,7 @@ import sys, json, base64
 import tensorflow as tf
 from scipy import misc
 from config import config
+import ast
 
 
 app = Flask(__name__)
@@ -51,6 +52,7 @@ def remove_node():
 """
 route for sanitizer clients
 request payload format:
+#TODO: add image shape information in payload
 {'Timestamp': tiemstamp, 'Location': location, 'Image': image_64str}
 """
 @app.route('/sanushost/api/v1.0/sanitizer_img', methods=['POST'])
@@ -59,10 +61,10 @@ def receive_sanitizer_image():
     image_str = json_data['Image']
     timestamp = json_data['Timestamp']
     location = json_data['Location']
+    image_shape = ast.literal_eval(json_data['Shape'])
     image = np.frombuffer(base64.decodestring(image_str), dtype=np.float64)
     image = image.astype(np.uint8)
-    image = np.reshape(image, (1366, 2048, 3))
-    print(image.shape)
+    image = np.reshape(image, image_shape)
     if config.USE_DLIB:
         image_preprocessed = dlib_preprocessor.cnn_process(image)
     # elif config.USE_MTCNN:
@@ -94,6 +96,7 @@ def receive_sanitizer_image():
 """
 route for entry clients
 request payload format:
+#TODO: add image shape information in payload
 {'Timestamp': tiemstamp, 'Location': location, 'Image': image_64str}
 """
 @app.route('/sanushost/api/v1.0/entry_img', methods=['POST'])
@@ -102,7 +105,10 @@ def receive_entry_image():
     image_str = json_data['Image']
     timestamp = json_data['Timestamp']
     location = json_data['Location']
-    image = np.frombuffer(base64.decodestring(image_str), dtype=np.uint8)
+    image_shape = ast.literal_eval(json_data['Shape'])
+    image = np.frombuffer(base64.decodestring(image_str), dtype=np.float64)
+    image = image.astype(np.uint8)
+    image = np.reshape(image, image_shape)
     if config.USE_DLIB:
         image_preprocessed = dlib_preprocessor.cnn_process(image)
     # elif config.USE_MTCNN:
@@ -124,8 +130,8 @@ def receive_entry_image():
     #     prewhitened = image_preprocessor.prewhiten(aligned)
     #     img_list.append(prewhitened)
     #     image_preprocessed = np.stack(img_list)
-    if image_preprocessed == None:
-        return json.dumps({'Status': 'No Face'})
+    # if image_preprocessed == None:
+    #     return json.dumps({'Status': 'No Face'})
     embeddings = serving_client.send_inference_request(image_preprocessed)
     # TODO: do graph search and compare here, determine if breach happend
     result = graph.check_breach(embeddings, timestamp, location)
