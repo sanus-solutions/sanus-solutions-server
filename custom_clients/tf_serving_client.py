@@ -15,15 +15,14 @@ class TFServingClient():
         self.model_spec_name = config.MODEL_SPEC_NAME
 
 
-    def send_inference_request(self, image):
+    def send_inference_request(self, image_list):
         """
         input: image should be numpy array
         """
-        h, w, c = image.shape
+        b, h, w, c = image.shape
         request = predict_pb2.PredictRequest()
         request.model_spec.name = self.model_spec_name
-        # TODO: following line is for batch of 1
-        request.inputs['in'].CopyFrom(tf.make_tensor_proto(image, dtype=tf.float32, shape=[1, h, w, c]))
+        request.inputs['in'].CopyFrom(tf.make_tensor_proto(image, dtype=tf.float32, shape=[b, h, w, c]))
         request.inputs['phase'].CopyFrom(tf.make_tensor_proto(False, dtype=tf.bool))
         result = self.stub.Predict(request, 10.0) # 10.0s timeout
         return result
