@@ -7,6 +7,11 @@ from tensorflow_serving.apis import prediction_service_pb2
 import sys, dlib
 import numpy as np
 
+def predictResponse_into_nparray(response, output_tensor_name):
+    dims = response.outputs[output_tensor_name].tensor_shape.dim
+    shape = tuple(d.size for d in dims)
+    return np.reshape(response.outputs[output_tensor_name].float_val, shape)
+
 host = 'localhost'
 port = 8500
 channel = implementations.insecure_channel(host, port)
@@ -28,4 +33,6 @@ request.model_spec.name = 'saved_model'
 request.inputs['in'].CopyFrom(tf.make_tensor_proto(faces_list, dtype=tf.float32))
 request.inputs['phase'].CopyFrom(tf.make_tensor_proto(False, dtype=tf.bool))
 result = stub.Predict(request, 10.0)
-print(result)
+result_np = predictResponse_into_nparray(result, 'out')
+print(result_np.shape)
+print(result_np)
