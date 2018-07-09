@@ -17,9 +17,9 @@ port = 8500
 channel = implementations.insecure_channel(host, port)
 stub = prediction_service_pb2.beta_create_PredictionService_stub(channel)
 
-cnn_detector = dlib.cnn_face_detection_model_v1('/home/billy/sanus_face_server/model/mmod_human_face_detector.dat')
-sp = dlib.shape_predictor('/home/billy/sanus_face_server/model/shape_predictor_5_face_landmarks.dat')
-image = dlib.load_rgb_image('/home/billy/Downloads/wjx_test_far_extreme.jpg')
+cnn_detector = dlib.cnn_face_detection_model_v1('/Users/billyzheng/sanus_face_server/model/mmod_human_face_detector.dat')
+sp = dlib.shape_predictor('/Users/billyzheng/sanus_face_server/model/shape_predictor_5_face_landmarks.dat')
+image = dlib.load_rgb_image('/Users/billyzheng/face_test/wjx_test_far_extreme.jpg')
 dets = cnn_detector(image, 1)
 print(len(dets))
 faces = dlib.full_object_detections()
