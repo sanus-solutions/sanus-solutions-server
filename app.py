@@ -16,6 +16,8 @@ app = Flask(__name__)
 serving_client = tf_serving_client.TFServingClient()
 if config.USE_DLIB:
     dlib_preprocessor = image_preprocessor_dlib.DlibPreprocessor()
+graph = simple_graph.SimpleGraph()
+
 
 # if config.USE_MTCNN:
 #     with tf.Graph().as_default():
@@ -25,43 +27,60 @@ if config.USE_DLIB:
 #             pnet, rnet, onet = image_preprocessor.create_mtcnn(sess, None)
 
 """
-route for adding node in graph
+route for adding node in graph without timestamp and embeddings
 request payload format:
-{'Location': location, 'Type': node_type}
+{'NodeID': node_id, 'Neighbors': neighbors, 'Type': node_type}
 """
 @app.route('/sanushost/api/v1.0/add_node', methods=['POST'])
 def add_node():
     json_data = request.get_json()
-    location = json_data['Location']
+    node_id = json_data['NodeID']
     node_type = json_data['Type']
-    result = graph.add_node(location, node_type)
+    neighbors = ast.literal_eval(json_data['Neighbors'])
+    result = graph.add_node(node_id, neighbors, node_type)
     return json.dumps({'Status': result})
+
+"""
+route for adding node in graph with timestamp and embeddings
+request payload format:
+{'NodeID': node_id, 'Neighbors': neighbors, 'Type': node_type,
+ 'Embeddings': embeddings, 'Timestamp': timestamp}
+"""
+@app.route('/sanushost/api/v1.0/add_node_advanced', methods=['POST'])
+def add_node_advanced():
+    json_data = request.get_json()
+    node_id = json_data['NodeID']
+    node_type = json_data['Type']
+    neighbors = ast.literal_eval(json_data['Neighbors'])
+    embeddings = json_data['Embeddings']
+    timestamp = json_data['Timestamp']
+    result = graph.add_node(node_id, neighbors, node_type, embeddings, timestamp)
+    return json.dumps({'Status': result})
+
 
 """
 route for removing node in graph
 request payload format:
-{'Location': location, 'Type': node_type}
+{'NodeID': node_id}
 """
 @app.route('/sanushost/api/v1.0/remove_node', methods=['POST'])
 def remove_node():
     json_data = request.get_json()
-    location = json_data['Location']
-    node_type = json_data['Type']
-    result = graph.remove_node(location, node_type)
+    node_id = json_data['NodeID']
+    result = graph.remove_node(node_id)
     return json.dumps({'Status': result})
 
 """
 route for sanitizer clients
 request payload format:
-#TODO: add image shape information in payload
-{'Timestamp': tiemstamp, 'Location': location, 'Image': image_64str}
+{'NodeID': node_id, 'Timestamp': tiemstamp, 'Image': image_64str, 'Shape': image_shape}
 """
 @app.route('/sanushost/api/v1.0/sanitizer_img', methods=['POST'])
 def receive_sanitizer_image():
     json_data = request.get_json()
     image_str = json_data['Image']
     timestamp = json_data['Timestamp']
-    location = json_data['Location']
+    node_id = json_data['NodeID']
     image_shape = ast.literal_eval(json_data['Shape'])
     image = np.frombuffer(base64.decodestring(image_str), dtype=np.float64)
     image = image.astype(np.uint8)
@@ -90,9 +109,8 @@ def receive_sanitizer_image():
     # if image_preprocessed == None:
     #     return json.dumps({'Status': 'No Face'})
     embeddings = serving_client.send_inference_request(image_preprocessed)
-    print(embeddings)
-    # TODO: add embedding to graph with timestamp and location
-    result = graph.add_to_graph(embeddings, timestamp, location)
+    # print(embeddings)
+    result = graph.update_node(embeddings, timestamp, node_id)
     return json.dumps({'Status': result})
 
 """
@@ -135,7 +153,6 @@ def receive_entry_image():
     # if image_preprocessed == None:
     #     return json.dumps({'Status': 'No Face'})
     embeddings = serving_client.send_inference_request(image_preprocessed)
-    # TODO: do graph search and compare here, determine if breach happend
     result = graph.check_breach(embeddings, timestamp, location)
     return json.dumps({'Status': result})
 
