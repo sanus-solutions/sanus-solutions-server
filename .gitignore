@@ -1,2 +1,3 @@
 model/dont_keep/
 *.pyc
+.DS_Store

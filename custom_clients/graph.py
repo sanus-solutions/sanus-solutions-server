@@ -1,4 +1,5 @@
 #TODO: implement graph structure and logic
+from py2neo import Graph, Node, Relationship
 
 
 

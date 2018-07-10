@@ -2,6 +2,7 @@ from __future__ import print_function
 import numpy as np
 from custom_clients import tf_serving_client, graph
 from custom_clients import image_preprocessor_dlib
+from custom_clients import simple_graph
 # from custom_clients import image_preprocessor
 from flask import Flask, request
 import sys, json, base64
