@@ -13,6 +13,14 @@ class SimpleGraph():
 	def __init__(self):
 		self.node_list = {}
 
+	"""loss metrics"""
+	def cosine_similarity(emb1, emb2):
+		return np.dot(emb1, emb2)/(np.sqrt(np.sum(np.square(emb1))*np.sum(np.square(emb2))))
+
+	def euclidean_distance(emb1, emb2):
+		return np.sqrt(np.sum(np.square(emb1 - emb2)))
+
+	"""graph utilities"""
 	def update_node(embeddings, timestamp, node_id):
 		try:
 			self.node_list[node_id]['embeddings'] = embeddings
@@ -29,7 +37,8 @@ class SimpleGraph():
 			print('Node does not exist in the graph.')
 			return 'Fail'
 		neighbors = node['neighbors']
-		
+		# TODO: check all neighbors' embeddings using either cosine similarity or euclidean
+		# TODO: what similarity score counts as same face?????
 		return 0
 
 	def add_node(node_id, neighbors, node_type, embeddings=None, timestamp=None):
@@ -41,7 +50,7 @@ class SimpleGraph():
 		"""
 		try:
 			temp = self.node_list[node_id]
-			print('Node exists, with neighbors: ' + temp['neighbors'] + 'and type ' + temp['node_type'])
+			print('Node exists, with neighbors: ' + str(temp['neighbors']) + 'and type ' + temp['node_type'])
 			return 0
 		except KeyError:
 			print('Adding node now.')
