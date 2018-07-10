@@ -5,7 +5,7 @@ import base64
 import ast
 
 url = 'http://localhost:5000/sanushost/api/v1.0/sanitizer_img'
-image = dlib.load_rgb_image('/home/billy/Downloads/wjx_test_far_extreme.jpg')
+image = dlib.load_rgb_image('/Users/billyzheng/face_test/wjx_test_far_extreme.jpg')
 shape_string = str(image.shape)
 image = image.astype(np.float64)
 img_64 = base64.b64encode(image)

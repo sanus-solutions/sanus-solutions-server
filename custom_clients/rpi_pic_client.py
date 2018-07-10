@@ -25,7 +25,7 @@ class PiClient:
         # TODO: set location in environment variable
         # get location/deviceID from envvar and init with client type
         self.ctype = os.environ['CLIENT_TYPE']
-        self.device_id = os.environ['LOCATION']
+        self.node_id = os.environ['LOCATION']
 
         # camera init
         self.camera = picamera.PiCamera()
@@ -56,12 +56,13 @@ class PiClient:
         return success if server return success/breach
         """
         timestamp = time.time()
+        # TODO: add shape/resolution string from rpi camera
         stream = io.BytesIO()
         camera.capture(stream, format='jpeg')
         stream.seek(0)
         image_64 = str(base64.b64encode(open(stream, 'rb').read()).decode('ascii'))
         # timestamp here seconds since epoch, float
-        payload = {'Timestamp': timestamp, 'Location': self.device_id, 'Image': image_64}
+        payload = {'NodeID': self.node_id, 'Timestamp': timestamp, 'Image': image_64, 'Shape': shape}
         headers = {'Content-Type': 'application/json', 'Accept': 'text/plain'}
         result = None
         while result != 'Success':
