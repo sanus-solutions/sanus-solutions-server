@@ -4,7 +4,7 @@ import dlib
 import base64
 import ast
 
-url = 'http://localhost:5000/sanushost/api/v1.0/sanitizer_img'
+url = 'http://192.168.100.19:5000/sanushost/api/v1.0/sanitizer_img'
 image = dlib.load_rgb_image('/Users/billyzheng/face_test/wjx_test_far_extreme.jpg')
 shape_string = str(image.shape)
 image = image.astype(np.float64)

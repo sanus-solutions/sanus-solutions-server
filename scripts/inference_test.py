@@ -12,7 +12,7 @@ def predictResponse_into_nparray(response, output_tensor_name):
     shape = tuple(d.size for d in dims)
     return np.reshape(response.outputs[output_tensor_name].float_val, shape)
 
-host = 'localhost'
+host = '192.168.100.19'
 port = 8500
 channel = implementations.insecure_channel(host, port)
 stub = prediction_service_pb2.beta_create_PredictionService_stub(channel)
