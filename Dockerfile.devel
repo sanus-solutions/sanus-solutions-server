@@ -101,6 +101,7 @@ ENV MODEL_NAME=saved_model
 RUN mkdir -p ${MODEL_BASE_PATH}
 
 # Copy exported model base to docker container
-COPY model/1/ /models/1
+COPY model/1/ /${MODEL_BASE_PATH}/1
+RUN mkdir -p ${MODEL_BASE_PATH}/1/variables
 
 ENTRYPOINT tensorflow_model_server --port=8500 --rest_api_port=8501 --model_name=${MODEL_NAME} --model_base_path=${MODEL_BASE_PATH}

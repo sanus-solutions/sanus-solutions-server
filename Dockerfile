@@ -48,6 +48,7 @@ RUN mkdir -p ${MODEL_BASE_PATH}
 
 # Copy exported model to model base path
 COPY model/1/ /models/1
+RUN mkdir -p ${MODEL_BASE_PATH}/1/variables
 
 # The only required piece is the model name in order to differentiate endpoints
 ENV MODEL_NAME=saved_model
