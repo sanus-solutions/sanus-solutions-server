@@ -1,5 +1,5 @@
 # Install Dependencies 
-## Recommeded: use virtulaenv 
+## Recommeded: use virtualenv 
 In a virtual env:  
 1. ```pip install --upgrade tensorflow ```  
 2. ```pip install tensor-serving-api```  
@@ -8,5 +8,5 @@ In a virtual env:
 
 # Install Docker
 1. Install docker, follow instruction for the OS where tensorflow serving model server will run (macos or linux).  
-2. After docker is install and you have the docker image as a .tar on your system, run: ```docker run -it -p 8500:8500 <docker_image_name>.tar -name <give_your_container_whatever_name_you_want>```  
-3. In the docker container bash, run: ```tensorflow_model_server --port=8500 --model_name=saved_model --model_base_path=/model/``` 
+2. There are 2 Dockerfiles. [Dockerfile](https://github.com/sanus-solutions/sanus-face-server/blob/master/Dockerfile) builds the minimal tensorflow serving container without GPU support, and [Dockerfile.devel](https://github.com/sanus-solutions/sanus-face-server/blob/master/Dockerfile.devel) builds the tensorflow serving container with GPU support. Note that the GPU support build uses bazel and will eat up all your RAM.  
+3. Build the container with: ```docker build --pull -t <your_container_name_here> .``` or ```docker build --pull -t <your_container_name_here> -f Dockerfile.devel-gpu .``` 
