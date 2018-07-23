@@ -10,10 +10,12 @@ import tensorflow as tf
 from scipy import misc
 from config import config
 import ast
+import boto3
 
 
 app = Flask(__name__)
 serving_client = tf_serving_client.TFServingClient()
+rekog_client = boto3.client('rekognition')
 if config.USE_DLIB:
     dlib_preprocessor = image_preprocessor_dlib.DlibPreprocessor()
 graph = simple_graph.SimpleGraph()
@@ -117,7 +119,7 @@ def receive_sanitizer_image():
 route for entry clients
 request payload format:
 #TODO: add image shape information in payload
-{'Timestamp': tiemstamp, 'Location': location, 'Image': image_64str}
+{'Timestamp': tiemstamp, 'Location': location, 'Image': image_64str, 'Shape': image_shape}
 """
 @app.route('/sanushost/api/v1.0/entry_img', methods=['POST'])
 def receive_entry_image():
@@ -155,6 +157,47 @@ def receive_entry_image():
     embeddings = serving_client.send_inference_request(image_preprocessed)
     result = graph.check_breach(embeddings, timestamp, location)
     return json.dumps({'Status': result})
+
+"""
+route to check if high-risk face is a staff or patient
+payload format: 
+{'Image': image_64str}
+"""
+@app.route('sanushost/api/v1.0/check_staff', methods=['POST'])
+def check_staff():
+    json_data = request.get_json()
+    image = json_data['Image']
+    rekog_response = rekog_client.search_faces_by_image(CollectionId='staff',
+                                                        Image={'Bytes':image},
+                                                        FaceMatchThreshold=70,
+                                                        MaxFaces=2)
+    #TODO: desgin response here
+    return 0
+
+@app.route('/sanushost/api/v1.0/check_total_node', methods=['GET'])
+def return_total_node():
+    return len(graph.node_list)
+
+@app.route('/sanushost/api/v1.0/check_alive_node', methods=['GET'])
+def return_alive_node():
+    return 0
+
+@app.route('/sanushost/api/v1.0/check_tf_avg_time', methods=['GET'])
+def return_serving_time():
+    return 0
+"""
+payload format: {'NodeID': node_id}
+"""
+@app.route('sanushost/api/v1.0/check_node_alive_time', methods=['POST'])
+def return_node_alive_time():
+    json_data = request.get_json()
+    node_id = json_data['NodeID']
+    #TODO: how to access node attributes??? same shit for all other attributes
+    retrun 0
+
+@app.route('sanushost/api/v1.0/check_aws_avg_time', methods=['GET'])
+def retrun_aws_avg_time():
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
