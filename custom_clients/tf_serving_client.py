@@ -5,7 +5,7 @@ import numpy as np
 from grpc.beta import implementations
 from tensorflow_serving.apis import predict_pb2
 from tensorflow_serving.apis import prediction_service_pb2
-from config import config
+from sanus_face_server.config import config
 import json
 
 class TFServingClient():
