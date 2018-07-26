@@ -4,7 +4,7 @@ HOG/CNN detector
 """
 import sys, dlib
 import numpy as np
-from config import config
+from sanus_face_server.config import config
 
 class DlibPreprocessor():
     def __init__(self):
