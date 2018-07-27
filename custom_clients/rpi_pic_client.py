@@ -58,7 +58,7 @@ class PiClient:
         timestamp = time.time()
         # TODO: add shape/resolution string from rpi camera
         stream = io.BytesIO()
-        camera.capture(stream, format='jpeg')
+        self.camera.capture(stream, format='jpeg')
         stream.seek(0)
         image_64 = str(base64.b64encode(open(stream, 'rb').read()).decode('ascii'))
         # timestamp here seconds since epoch, float
