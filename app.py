@@ -89,6 +89,7 @@ def remove_node():
 route for sanitizer clients
 request payload format:
 {'NodeID': node_id, 'Timestamp': tiemstamp, 'Image': image_64str, 'Shape': image_shape}
+Responses: {'Status': no face'}/{'Status': 'face'}
 """
 @app.route('/sanushost/api/v1.0/sanitizer_img', methods=['POST'])
 def receive_sanitizer_image():
@@ -102,37 +103,19 @@ def receive_sanitizer_image():
     image = np.reshape(image, image_shape)
     if config.USE_DLIB:
         image_preprocessed = dlib_preprocessor.cnn_process(image)
-    # elif config.USE_MTCNN:
-    #     img_list = []
-    #     img_size = np.asarray(image.shape)[0:2]
-    #     margin = config.MARGIN
-    #     image_size = config.IMAGE_SIZE
-    #     bbox, _ = image_preprocessor.detect_face(image, config.MIN_SIZE, pnet, rnet, onet, config.MTCNN_THRESHOLD, config.MTCNN_FACTOR)
-    #     if len(bbox) < 1:
-    #         return json.dumps({'Status': 'No Face'})
-    #     det = np.squeeze(bbox[0, 0:4])
-    #     bb = np.zeros(4, dtype=np.int32)
-    #     bb[0] = np.maximum(det[0]-margin/2, 0)
-    #     bb[1] = np.maximum(det[1]-margin/2, 0)
-    #     bb[2] = np.minimum(det[2]+margin/2, img_size[1])
-    #     bb[3] = np.minimum(det[3]+margin/2, img_size[0])
-    #     cropped = image[bb[1]:bb[3],bb[0]:bb[2],:]
-    #     aligned = misc.imresize(cropped, (image_size, image_size), interp='bilinear')
-    #     prewhitened = image_preprocessor.prewhiten(aligned)
-    #     img_list.append(prewhitened)
-    #     image_preprocessed = np.stack(img_list)
-    # if image_preprocessed == None:
-    #     return json.dumps({'Status': 'No Face'})
+    if image_preprocessed == []:
+        return json.dumps({'Status': 'no face'})
     embeddings = serving_client.send_inference_request(image_preprocessed)
     print(embeddings)
     result = graph.update_node(embeddings, timestamp, node_id)
-    return json.dumps({'Status': result})
+    return json.dumps({'Status': 'face'})
 
 """
 route for entry clients
 request payload format:
 #TODO: add image shape information in payload
 {'Timestamp': tiemstamp, 'Location': location, 'Image': image_64str, 'Shape': image_shape}
+Responses: {'Status': no face'}/{'Status': 'face'}/{'JobID': job_id}
 """
 @app.route('/sanushost/api/v1.0/entry_img', methods=['POST'])
 def receive_entry_image():
@@ -146,27 +129,8 @@ def receive_entry_image():
     image = np.reshape(image, image_shape)
     if config.USE_DLIB:
         image_preprocessed = dlib_preprocessor.cnn_process(image)
-    # elif config.USE_MTCNN:
-    #     img_list = []
-    #     img_size = np.asarray(image.shape)[0:2]
-    #     margin = config.MARGIN
-    #     image_size = config.IMAGE_SIZE
-    #     bbox, _ = image_preprocessor.detect_face(image, config.MIN_SIZE, pnet, rnet, onet, config.MTCNN_THRESHOLD, config.MTCNN_FACTOR)
-    #     if len(bbox) < 1:
-    #         return json.dumps({'Status': 'No Face'})
-    #     det = np.squeeze(bbox[0, 0:4])
-    #     bb = np.zeros(4, dtype=np.int32)
-    #     bb[0] = np.maximum(det[0]-margin/2, 0)
-    #     bb[1] = np.maximum(det[1]-margin/2, 0)
-    #     bb[2] = np.minimum(det[2]+margin/2, img_size[1])
-    #     bb[3] = np.minimum(det[3]+margin/2, img_size[0])
-    #     cropped = image[bb[1]:bb[3],bb[0]:bb[2],:]
-    #     aligned = misc.imresize(cropped, (image_size, image_size), interp='bilinear')
-    #     prewhitened = image_preprocessor.prewhiten(aligned)
-    #     img_list.append(prewhitened)
-    #     image_preprocessed = np.stack(img_list)
-    # if image_preprocessed == None:
-    #     return json.dumps({'Status': 'No Face'})
+    if image_preprocessed == []:
+        return json.dumps({'Status': 'no face'})
     embeddings = serving_client.send_inference_request(image_preprocessed)
     result = graph.check_breach(embeddings, timestamp, location)
     return json.dumps({'Status': result})
