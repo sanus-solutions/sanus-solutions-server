@@ -1,12 +1,14 @@
 from __future__ import print_function
 import numpy as np
+import os, sys
+sys.path.append(os.path.abspath(''))
 from custom_clients import tf_serving_client#, graph
 from custom_clients import image_preprocessor_dlib
 from custom_clients import simple_graph
 # from custom_clients import image_preprocessor
 from flask import Flask, request
 from flask.cli import AppGroup
-import sys, json, base64
+import json, base64
 import tensorflow as tf
 from scipy import misc
 from config import config
@@ -17,7 +19,7 @@ import click
 
 app = Flask(__name__)
 serving_client = tf_serving_client.TFServingClient()
-rekog_client = boto3.client('rekognition')
+# rekog_client = boto3.client('rekognition')
 if config.USE_DLIB:
     dlib_preprocessor = image_preprocessor_dlib.DlibPreprocessor()
 graph = simple_graph.SimpleGraph()
@@ -97,32 +99,12 @@ def receive_sanitizer_image():
     timestamp = json_data['Timestamp']
     node_id = json_data['NodeID']
     image_shape = ast.literal_eval(json_data['Shape'])
-    image = np.frombuffer(base64.decodestring(image_str), dtype=np.float64)
+    image_str_b64 = base64.b64decode(image_str)
+    image = np.frombuffer(image_str_b64, dtype=np.float64)
     image = image.astype(np.uint8)
     image = np.reshape(image, image_shape)
     if config.USE_DLIB:
         image_preprocessed = dlib_preprocessor.cnn_process(image)
-    # elif config.USE_MTCNN:
-    #     img_list = []
-    #     img_size = np.asarray(image.shape)[0:2]
-    #     margin = config.MARGIN
-    #     image_size = config.IMAGE_SIZE
-    #     bbox, _ = image_preprocessor.detect_face(image, config.MIN_SIZE, pnet, rnet, onet, config.MTCNN_THRESHOLD, config.MTCNN_FACTOR)
-    #     if len(bbox) < 1:
-    #         return json.dumps({'Status': 'No Face'})
-    #     det = np.squeeze(bbox[0, 0:4])
-    #     bb = np.zeros(4, dtype=np.int32)
-    #     bb[0] = np.maximum(det[0]-margin/2, 0)
-    #     bb[1] = np.maximum(det[1]-margin/2, 0)
-    #     bb[2] = np.minimum(det[2]+margin/2, img_size[1])
-    #     bb[3] = np.minimum(det[3]+margin/2, img_size[0])
-    #     cropped = image[bb[1]:bb[3],bb[0]:bb[2],:]
-    #     aligned = misc.imresize(cropped, (image_size, image_size), interp='bilinear')
-    #     prewhitened = image_preprocessor.prewhiten(aligned)
-    #     img_list.append(prewhitened)
-    #     image_preprocessed = np.stack(img_list)
-    # if image_preprocessed == None:
-    #     return json.dumps({'Status': 'No Face'})
     embeddings = serving_client.send_inference_request(image_preprocessed)
     print(embeddings)
     result = graph.update_node(embeddings, timestamp, node_id)
@@ -137,7 +119,7 @@ request payload format:
 @app.route('/sanushost/api/v1.0/entry_img', methods=['POST'])
 def receive_entry_image():
     json_data = request.get_json()
-    image_str = json_data['Image']
+    image_str = str.encode(json_data['Image'])
     timestamp = json_data['Timestamp']
     location = json_data['Location']
     image_shape = ast.literal_eval(json_data['Shape'])
@@ -146,27 +128,6 @@ def receive_entry_image():
     image = np.reshape(image, image_shape)
     if config.USE_DLIB:
         image_preprocessed = dlib_preprocessor.cnn_process(image)
-    # elif config.USE_MTCNN:
-    #     img_list = []
-    #     img_size = np.asarray(image.shape)[0:2]
-    #     margin = config.MARGIN
-    #     image_size = config.IMAGE_SIZE
-    #     bbox, _ = image_preprocessor.detect_face(image, config.MIN_SIZE, pnet, rnet, onet, config.MTCNN_THRESHOLD, config.MTCNN_FACTOR)
-    #     if len(bbox) < 1:
-    #         return json.dumps({'Status': 'No Face'})
-    #     det = np.squeeze(bbox[0, 0:4])
-    #     bb = np.zeros(4, dtype=np.int32)
-    #     bb[0] = np.maximum(det[0]-margin/2, 0)
-    #     bb[1] = np.maximum(det[1]-margin/2, 0)
-    #     bb[2] = np.minimum(det[2]+margin/2, img_size[1])
-    #     bb[3] = np.minimum(det[3]+margin/2, img_size[0])
-    #     cropped = image[bb[1]:bb[3],bb[0]:bb[2],:]
-    #     aligned = misc.imresize(cropped, (image_size, image_size), interp='bilinear')
-    #     prewhitened = image_preprocessor.prewhiten(aligned)
-    #     img_list.append(prewhitened)
-    #     image_preprocessed = np.stack(img_list)
-    # if image_preprocessed == None:
-    #     return json.dumps({'Status': 'No Face'})
     embeddings = serving_client.send_inference_request(image_preprocessed)
     result = graph.check_breach(embeddings, timestamp, location)
     return json.dumps({'Status': result})
@@ -178,12 +139,12 @@ payload format:
 """
 @app.route('/sanushost/api/v1.0/check_staff', methods=['POST'])
 def check_staff():
-    json_data = request.get_json()
-    image = json_data['Image']
-    rekog_response = rekog_client.search_faces_by_image(CollectionId='staff',
-                                                        Image={'Bytes':image},
-                                                        FaceMatchThreshold=70,
-                                                        MaxFaces=2)
+    # json_data = request.get_json()
+    # image = json_data['Image']
+    # rekog_response = rekog_client.search_faces_by_image(CollectionId='staff',
+    #                                                     Image={'Bytes':image},
+    #                                                     FaceMatchThreshold=70,
+    #                                                     MaxFaces=2)
     #TODO: desgin response here
     return 0
 
