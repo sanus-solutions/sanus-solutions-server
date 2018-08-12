@@ -2,10 +2,7 @@
 **PLEASE USE VIRTUALENV**  
 In a virtual env:  
 1. In the ```sanus_face_server``` root directory, run ```pip install -r requirements.txt ```  
-<<<<<<< Updated upstream
-=======
 2. Build dlib python bindings. (Don't use pip if there's CUDA/CuDNN installations on the system) Download [Dlib source](http://dlib.net/files/dlib-19.15.tar.bz2), untar, cd into the directory and run ```python setup.py install``` in your virtualenv.
->>>>>>> Stashed changes
 
 # Install Docker
 1. Install docker, follow instruction for the OS where tensorflow serving model server will run (macos or linux).  
