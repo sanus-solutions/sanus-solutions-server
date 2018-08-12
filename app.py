@@ -98,7 +98,12 @@ def receive_sanitizer_image():
     timestamp = json_data['Timestamp']
     node_id = json_data['NodeID']
     image_shape = ast.literal_eval(json_data['Shape'])
+<<<<<<< Updated upstream
     image = np.frombuffer(base64.decodestring(image_str), dtype=np.float64)
+=======
+    # image_str_b64 = base64.b64decode(image_str)
+    image = np.frombuffer(base64.b64decode(image_str), dtype=np.float64)
+>>>>>>> Stashed changes
     image = image.astype(np.uint8)
     image = np.reshape(image, image_shape)
     if config.USE_DLIB:
