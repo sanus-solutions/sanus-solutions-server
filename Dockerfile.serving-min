@@ -12,30 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# tensorflow serving without building with bazel, no gpu support?
+# Minimum Dockerfile for tensorflow serving, without gpu support
 
+ARG TF_SERVING_VERSION=latest
+ARG TF_SERVING_BUILD_IMAGE=tensorflow/serving:${TF_SERVING_VERSION}-devel
+
+FROM ${TF_SERVING_BUILD_IMAGE} as build_image
 FROM ubuntu:16.04
 
+ARG TF_SERVING_VERSION_GIT_BRANCH=master
+ARG TF_SERVING_VERSION_GIT_COMMIT=head
+
 LABEL maintainer="gvasudevan@google.com"
+LABEL tensorflow_serving_github_branchtag=${TF_SERVING_VERSION_GIT_BRANCH}
+LABEL tensorflow_serving_github_commit=${TF_SERVING_VERSION_GIT_COMMIT}
 
-RUN apt-get update && apt-get install -y \
-        curl \
-        gnupg
+# Install TF Serving pkg
+COPY --from=build_image /usr/local/bin/tensorflow_model_server /usr/bin/tensorflow_model_server
 
-# Install TF Serving pkg.
-ARG TF_SERVING_VERSION=1.8.0
-# Use tensorflow-model-server-universal for older hardware
-ARG TF_SERVING_PKGNAME=tensorflow-model-server
-RUN curl -LO https://storage.googleapis.com/tensorflow-serving-apt/pool/${TF_SERVING_PKGNAME}-${TF_SERVING_VERSION}/t/${TF_SERVING_PKGNAME}/${TF_SERVING_PKGNAME}_${TF_SERVING_VERSION}_all.deb ; \
-        dpkg -i ${TF_SERVING_PKGNAME}_${TF_SERVING_VERSION}_all.deb ; \
-        rm ${TF_SERVING_PKGNAME}_${TF_SERVING_VERSION}_all.deb
-
-# Cleanup to reduce the size of the image
-# See https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#run
-RUN  apt-get clean && \
-        rm -rf /var/lib/apt/lists/*
-
-#Expose ports
+# Expose ports
 # gRPC
 EXPOSE 8500
 
@@ -52,4 +47,4 @@ RUN mkdir -p ${MODEL_BASE_PATH}/1/variables
 
 # The only required piece is the model name in order to differentiate endpoints
 ENV MODEL_NAME=saved_model
-ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT tensorflow_model_server --port=8500 --model_name=${MODEL_NAME} --model_base_path=${MODEL_BASE_PATH}
