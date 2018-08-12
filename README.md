@@ -66,15 +66,19 @@ sudo pkill -SIGHUP dockerd
 # Test nvidia-smi with the latest official CUDA image
 docker run --runtime=nvidia --rm nvidia/cuda nvidia-smi
 ```
-    
 
-    
-# Run the local server
+* The Dockerfile [Dockerfile.serving-gpu](https://github.com/sanus-solutions/sanus_face_server/blob/server_dev/Dockerfile.serving-gpu) builds the TF serving container with gpu support.  
+* Building the Dockerfile: ```docker build -t <name_here> -f Dockerfile.serving-gpu .```  
+* Running the Docker container: ```docker run -it -p 8500:8500 <name_here>```  
+
+
+<!-- # Run the local server
 In the virtual env that you installed all the dependencies:  
 1. In the repo root: ```export FLASK_APP=app.py```
 2. Run ```flask run --host=0.0.0.0```
-3. You might have to do: ```iptables -I INPUT -p tcp --dport 5000 -j ACCEPT``` to allow port 5000 traffic for Flask.  
+3. You might have to do: ```iptables -I INPUT -p tcp --dport 5000 -j ACCEPT``` to allow port 5000 traffic for Flask.   -->
 
 # Sending requests to the local server
-1. Check the local server's ip address in the router configuration page, and use that address in your request url.  
-2. Flask runs on port 5000 by default.  
+* Check the local server's ip address in the router configuration page, and use that address in your request url.  
+* Flask runs on port 5000 by default.  
+* TF serving runs on port 8500 by default.
