@@ -15,6 +15,7 @@ from config import config
 import ast
 import boto3
 import click
+import demo_util
 
 
 app = Flask(__name__)
