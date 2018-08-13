@@ -15,13 +15,13 @@ In a virtual env:
 # Build the Dockerfiles and run containers  
 ## Flask app container:  
 * The Dockerfile [Dockerfile.flask-app](https://github.com/sanus-solutions/sanus_face_server/blob/server_dev/Dockerfile.flask-app) builds the container for the Flask app, port 5000 is exposed.  
-* Building the dockerfile: ```docker build -t <name_here> -f Dockerfile.flask-app .```  
-* Running the docker container: ```docker run -it -p 5000:5000 <name_here>``` Some tags could also be added: ```-d``` for detached container, ```-it``` for interactive session.  
+* Building the dockerfile: ```docker build -t <app_image_name_here> -f Dockerfile.flask-app .``` (Installing dlib might take a bit.)  
+* Running the docker container: ```docker run --name <app_container_name> -it -p 5000:5000 --rm <app_image_name_here>``` Tags explained: ```-it```: interactive session, ```--rm```: container will be deleted once it exits, ```-p```: allow port traffic.
 
 ## Tensorflow Serving without GPU support:  
 * The Dockerfile [Dockerfile.serving-min](https://github.com/sanus-solutions/sanus_face_server/blob/server_dev/Dockerfile.serving-min) builds the minimum container for tensorflow serving without gpu support.  
-* Building the dockerfile: ```docker build -t <name_here> -f Dockerfile.serving-min .```  
-* Running the docker container: ``` docker run -it -p 8500:8500 <name_here>```
+* Building the dockerfile: ```docker build -t <serving_image_name_here> -f Dockerfile.serving-min .```  
+* Running the docker container: ``` docker run --name <serving_container_name> -it -p 8500:8500 --rm <serving_image_name_here>```
 
 <!-- 1. There are 2 Dockerfiles. [Dockerfile](https://github.com/sanus-solutions/sanus-face-server/blob/master/Dockerfile) builds the minimal tensorflow serving container without GPU support, and [Dockerfile.devel](https://github.com/sanus-solutions/sanus-face-server/blob/master/Dockerfile.devel)(**Still in development**) builds the tensorflow serving container with GPU support. Note that the GPU support build uses bazel and will eat up all your RAM.  
 2. Build the container with: ```docker build --pull -t <your_image_name_here> .```  
@@ -68,10 +68,13 @@ docker run --runtime=nvidia --rm nvidia/cuda nvidia-smi
 ```
 
 * The Dockerfile [Dockerfile.serving-gpu](https://github.com/sanus-solutions/sanus_face_server/blob/server_dev/Dockerfile.serving-gpu) builds the TF serving container with gpu support.  
-* Building the Dockerfile: ```docker build -t <name_here> -f Dockerfile.serving-gpu .```  
-* Running the Docker container: ```docker run -it -p 8500:8500 <name_here>```  
+* Building the Dockerfile: ```docker build -t <serving_image_name_here> -f Dockerfile.serving-gpu .```   
+* Running the Docker container: ```docker run --name <serving_container_name> -it -p 8500:8500 --rm <serving_image_name_here>```  
 
-
+# Connecting the two Docker containers  
+* First create a docker network using: ```docker network create --driver=bridge --subnet=<user_specified_subnet> <network_name>```, For example: ```docker network create --driver=bridge --subnet=172.168.0.0/16 sanus-network```. The subnet ```172.168.0.0/16``` works with the default TF serving container ip address (```TF_HOST```) specified in [config.py](https://github.com/sanus-solutions/sanus_face_server/blob/server_dev/config/config.py).
+* The IP address of the Flask app container is not important since the communication with it from the camera nodes will be handled by the host machine, not the containers. Connect the flask app container with: ```docker network connect <network_name> <app_container_name>```.  
+* Then we need to connect the TF serving container to the network with an assigned ip address so the flask app can send request to the model server. Again, a default ip address is assigned in [config.py](https://github.com/sanus-solutions/sanus_face_server/blob/server_dev/config/config.py). Connect the serving container to the network by: ```docker network connect --ip <assigned_ip_here> <network_name> <serving_container_name>```. For example: ```docker network connect --ip 172.168.0.3 sanus-network sanus_serving_container```
 <!-- # Run the local server
 In the virtual env that you installed all the dependencies:  
 1. In the repo root: ```export FLASK_APP=app.py```
@@ -79,6 +82,4 @@ In the virtual env that you installed all the dependencies:
 3. You might have to do: ```iptables -I INPUT -p tcp --dport 5000 -j ACCEPT``` to allow port 5000 traffic for Flask.   -->
 
 # Sending requests to the local server
-* Check the local server's ip address in the router configuration page, and use that address in your request url.  
-* Flask runs on port 5000 by default.  
-* TF serving runs on port 8500 by default.
+* Check the local server's ip address in the router configuration page, and use that address in your request url in camera node clients.  

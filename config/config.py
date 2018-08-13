@@ -9,7 +9,7 @@ SERVER_HOST = 'localhost'
 SERVER_PORT = '5000'
 
 # TF SERVING SETTINGS
-TF_HOST = 'localhost'
+TF_HOST = '172.168.0.3'
 TF_PORT = '8500'
 MODEL_SPEC_NAME = 'saved_model'
 
