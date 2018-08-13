@@ -31,6 +31,7 @@ and this will start an interactive bash shell in the container. Now you can run 
 ```tensorflow_model_server --port=8500 --model_name=saved_model --model_base_path=/models``` Now the model server should be running in your Docker container. Note that you might have to ```cd ..``` once you're in the container bash. Just make sure you're in a directory that there's a ```\models``` directory.   -->
 
 ## Tensorflow Serving with GPU support:  
+* The TF serving container will only run on a Linux host machine because there's no runtime support for macOS and Windows.  
 * The TF serving container with GPU support needs up-to-date NVIDIA driver and the NVIDIA Container Runtime ```nvidia-docker```.  
 * Check the list of packages for the gpu using: ```sudo ubuntu-drivers devices``` then use apt-get to install the driver package. For example:  
 ```sh
@@ -67,9 +68,9 @@ sudo pkill -SIGHUP dockerd
 docker run --runtime=nvidia --rm nvidia/cuda nvidia-smi
 ```
 
-* The Dockerfile [Dockerfile.serving-gpu](https://github.com/sanus-solutions/sanus_face_server/blob/server_dev/Dockerfile.serving-gpu) builds the TF serving container with gpu support.  
+* The Dockerfile [Dockerfile.serving-gpu](https://github.com/sanus-solutions/sanus_face_server/blob/server_dev/Dockerfile.serving-gpu) builds the TF serving container with gpu support. At line 130 of the Dockerfile, the number of jobs spawned by bazel is limited to 4. Bazel takes all the resorces it can. Although it'll be slower to build the image, it's not recommended to keep this parameter under 8.  
 * Building the Dockerfile: ```docker build -t <serving_image_name_here> -f Dockerfile.serving-gpu .```   
-* Running the Docker container: ```docker run --name <serving_container_name> -it -p 8500:8500 --rm <serving_image_name_here>```  
+* Running the Docker container: ```docker run --runtime=nvidia --name <serving_container_name> -it -p 8500:8500 --rm <serving_image_name_here>```  
 
 # Connecting the two Docker containers  
 * First create a docker network using: ```docker network create --driver=bridge --subnet=<user_specified_subnet> <network_name>```, For example: ```docker network create --driver=bridge --subnet=172.168.0.0/16 sanus-network```. The subnet ```172.168.0.0/16``` works with the default TF serving container ip address (```TF_HOST```) specified in [config.py](https://github.com/sanus-solutions/sanus_face_server/blob/server_dev/config/config.py).
