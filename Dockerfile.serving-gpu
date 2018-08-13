@@ -127,7 +127,7 @@ ARG TF_SERVING_BUILD_OPTIONS="--copt=-mavx --cxxopt=-D_GLIBCXX_USE_CXX11_ABI=0"
 ARG TF_SERVING_BAZEL_OPTIONS=""
 RUN ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/libcuda.so.1 && \
     LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:${LD_LIBRARY_PATH} \
-    bazel build -c opt --color=yes --curses=yes --config=cuda \
+    bazel build --jobs=4 -c opt --color=yes --curses=yes --config=cuda \
     ${TF_SERVING_BAZEL_OPTIONS} \
     --verbose_failures \
     --output_filter=DONT_MATCH_ANYTHING \
@@ -148,7 +148,7 @@ EXPOSE 8501
 ENV MODEL_BASE_PATH=/models
 ENV MODEL_NAME=saved_model
 RUN mkdir -p ${MODEL_BASE_PATH}
-COPY model/1/ models/1
+COPY model/1/ /models/1
 RUN mkdir -p ${MODEL_BASE_PATH}/1/variables
 
 # CMD ["/bin/bash"]
