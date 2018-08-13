@@ -217,4 +217,7 @@ def euclidean_distance(emb1, emb2):
 def check_staff(emb):
     euc_dist_klaus = euclidean_distance(emb, KLAUS_EMB)
     euc_dist_luka = euclidean_distance(emb, LUKA_EMB)
-    return True if (euc_dist_klaus < EUC_THRESH or euc_dist_luka < EUD_THRESH) else return False
+    if (euc_dist_klaus < EUC_THRESH or euc_dist_luka < EUD_THRESH):
+        return True
+    else:
+        return False
