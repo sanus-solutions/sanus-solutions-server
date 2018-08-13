@@ -13,10 +13,17 @@ In a virtual env:
 * The ```docker``` commands listed below might need be ran with root access: ```sudo docker```  
 
 # Build the Dockerfiles and run containers  
-## Flask app container:  
+## Flask app container without GPU support for Dlib:  
 * The Dockerfile [Dockerfile.flask-app](https://github.com/sanus-solutions/sanus_face_server/blob/server_dev/Dockerfile.flask-app) builds the container for the Flask app, port 5000 is exposed.  
 * Building the dockerfile: ```docker build -t <app_image_name_here> -f Dockerfile.flask-app .``` (Installing dlib might take a bit.)  
-* Running the docker container: ```docker run --name <app_container_name> -it -p 5000:5000 --rm <app_image_name_here>``` Tags explained: ```-it```: interactive session, ```--rm```: container will be deleted once it exits, ```-p```: allow port traffic.
+* Running the docker container: ```docker run --name <app_container_name> -it -p 5000:5000 --rm <app_image_name_here>``` Tags explained: ```-it```: interactive session, ```--rm```: container will be deleted once it exits, ```-p```: allow port traffic.  
+* Dlib will be slower when dealing with larger images since there's no gpu support.  
+
+## Flask app container with GPU support for Dlib:
+* The Dockerfile [Dockerfile.flask-app-gpu](https://github.com/sanus-solutions/sanus_face_server/blob/server_dev/Dockerfile.flask-app-gpu) builds the container for the Flask app with Dlib compiled with CUDA and CuDnn, port 5000 is exposed.  
+* Building the dockerfile: ```docker build -t <app_image_name_here> -f Dockerfile.flask-app-gpu .``` (Compiling dlib might take a bit.)  
+* Running the docker container: ```docker run --runtime=nvidia --name <app_container_name> -it -p 5000:5000 --rm <app_image_name_here>``` Tags explained: ```--runtime=nvidia```: enable nvidia runtime in the docker container, ```-it```: interactive session, ```--rm```: container will be deleted once it exits, ```-p```: allow port traffic.  
+* Still very unstable with larger images, especially when ran side by side with TF serving container with GPU support. Sometimes throws ```CUDNN_STATUS_BAD_PARAM``` error and sometimes cuda throws out of memory error. If these errors occur, reduce the image size and try again.  
 
 ## Tensorflow Serving without GPU support:  
 * The Dockerfile [Dockerfile.serving-min](https://github.com/sanus-solutions/sanus_face_server/blob/server_dev/Dockerfile.serving-min) builds the minimum container for tensorflow serving without gpu support.  
