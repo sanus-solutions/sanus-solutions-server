@@ -1,12 +1,14 @@
 from __future__ import print_function
 import numpy as np
+import os, sys
+sys.path.append(os.path.abspath(''))
 from custom_clients import tf_serving_client#, graph
 from custom_clients import image_preprocessor_dlib
 from custom_clients import simple_graph
 # from custom_clients import image_preprocessor
 from flask import Flask, request
 from flask.cli import AppGroup
-import sys, json, base64
+import json, base64
 import tensorflow as tf
 from scipy import misc
 from config import config
@@ -17,7 +19,7 @@ import click
 
 app = Flask(__name__)
 serving_client = tf_serving_client.TFServingClient()
-rekog_client = boto3.client('rekognition')
+# rekog_client = boto3.client('rekognition')
 if config.USE_DLIB:
     dlib_preprocessor = image_preprocessor_dlib.DlibPreprocessor()
 graph = simple_graph.SimpleGraph()
@@ -88,7 +90,7 @@ def remove_node():
 """
 route for sanitizer clients
 request payload format:
-{'NodeID': node_id, 'Timestamp': tiemstamp, 'Image': image_64str, 'Shape': image_shape}
+{'NodeID': node_id, 'Timestamp': timestamp, 'Image': image_64str, 'Shape': image_shape}
 Responses: {'Status': no face'}/{'Status': 'face'}
 """
 @app.route('/sanushost/api/v1.0/sanitizer_img', methods=['POST'])
@@ -104,7 +106,7 @@ def receive_sanitizer_image():
     image = np.reshape(image, image_shape)
     if config.USE_DLIB:
         image_preprocessed = dlib_preprocessor.cnn_process(image)
-    if image_preprocessed == []:
+    if image_preprocessed.size == 0:
         return json.dumps({'Status': 'no face'})
     embeddings = serving_client.send_inference_request(image_preprocessed)
     print(embeddings)
@@ -130,7 +132,7 @@ def receive_entry_image():
     image = np.reshape(image, image_shape)
     if config.USE_DLIB:
         image_preprocessed = dlib_preprocessor.cnn_process(image)
-    if image_preprocessed == []:
+    if image_preprocessed.size == 0:
         return json.dumps({'Status': 'no face'})
     embeddings = serving_client.send_inference_request(image_preprocessed)
     result = graph.check_breach(embeddings, timestamp, location)
@@ -143,12 +145,12 @@ payload format:
 """
 @app.route('/sanushost/api/v1.0/check_staff', methods=['POST'])
 def check_staff():
-    json_data = request.get_json()
-    image = json_data['Image']
-    rekog_response = rekog_client.search_faces_by_image(CollectionId='staff',
-                                                        Image={'Bytes':image},
-                                                        FaceMatchThreshold=70,
-                                                        MaxFaces=2)
+    # json_data = request.get_json()
+    # image = json_data['Image']
+    # rekog_response = rekog_client.search_faces_by_image(CollectionId='staff',
+    #                                                     Image={'Bytes':image},
+    #                                                     FaceMatchThreshold=70,
+    #                                                     MaxFaces=2)
     #TODO: desgin response here
     return 0
 
