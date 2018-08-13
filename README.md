@@ -7,40 +7,14 @@ In a virtual env:
 1. In the ```sanus_face_server``` root directory, run ```pip install -r requirements.txt ```  
 2. Build dlib python bindings. (Don't use pip if there's CUDA/CuDNN installations on the system) Download [Dlib source](http://dlib.net/files/dlib-19.15.tar.bz2), untar, cd into the directory and run ```python setup.py install``` in your virtualenv. -->
 
-
 # Install Docker
 * Install docker, follow instruction for the OS where tensorflow serving model server will run (macos or linux).  
 * The ```docker``` commands listed below might need be ran with root access: ```sudo docker```  
 
-# Build the Dockerfiles and run containers  
-## Flask app container without GPU support for Dlib:  
-* The Dockerfile [Dockerfile.flask-app](https://github.com/sanus-solutions/sanus_face_server/blob/server_dev/Dockerfile.flask-app) builds the container for the Flask app, port 5000 is exposed.  
-* Building the dockerfile: ```docker build -t <app_image_name_here> -f Dockerfile.flask-app .``` (Installing dlib might take a bit.)  
-* Running the docker container: ```docker run --name <app_container_name> -it -p 5000:5000 --rm <app_image_name_here>``` Tags explained: ```-it```: interactive session, ```--rm```: container will be deleted once it exits, ```-p```: allow port traffic.  
-* Dlib will be slower when dealing with larger images since there's no gpu support.  
-
-## Flask app container with GPU support for Dlib:
-* The Dockerfile [Dockerfile.flask-app-gpu](https://github.com/sanus-solutions/sanus_face_server/blob/server_dev/Dockerfile.flask-app-gpu) builds the container for the Flask app with Dlib compiled with CUDA and CuDnn, port 5000 is exposed.  
-* Building the dockerfile: ```docker build -t <app_image_name_here> -f Dockerfile.flask-app-gpu .``` (Compiling dlib might take a bit.)  
-* Running the docker container: ```docker run --runtime=nvidia --name <app_container_name> -it -p 5000:5000 --rm <app_image_name_here>``` Tags explained: ```--runtime=nvidia```: enable nvidia runtime in the docker container, ```-it```: interactive session, ```--rm```: container will be deleted once it exits, ```-p```: allow port traffic.  
-* Still very unstable with larger images, especially when ran side by side with TF serving container with GPU support. Sometimes throws ```CUDNN_STATUS_BAD_PARAM``` error and sometimes cuda throws out of memory error. If these errors occur, reduce the image size and try again.  
-
-## Tensorflow Serving without GPU support:  
-* The Dockerfile [Dockerfile.serving-min](https://github.com/sanus-solutions/sanus_face_server/blob/server_dev/Dockerfile.serving-min) builds the minimum container for tensorflow serving without gpu support.  
-* Building the dockerfile: ```docker build -t <serving_image_name_here> -f Dockerfile.serving-min .```  
-* Running the docker container: ``` docker run --name <serving_container_name> -it -p 8500:8500 --rm <serving_image_name_here>```
-
-<!-- 1. There are 2 Dockerfiles. [Dockerfile](https://github.com/sanus-solutions/sanus-face-server/blob/master/Dockerfile) builds the minimal tensorflow serving container without GPU support, and [Dockerfile.devel](https://github.com/sanus-solutions/sanus-face-server/blob/master/Dockerfile.devel)(**Still in development**) builds the tensorflow serving container with GPU support. Note that the GPU support build uses bazel and will eat up all your RAM.  
-2. Build the container with: ```docker build --pull -t <your_image_name_here> .```  
-    or ```docker build --pull -t <your_image_name_here> -f Dockerfile.devel-gpu .``` 
-3. Now run a container with: ```docker run --name <your_container_name_here> -it <your_image_name_here> bash```  
-and this will start an interactive bash shell in the container. Now you can run the model server with the following:  
-```tensorflow_model_server --port=8500 --model_name=saved_model --model_base_path=/models``` Now the model server should be running in your Docker container. Note that you might have to ```cd ..``` once you're in the container bash. Just make sure you're in a directory that there's a ```\models``` directory.   -->
-
-## Tensorflow Serving with GPU support:  
-* The TF serving container will only run on a Linux host machine because there's no runtime support for macOS and Windows.  
-* The TF serving container with GPU support needs up-to-date NVIDIA driver and the NVIDIA Container Runtime ```nvidia-docker```.  
-* Check the list of packages for the gpu using: ```sudo ubuntu-drivers devices``` then use apt-get to install the driver package. For example:  
+# Install Nvidia Drivers and Nvidia Runtime for docker
+* This section is only for containers with GPU support. If you're only using the minimal containers without GPU support, you can skip this section.    
+* All containers with GPU support will only run on Linux host systems because the Nvidia Runtime ```nvidia-docker``` only supports Linux.  
+* Install Nvidia driver for GPU: first check the list of packages for the gpu using: ```sudo ubuntu-drivers devices``` then use apt-get to install the driver package. For example:  
 ```sh
 sudo ubuntu-drivers devices
 
@@ -75,6 +49,34 @@ sudo pkill -SIGHUP dockerd
 docker run --runtime=nvidia --rm nvidia/cuda nvidia-smi
 ```
 
+# Build the Dockerfiles and run containers  
+## Flask app container without GPU support for Dlib:  
+* The Dockerfile [Dockerfile.flask-app](https://github.com/sanus-solutions/sanus_face_server/blob/server_dev/Dockerfile.flask-app) builds the container for the Flask app, port 5000 is exposed.  
+* Building the dockerfile: ```docker build -t <app_image_name_here> -f Dockerfile.flask-app .``` (Installing dlib might take a bit.)  
+* Running the docker container: ```docker run --name <app_container_name> -it -p 5000:5000 --rm <app_image_name_here>``` Tags explained: ```-it```: interactive session, ```--rm```: container will be deleted once it exits, ```-p```: allow port traffic.  
+* Dlib will be slower when dealing with larger images since there's no gpu support.  
+
+## Flask app container with GPU support for Dlib:
+* The Dockerfile [Dockerfile.flask-app-gpu](https://github.com/sanus-solutions/sanus_face_server/blob/server_dev/Dockerfile.flask-app-gpu) builds the container for the Flask app with Dlib compiled with CUDA and CuDnn, port 5000 is exposed.  
+* Building the dockerfile: ```docker build -t <app_image_name_here> -f Dockerfile.flask-app-gpu .``` (Compiling dlib might take a bit.)  
+* Running the docker container: ```docker run --runtime=nvidia --name <app_container_name> -it -p 5000:5000 --rm <app_image_name_here>``` Tags explained: ```--runtime=nvidia```: enable nvidia runtime in the docker container, ```-it```: interactive session, ```--rm```: container will be deleted once it exits, ```-p```: allow port traffic.  
+* Still very unstable with larger images, especially when ran side by side with TF serving container with GPU support. Sometimes throws ```CUDNN_STATUS_BAD_PARAM``` error and sometimes cuda throws out of memory error. If these errors occur, reduce the image size and try again.  
+
+## Tensorflow Serving without GPU support:  
+* The Dockerfile [Dockerfile.serving-min](https://github.com/sanus-solutions/sanus_face_server/blob/server_dev/Dockerfile.serving-min) builds the minimum container for tensorflow serving without gpu support.  
+* Building the dockerfile: ```docker build -t <serving_image_name_here> -f Dockerfile.serving-min .```  
+* Running the docker container: ``` docker run --name <serving_container_name> -it -p 8500:8500 --rm <serving_image_name_here>```
+
+<!-- 1. There are 2 Dockerfiles. [Dockerfile](https://github.com/sanus-solutions/sanus-face-server/blob/master/Dockerfile) builds the minimal tensorflow serving container without GPU support, and [Dockerfile.devel](https://github.com/sanus-solutions/sanus-face-server/blob/master/Dockerfile.devel)(**Still in development**) builds the tensorflow serving container with GPU support. Note that the GPU support build uses bazel and will eat up all your RAM.  
+2. Build the container with: ```docker build --pull -t <your_image_name_here> .```  
+    or ```docker build --pull -t <your_image_name_here> -f Dockerfile.devel-gpu .``` 
+3. Now run a container with: ```docker run --name <your_container_name_here> -it <your_image_name_here> bash```  
+and this will start an interactive bash shell in the container. Now you can run the model server with the following:  
+```tensorflow_model_server --port=8500 --model_name=saved_model --model_base_path=/models``` Now the model server should be running in your Docker container. Note that you might have to ```cd ..``` once you're in the container bash. Just make sure you're in a directory that there's a ```\models``` directory.   -->
+
+## Tensorflow Serving with GPU support:  
+* The TF serving container will only run on a Linux host machine because there's no runtime support for macOS and Windows.  
+* The TF serving container with GPU support needs up-to-date NVIDIA driver and the NVIDIA Container Runtime ```nvidia-docker```.  
 * The Dockerfile [Dockerfile.serving-gpu](https://github.com/sanus-solutions/sanus_face_server/blob/server_dev/Dockerfile.serving-gpu) builds the TF serving container with gpu support. At line 130 of the Dockerfile, the number of jobs spawned by bazel is limited to 4. Bazel takes all the resorces it can. Although it'll be slower to build the image, it's not recommended to keep this parameter under 8.  
 * Building the Dockerfile: ```docker build -t <serving_image_name_here> -f Dockerfile.serving-gpu .```   
 * Running the Docker container: ```docker run --runtime=nvidia --name <serving_container_name> -it -p 8500:8500 --rm <serving_image_name_here>```  
