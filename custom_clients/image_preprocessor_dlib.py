@@ -20,7 +20,7 @@ class DlibPreprocessor():
         dets = self.detector(image, 1)
         num_faces = len(dets)
         if num_faces == 0:
-            return None
+            return np.array([])
         faces = dlib.full_object_detections()
         for detection in dets:
             faces.append(self.sp(image, detection))
@@ -35,7 +35,7 @@ class DlibPreprocessor():
         dets = self.cnn_detector(image, 1)
         num_faces = len(dets)
         if num_faces == 0:
-            return None
+            return np.array([])
         faces = dlib.full_object_detections()
         for detection in dets:
             faces.append(self.sp(image, detection.rect))

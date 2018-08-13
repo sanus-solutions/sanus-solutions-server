@@ -1,0 +1,30 @@
+# Copyright 2018 Sanus Solutions LLC
+# Dockerfile for sanus flask app container
+FROM tensorflow/tensorflow:latest-py3
+LABEL maintainer=billyzheng.bz@gmail.com
+RUN apt-get update -y && \
+	apt-get install -y \
+		python3-pip \
+		cmake \
+		&& \
+	apt-get clean && \
+	rm -rf /var/lib/apt/lists/*
+RUN pip3 --no-cache-dir install \
+	dlib \
+	Flask \
+	numpy \
+	scipy \
+	requests \
+	grpcio \
+	click \
+	boto3 \
+	tensorflow-serving-api
+
+COPY . /sanus_face_server
+ENV FLASK_APP=app.py
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
+EXPOSE 5000
+WORKDIR /sanus_face_server
+ENTRYPOINT ["flask"]
+CMD ["run", "--host=0.0.0.0"]

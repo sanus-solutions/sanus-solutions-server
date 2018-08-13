@@ -90,7 +90,8 @@ def remove_node():
 """
 route for sanitizer clients
 request payload format:
-{'NodeID': node_id, 'Timestamp': tiemstamp, 'Image': image_64str, 'Shape': image_shape}
+{'NodeID': node_id, 'Timestamp': timestamp, 'Image': image_64str, 'Shape': image_shape}
+Responses: {'Status': no face'}/{'Status': 'face'}
 """
 @app.route('/sanushost/api/v1.0/sanitizer_img', methods=['POST'])
 def receive_sanitizer_image():
@@ -99,22 +100,27 @@ def receive_sanitizer_image():
     timestamp = json_data['Timestamp']
     node_id = json_data['NodeID']
     image_shape = ast.literal_eval(json_data['Shape'])
-    image_str_b64 = base64.b64decode(image_str)
-    image = np.frombuffer(image_str_b64, dtype=np.float64)
+
+    # image_str_b64 = base64.b64decode(image_str)
+    image = np.frombuffer(base64.b64decode(image_str), dtype=np.float64)
     image = image.astype(np.uint8)
     image = np.reshape(image, image_shape)
     if config.USE_DLIB:
         image_preprocessed = dlib_preprocessor.cnn_process(image)
+
+    if image_preprocessed.size == 0:
+        return json.dumps({'Status': 'no face'})
     embeddings = serving_client.send_inference_request(image_preprocessed)
     print(embeddings)
     result = graph.update_node(embeddings, timestamp, node_id)
-    return json.dumps({'Status': result})
+    return json.dumps({'Status': 'face'})
 
 """
 route for entry clients
 request payload format:
 #TODO: add image shape information in payload
 {'Timestamp': tiemstamp, 'Location': location, 'Image': image_64str, 'Shape': image_shape}
+Responses: {'Status': no face'}/{'Status': 'face'}/{'JobID': job_id}
 """
 @app.route('/sanushost/api/v1.0/entry_img', methods=['POST'])
 def receive_entry_image():
@@ -128,6 +134,9 @@ def receive_entry_image():
     image = np.reshape(image, image_shape)
     if config.USE_DLIB:
         image_preprocessed = dlib_preprocessor.cnn_process(image)
+    if image_preprocessed.size == 0:
+        return json.dumps({'Status': 'no face'})
+
     embeddings = serving_client.send_inference_request(image_preprocessed)
     result = graph.check_breach(embeddings, timestamp, location)
     return json.dumps({'Status': result})

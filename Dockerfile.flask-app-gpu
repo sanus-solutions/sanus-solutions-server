@@ -1,0 +1,44 @@
+# Copyright 2018 Sanus Solutions LLC
+# Dockerfile for sanus flask app container with gpu support for TF and Dlib
+FROM nvidia/cuda:9.0-cudnn7-devel-ubuntu16.04
+LABEL maintainer=billyzheng.bz@gmail.com
+ENV DLIB_VER=19.15
+RUN apt-get update -y && \
+	apt-get install -y \
+		python3-pip \
+		cmake \
+		curl \
+		libopenblas-dev \
+		liblapack-dev \
+		&& \
+	apt-get clean && \
+	rm -rf /var/lib/apt/lists/*
+RUN pip3 --no-cache-dir install \
+	Flask \
+	numpy \
+	scipy \
+	requests \
+	grpcio \
+	click \
+	boto3 \
+	tensorflow-serving-api
+
+# installing dlib from source with GPU support
+RUN mkdir -p /dlib-tmp
+WORKDIR /dlib-tmp
+RUN export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64 && \
+	curl -L \
+	http://dlib.net/files/dlib-${DLIB_VER}.tar.bz2 \
+	-o dlib.tar.bz2 && \
+	tar xf dlib.tar.bz2 && \
+	cd dlib-${DLIB_VER} && \
+	python3 setup.py install --yes DLIB_USE_CUDA --yes USE_AVX_INSTRUCTIONS
+
+COPY . /sanus_face_server
+ENV FLASK_APP=app.py
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
+EXPOSE 5000
+WORKDIR /sanus_face_server
+ENTRYPOINT ["flask"]
+CMD ["run", "--host=0.0.0.0"]
