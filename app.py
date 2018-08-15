@@ -110,7 +110,8 @@ def receive_sanitizer_image():
         return json.dumps({'Status': 'no face'})
     embeddings = serving_client.send_inference_request(image_preprocessed)
     print(embeddings)
-    result = graph.update_node(embeddings, timestamp, node_id)
+    print(embeddings.shape)
+    result = graph.demo_update_node(embeddings, timestamp, node_id)
     return json.dumps({'Status': 'face'})
 
 """
@@ -125,9 +126,9 @@ def receive_entry_image():
     json_data = request.get_json()
     image_str = json_data['Image']
     timestamp = json_data['Timestamp']
-    location = json_data['Location']
+    location = json_data['NodeID']
     image_shape = ast.literal_eval(json_data['Shape'])
-    image = np.frombuffer(base64.decodestring(image_str), dtype=np.float64)
+    image = np.frombuffer(base64.b64decode(image_str), dtype=np.float64)
     image = image.astype(np.uint8)
     image = np.reshape(image, image_shape)
     if config.USE_DLIB:
@@ -135,7 +136,9 @@ def receive_entry_image():
     if image_preprocessed.size == 0:
         return json.dumps({'Status': 'no face'})
     embeddings = serving_client.send_inference_request(image_preprocessed)
-    result = graph.check_breach(embeddings, timestamp, location)
+    print(embeddings)
+    print(embeddings.shape)
+    result = graph.demo_check_breach(embeddings, timestamp, location)
     return json.dumps({'Status': result})
 
 """
