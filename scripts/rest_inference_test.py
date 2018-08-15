@@ -7,8 +7,8 @@ import scipy.misc
 import time
 
 url = 'http://localhost:5000/sanushost/api/v1.0/entry_img'
-image = dlib.load_rgb_image('/home/billyzheng/Downloads/lukas.jpg')
-# image = scipy.misc.imresize(image, 0.1)
+image = dlib.load_rgb_image('/home/billyzheng/Downloads/group.jpg')
+image = scipy.misc.imresize(image, 0.8)
 window = dlib.image_window()
 window.set_image(image)
 dlib.hit_enter_to_continue()

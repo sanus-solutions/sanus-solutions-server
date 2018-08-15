@@ -4,10 +4,10 @@ import numpy as np
 dlib preprocessing testing script
 """
 
-cnn_detector = dlib.cnn_face_detection_model_v1('/Users/billyzheng/sanus_face_server/model/mmod_human_face_detector.dat')
-sp = dlib.shape_predictor('/Users/billyzheng/sanus_face_server/model/shape_predictor_5_face_landmarks.dat')
+cnn_detector = dlib.cnn_face_detection_model_v1('/home/billyzheng/sanus_face_server/model/mmod_human_face_detector.dat')
+sp = dlib.shape_predictor('/home/billyzheng/sanus_face_server/model/shape_predictor_5_face_landmarks.dat')
 window = dlib.image_window()
-image = dlib.load_rgb_image('/Users/billyzheng/face_test/wjx_test_far_extreme.jpg')
+image = dlib.load_rgb_image('/home/billyzheng/Downloads/lukas.jpg')
 dets = cnn_detector(image, 1)
 print(len(dets))
 faces = dlib.full_object_detections()
