@@ -2,10 +2,6 @@
 There are two main components to the local server: the Flask webapp and the Tensorflow Serving module. Both of these components live in Docker containers, and the containers are connect via port 8500 on the TF serving container. And all communication between the camera nodes and the local server are through port 5000 on the Flask app container.
 
 # Install Dependencies for local server 
-<!-- **PLEASE USE VIRTUALENV**  
-In a virtual env:  
-1. In the ```sanus_face_server``` root directory, run ```pip install -r requirements.txt ```  
-2. Build dlib python bindings. (Don't use pip if there's CUDA/CuDNN installations on the system) Download [Dlib source](http://dlib.net/files/dlib-19.15.tar.bz2), untar, cd into the directory and run ```python setup.py install``` in your virtualenv. -->
 
 # Install Docker
 * Install docker, follow instruction for the OS where tensorflow serving model server will run (macos or linux).  

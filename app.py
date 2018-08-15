@@ -100,12 +100,14 @@ def receive_sanitizer_image():
     timestamp = json_data['Timestamp']
     node_id = json_data['NodeID']
     image_shape = ast.literal_eval(json_data['Shape'])
+
     # image_str_b64 = base64.b64decode(image_str)
     image = np.frombuffer(base64.b64decode(image_str), dtype=np.float64)
     image = image.astype(np.uint8)
     image = np.reshape(image, image_shape)
     if config.USE_DLIB:
         image_preprocessed = dlib_preprocessor.cnn_process(image)
+
     if image_preprocessed.size == 0:
         return json.dumps({'Status': 'no face'})
     embeddings = serving_client.send_inference_request(image_preprocessed)
@@ -124,7 +126,7 @@ Responses: {'Status': no face'}/{'Status': 'face'}/{'JobID': job_id}
 @app.route('/sanushost/api/v1.0/entry_img', methods=['POST'])
 def receive_entry_image():
     json_data = request.get_json()
-    image_str = json_data['Image']
+    image_str = str.encode(json_data['Image'])
     timestamp = json_data['Timestamp']
     location = json_data['NodeID']
     image_shape = ast.literal_eval(json_data['Shape'])
@@ -135,6 +137,7 @@ def receive_entry_image():
         image_preprocessed = dlib_preprocessor.cnn_process(image)
     if image_preprocessed.size == 0:
         return json.dumps({'Status': 'no face'})
+
     embeddings = serving_client.send_inference_request(image_preprocessed)
     print(embeddings)
     print(embeddings.shape)
