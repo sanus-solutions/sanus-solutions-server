@@ -39,5 +39,5 @@ class DlibPreprocessor():
         faces = dlib.full_object_detections()
         for detection in dets:
             faces.append(self.sp(image, detection.rect))
-        faces_list = np.asarray(dlib.get_face_chips(image, faces, size=config.IMAGE_SIZE))
+        faces_list = np.asarray(dlib.get_face_chips(image, faces, size=config.IMAGE_SIZE), dtype=np.float32)
         return faces_list
