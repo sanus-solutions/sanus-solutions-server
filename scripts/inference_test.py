@@ -23,16 +23,16 @@ cnn_detector = dlib.cnn_face_detection_model_v1('/home/billyzheng/sanus_face_ser
 sp = dlib.shape_predictor('/home/billyzheng/sanus_face_server/model/shape_predictor_5_face_landmarks.dat')
 image = dlib.load_rgb_image('/home/billyzheng/Downloads/brad.jpg')
 # image = scipy.misc.imresize(image, 0.35)
-
 dets = cnn_detector(image, 1)
 faces = dlib.full_object_detections()
 for detection in dets:
     faces.append(sp(image, detection.rect))
 faces_list = np.asarray(dlib.get_face_chips(image, faces, 160))
-# for face in faces_list:
+=# for face in faces_list:
 # 	window = dlib.image_window()
 # 	window.set_image(face)
 # 	dlib.hit_enter_to_continue()
+=
 
 request = predict_pb2.PredictRequest()
 request.model_spec.name = 'saved_model'
