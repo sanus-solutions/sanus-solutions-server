@@ -25,7 +25,7 @@ meta_file = '/home/billyzheng/sanus_face_server/model/20170512-110547/model-2017
 
 cnn_detector = dlib.cnn_face_detection_model_v1('/home/billyzheng/sanus_face_server/model/mmod_human_face_detector.dat')
 sp = dlib.shape_predictor('/home/billyzheng/sanus_face_server/model/shape_predictor_5_face_landmarks.dat')
-image = dlib.load_rgb_image('/home/billyzheng/Downloads/cgroup.jpg')
+image = dlib.load_rgb_image('/home/billyzheng/Downloads/luka.jpeg')
 dets = cnn_detector(image, 1)
 faces = dlib.full_object_detections()
 for detection in dets:
@@ -36,7 +36,7 @@ for face in faces_list:
     faces_list_w.append(prewhiten(face))
 faces_list_w_stack = np.stack(faces_list_w)
 
-image2 = dlib.load_rgb_image('/home/billyzheng/Downloads/brad.jpg')
+image2 = dlib.load_rgb_image('/home/billyzheng/Downloads/klausz.jpeg')
 dets2 = cnn_detector(image2, 1)
 faces2 = dlib.full_object_detections()
 for detection2 in dets2:
@@ -60,9 +60,10 @@ with tf.Session(graph=tf.Graph()) as sess:
 
     feed_dict1 = {img_in: faces_list_w_stack, phase_train_in:False}
     emb1 = sess.run(embeddings_out, feed_dict=feed_dict1)
-
+    np.save('demo_luka_emb.npy', emb1)
     feed_dict2 = {img_in: faces_list2, phase_train_in:False}
     emb2 = sess.run(embeddings_out, feed_dict=feed_dict2)
+    np.save('demo_klaus_emb.npy', emb2)
 
 for emb in emb1:
     print(np.sqrt(np.sum(np.square(np.subtract(emb, emb2)))))
