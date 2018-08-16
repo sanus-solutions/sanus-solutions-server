@@ -39,5 +39,17 @@ class DlibPreprocessor():
         faces = dlib.full_object_detections()
         for detection in dets:
             faces.append(self.sp(image, detection.rect))
-        faces_list = np.asarray(dlib.get_face_chips(image, faces, size=config.IMAGE_SIZE), dtype=np.float32)
-        return faces_list
+        faces_list = np.asarray(dlib.get_face_chips(image, faces, size=config.IMAGE_SIZE), dtype=np.float64)
+        faces_list_w = []
+        for face in faces_list:
+            faces_list_w.append(self.prewhiten(face))
+        faces_stack = np.stack(faces_list_w)
+
+        return faces_stack
+
+    def prewhiten(self, x):
+        mean = np.mean(x)
+        std = np.std(x)
+        std_adj = np.maximum(std, 1.0/np.sqrt(x.size))
+        y = np.multiply(np.subtract(x, mean), 1/std_adj)
+        return y 
