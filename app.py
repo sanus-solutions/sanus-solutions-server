@@ -111,8 +111,8 @@ def receive_sanitizer_image():
     if image_preprocessed.size == 0:
         return json.dumps({'Status': 'no face'})
     embeddings = serving_client.send_inference_request(image_preprocessed)
-    print(embeddings)
-    print(embeddings.shape)
+    # print(embeddings)
+    # print(embeddings.shape)
     result = graph.demo_update_node(embeddings, timestamp, node_id)
     return json.dumps({'Status': 'face'})
 
@@ -120,7 +120,7 @@ def receive_sanitizer_image():
 route for entry clients
 request payload format:
 #TODO: add image shape information in payload
-{'Timestamp': tiemstamp, 'Location': location, 'Image': image_64str, 'Shape': image_shape}
+{'Timestamp': tiemstamp, 'NodeID': node_id, 'Image': image_64str, 'Shape': image_shape}
 Responses: {'Status': no face'}/{'Status': 'face'}/{'JobID': job_id}
 """
 @app.route('/sanushost/api/v1.0/entry_img', methods=['POST'])
@@ -128,7 +128,7 @@ def receive_entry_image():
     json_data = request.get_json()
     image_str = str.encode(json_data['Image'])
     timestamp = json_data['Timestamp']
-    location = json_data['NodeID']
+    node_id = json_data['NodeID']
     image_shape = ast.literal_eval(json_data['Shape'])
     image = np.frombuffer(base64.b64decode(image_str), dtype=np.float64)
     image = image.astype(np.uint8)
@@ -139,9 +139,10 @@ def receive_entry_image():
         return json.dumps({'Status': 'no face'})
 
     embeddings = serving_client.send_inference_request(image_preprocessed)
-    print(embeddings)
-    print(embeddings.shape)
-    result = graph.demo_check_breach(embeddings, timestamp, location)
+    # print(embeddings)
+    # print(embeddings.shape)
+    # node_id not used here because demo
+    result = graph.demo_check_breach(embeddings, timestamp)
     return json.dumps({'Status': result})
 
 """

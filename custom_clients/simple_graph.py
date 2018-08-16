@@ -22,21 +22,27 @@ class SimpleGraph():
         self.demo_node_list = {'demo_sanitizer': {'neighbors': ['demo_entry'], 'node_type': 'san', 'embeddings': collections.deque(maxlen=10), 'timestamp': collections.deque(maxlen=10)}, 'demo_entry':{'neighbors': ['demo_entry'], 'node_type': 'ent', 'embeddings': collections.deque(maxlen=10), 'timestamp': collections.deque(maxlen=10)}}
         
     # DEMO USES ONLY METHODS BELOW
-    def demo_check_breach(self, embeddings, timestamp, node_id):
+    def demo_check_breach(self, embeddings, timestamp):
         # check klaus/luka first:
-        for emb in embeddings:
-            print(emb.shape)
-            ret = demo_util.check_staff(emb)
-            if ret:
+        for idx, emb in enumerate(embeddings):
+            staff = demo_util.check_staff(emb)
+            if staff:
                 # is staff, now check dispenser
-                node_emb_list = self.demo_node_list[node_id]['embeddings']
-                for node_emb in node_emb_list:
+                print('is staff')
+                node_emb_list = self.demo_node_list['demo_sanitizer']['embeddings']
+                timestamp_list = self.demo_node_list['demo_sanitizer']['timestamp']
+                for node_idx, node_emb in enumerate(node_emb_list):
                     if self.euclidean_distance(node_emb, emb) < demo_util.EUC_THRESH:
-                        return False
+                        print('found person in sanitizer list')
+                        time_diff = abs(timestamp[idx] - timestamp_list[node_idx])
+                        print(time_diff)
+                        return time_diff > demo_util.TIME_THRESH
                     else:
                         continue
+                print('person not in sanitizer list')
                 return True
             else:
+                print('not staff')
                 return False
     def demo_update_node(self, embeddings, timestamp, node_id):
         try:

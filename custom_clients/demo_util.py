@@ -1,6 +1,7 @@
 import numpy as np
 
 EUC_THRESH = 1.0
+TIME_THRESH = 30.0
 
 KLAUS_EMB = np.load('demo_klaus_emb.npy')
 LUKA_EMB = np.load('demo_luka_emb.npy')
