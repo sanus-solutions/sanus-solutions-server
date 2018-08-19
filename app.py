@@ -4,6 +4,7 @@ import os, sys
 sys.path.append(os.path.abspath(''))
 from custom_clients import tf_serving_client#, graph
 from custom_clients import image_preprocessor_dlib
+from custom_clients import image_preprocessor
 from custom_clients import simple_graph
 # from custom_clients import image_preprocessor
 from flask import Flask, request
@@ -20,8 +21,12 @@ import click
 app = Flask(__name__)
 serving_client = tf_serving_client.TFServingClient()
 # rekog_client = boto3.client('rekognition')
+dlib_preprocessor = image_preprocessor_dlib.DlibPreprocessor()
+mtcnn_preprocessor = image_preprocessor.MTCNNPreprocessor()
 if config.USE_DLIB:
-    dlib_preprocessor = image_preprocessor_dlib.DlibPreprocessor()
+    preprocessor = dlib_preprocessor
+elif config.USE_MTCNN:
+    preprocessor = mtcnn_preprocessor
 graph = simple_graph.SimpleGraph()
 
 """
@@ -105,8 +110,8 @@ def receive_sanitizer_image():
     image = np.frombuffer(base64.b64decode(image_str), dtype=np.float64)
     image = image.astype(np.uint8)
     image = np.reshape(image, image_shape)
-    if config.USE_DLIB:
-        image_preprocessed = dlib_preprocessor.cnn_process(image)
+
+    image_preprocessed = preprocessor.process(image)
 
     if image_preprocessed.size == 0:
         return json.dumps({'Status': 'no face'})
@@ -133,11 +138,10 @@ def receive_entry_image():
     image = np.frombuffer(base64.b64decode(image_str), dtype=np.float64)
     image = image.astype(np.uint8)
     image = np.reshape(image, image_shape)
-    if config.USE_DLIB:
-        image_preprocessed = dlib_preprocessor.cnn_process(image)
+
+    image_preprocessed = preprocessor.process(image)
     if image_preprocessed.size == 0:
         return json.dumps({'Status': 'no face'})
-
     embeddings = serving_client.send_inference_request(image_preprocessed)
     # print(embeddings)
     # print(embeddings.shape)
