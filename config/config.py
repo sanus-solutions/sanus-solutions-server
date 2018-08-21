@@ -14,7 +14,7 @@ TF_PORT = '8500'
 MODEL_SPEC_NAME = 'saved_model'
 
 # TF SERVING SETTINGS (preprocess)
-MTCNN_HOST = 'localhost'
+MTCNN_HOST = '172.168.0.4'
 MTCNN_PORT = '8500'
 MTCNN_MODEL_SPEC_NAME = 'saved_model'
 
