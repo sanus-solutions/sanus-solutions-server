@@ -48,7 +48,7 @@ class SimpleGraph():
         try:
             for i in range(9):
                 self.demo_node_list[node_id]['embeddings'].appendleft(embeddings[i])
-                self.demo_node_list[node_id]['timestamp'].appendleft(timestamp[i])
+                self.demo_node_list[node_id]['timestamp'].appendleft(timestamp)
             return True
         except IndexError:
             pass
