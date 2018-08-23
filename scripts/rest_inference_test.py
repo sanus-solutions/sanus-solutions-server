@@ -9,8 +9,8 @@ import time
 url = 'http://localhost:5000/sanushost/api/v1.0/entry_img'
 # url = 'http://localhost:5000/sanushost/api/v1.0/sanitizer_img'
 # image = dlib.load_rgb_image('/home/billyzheng/Downloads/klaus2.jpg')
-image = dlib.load_rgb_image('/home/billyzheng/Downloads/klaus3.jpeg')
-image = scipy.misc.imresize(image, 0.8)
+image = dlib.load_rgb_image('/home/billyzheng/Downloads/lukas.jpg')
+# image = scipy.misc.imresize(image, 0.8)
 
 shape_string = str(image.shape)
 image = image.astype(np.float64)
