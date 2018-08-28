@@ -15,6 +15,7 @@ from config import config
 import ast
 import boto3
 import click
+import time
 
 
 app = Flask(__name__)
@@ -95,25 +96,37 @@ Responses: {'Status': no face'}/{'Status': 'face'}
 """
 @app.route('/sanushost/api/v1.0/sanitizer_img', methods=['POST'])
 def receive_sanitizer_image():
+
+    current_time = time.time()
     json_data = request.get_json()
     image_str = json_data['Image']
     timestamp = json_data['Timestamp']
     node_id = json_data['NodeID']
+    print ("request time:", time.time() - current_time)
+    current_time = time.time()
     image_shape = ast.literal_eval(json_data['Shape'])
+    print ("eval time:", time.time() - current_time)
 
     # image_str_b64 = base64.b64decode(image_str)
     image = np.frombuffer(base64.b64decode(image_str), dtype=np.float64)
     image = image.astype(np.uint8)
     image = np.reshape(image, image_shape)
+
     if config.USE_DLIB:
+        current_time = time.time()
         image_preprocessed = dlib_preprocessor.cnn_process(image)
+        print ("Process time:", time.time() - current_time)
 
     if image_preprocessed.size == 0:
         return json.dumps({'Status': 'no face'})
+    current_time = time.time()
     embeddings = serving_client.send_inference_request(image_preprocessed)
+    print ('embedding time:', time.time() - current_time)
     # print(embeddings)
     # print(embeddings.shape)
+    current_time = time.time()
     result = graph.demo_update_node(embeddings, timestamp, node_id)
+    print ('update node time:', time.time() - current_time)
     return json.dumps({'Status': 'face'})
 
 """
@@ -125,20 +138,28 @@ Responses: {'Status': no face'}/{'Status': 'face'}/{'JobID': job_id}
 """
 @app.route('/sanushost/api/v1.0/entry_img', methods=['POST'])
 def receive_entry_image():
+    current_time = time.time()
     json_data = request.get_json()
     image_str = str.encode(json_data['Image'])
+    print ("getJson time:", time.time() - current_time)
     timestamp = json_data['Timestamp']
     node_id = json_data['NodeID']
+    current_time = time.time()
     image_shape = ast.literal_eval(json_data['Shape'])
     image = np.frombuffer(base64.b64decode(image_str), dtype=np.float64)
     image = image.astype(np.uint8)
     image = np.reshape(image, image_shape)
+    print ("eval time:", time.time() - current_time)
     if config.USE_DLIB:
+        current_time = time.time()
         image_preprocessed = dlib_preprocessor.cnn_process(image)
+        print ('Process time:', time.time() - current_time)
     if image_preprocessed.size == 0:
         return json.dumps({'Status': 'no face'})
 
+    current_time = time.time()
     embeddings = serving_client.send_inference_request(image_preprocessed)
+    print ('embedding time:', time.time() - current_time)
     # print(embeddings)
     # print(embeddings.shape)
     # node_id not used here because demo
@@ -147,7 +168,7 @@ def receive_entry_image():
 
 """
 route to check if high-risk face is a staff or patient
-payload format: 
+payload format:
 {'Image': image_64str}
 """
 @app.route('/sanushost/api/v1.0/check_staff', methods=['POST'])
@@ -163,4 +184,4 @@ def check_staff():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0', threaded=True)

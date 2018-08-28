@@ -1,4 +1,5 @@
 import numpy as np
+import time
 
 EUC_THRESH = 1.0
 TIME_THRESH = 30.0
@@ -21,10 +22,16 @@ def dist(emb1, emb2):
     return np.sqrt(np.sum(np.square(np.subtract(emb1, emb2))))
 
 def check_staff(emb):
+    current_time = time.time()
     euc_dist_klaus = euclidean_distance(emb, KLAUS_EMB)
     euc_dist_luka = euclidean_distance(emb, LUKA_EMB)
-    print('klaus dist: ' + str(euc_dist_klaus) + ', luka dist: ' + str(euc_dist_luka))
-    if (euc_dist_klaus < EUC_THRESH or euc_dist_luka < EUC_THRESH):
-        return True
+    #print('klaus dist: ' + str(euc_dist_klaus) + ', luka dist: ' + str(euc_dist_luka))
+    if (euc_dist_klaus < EUC_THRESH):
+        print ("Klaus' face detection took: %f s\n", time.time()-current_time)
+        return (True, "klaus")
+    elif (euc_dist_luka < EUC_THRESH):
+        print ("Luka's face detection took: %f s\n", time.time()-current_time)
+        return (True, "luka")
     else:
-        return False
+        print ("Face belongs to no one in database or other errors, took: %f s\n", time.time()-current_time)
+        return (False, "None")
