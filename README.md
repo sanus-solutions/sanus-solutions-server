@@ -1,3 +1,7 @@
+# KNOWN ISSUES:
+* Pretrained models trained on CASIA-WebFace and VGGFace2 has poor performance when it comes to Asian faces.
+* The docker images for the Flask app needs to be rebuilt everytime code is changed in the app. Look into mounting volumes when running docker.
+
 # Local Server structure  
 There are two main components to the local server: the Flask webapp and the Tensorflow Serving module. Both of these components live in Docker containers, and the containers are connect via port 8500 on the TF serving container. And all communication between the camera nodes and the local server are through port 5000 on the Flask app container.
 

@@ -33,4 +33,4 @@ class TFServingClient():
         request.inputs['phase'].CopyFrom(make_tensor_proto(False, dtype='bool'))
         result = self.stub.Predict(request, 10.0) # 10.0s timeout
         embeddings_np = self.response_to_np(result, 'out')
-        return {'embeddings': embeddings_np}, 200
+        return embeddings_np
