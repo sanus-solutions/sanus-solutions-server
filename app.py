@@ -89,6 +89,29 @@ def remove_node():
     return json.dumps({'Status': result})
 
 """
+route for adding known faces in the collection
+request payload format:
+{'Image': image_64str, 'Shape': image_shape, 'ID': person_name}
+Responses: {'Status': 'no face'}, {'Status': 'added'}, {'Status': 'add failed'}
+"""
+@app.route('/sanushost/api/v1.0/sanitizer_img', methods=['POST'])
+def add_face():
+    json_data = request.get_json()
+    image_str = json_data['Image']
+    image_shape = ast.literal_eval(json_data['Shape'])
+    image_id = json_data['ID']
+    image = np.frombuffer(base64.b64decode(image_str), dtype=np.float64)
+    image = image.astype(np.uint8)
+    image = np.reshape(image, image_shape)
+    if config.USE_DLIB:
+        image_preprocessed = dlib_preprocessor.cnn_process(image)
+    if image_preprocessed.size == 0:
+        return json.dumps({'Status': 'no face'})
+    embeddings = serving_client.send_inference_request(image_preprocessed)
+    #TODO: update face collection here
+    
+
+"""
 route for sanitizer clients
 request payload format:
 {'NodeID': node_id, 'Timestamp': timestamp, 'Image': image_64str, 'Shape': image_shape}
