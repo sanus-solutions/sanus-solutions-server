@@ -5,6 +5,7 @@ sys.path.append(os.path.abspath(''))
 from custom_clients import tf_serving_client#, graph
 from custom_clients import image_preprocessor_dlib
 from custom_clients import simple_graph
+from custon_clients import id_client
 # from custom_clients import image_preprocessor
 from flask import Flask, request
 from flask.cli import AppGroup
@@ -24,6 +25,7 @@ serving_client = tf_serving_client.TFServingClient()
 if config.USE_DLIB:
     dlib_preprocessor = image_preprocessor_dlib.DlibPreprocessor()
 graph = simple_graph.SimpleGraph()
+id_client = id_client.IdClient()
 
 """
 CLI tools
@@ -94,7 +96,7 @@ request payload format:
 {'Image': image_64str, 'Shape': image_shape, 'ID': person_name}
 Responses: {'Status': 'no face'}, {'Status': 'added'}, {'Status': 'add failed'}
 """
-@app.route('/sanushost/api/v1.0/sanitizer_img', methods=['POST'])
+@app.route('/sanushost/api/v1.0/add_face', methods=['POST'])
 def add_face():
     json_data = request.get_json()
     image_str = json_data['Image']
@@ -108,7 +110,9 @@ def add_face():
     if image_preprocessed.size == 0:
         return json.dumps({'Status': 'no face'})
     embeddings = serving_client.send_inference_request(image_preprocessed)
-    #TODO: update face collection here
+    status = id_client.add_staff(embeddings, image_id)
+    return json.dumps({'Status': status})
+    
     
 
 """
