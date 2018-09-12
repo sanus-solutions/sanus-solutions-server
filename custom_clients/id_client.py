@@ -16,8 +16,21 @@ class IdClient():
 
     def add_staff(self, emb, id):
         self.face_collection[id] = emb
-        with open('face_collection.pkl', 'wb') as f:
-            pickle.dump(self.face_collection, f)
+        try:
+            with open('face_collection.pkl', 'wb') as f:
+                pickle.dump(self.face_collection, f)
+                return 'success'
+        except:
+            return 'failed'
+
+    def remove_staff(self, id):
+        self.face_collection.pop(id)
+        try:
+            with open('face_collection.pkl', 'wb') as f:
+                pickle.dump(self.face_collection, f)
+                return 'success'
+        except:
+            return 'failed'
 
     def check_staff(self, emb):
         for staff_id in self.face_collection:

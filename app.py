@@ -94,7 +94,7 @@ def remove_node():
 route for adding known faces in the collection
 request payload format:
 {'Image': image_64str, 'Shape': image_shape, 'ID': person_name}
-Responses: {'Status': 'no face'}, {'Status': 'added'}, {'Status': 'add failed'}
+Responses: {'Status': 'no face'}, {'Status': 'success'}, {'Status': 'failed'}
 """
 @app.route('/sanushost/api/v1.0/add_face', methods=['POST'])
 def add_face():
@@ -113,7 +113,18 @@ def add_face():
     status = id_client.add_staff(embeddings, image_id)
     return json.dumps({'Status': status})
     
-    
+"""
+route for removing known face in the collection by id
+request payload format:
+{'ID': person_name}
+Response: {'Status': 'failed'} / {'Status': 'success'}
+"""
+@app.route('/sanushost/api/v1.0/remove_face', methods=['POST'])
+def remove_face():
+    json_data = request.get_json()
+    remove_id = json_data['ID']
+    status = id_client.remove_staff(remove_id)
+    return json.dumps({'Status': status})
 
 """
 route for sanitizer clients
