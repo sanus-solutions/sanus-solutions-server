@@ -5,7 +5,7 @@ sys.path.append(os.path.abspath(''))
 from custom_clients import tf_serving_client#, graph
 from custom_clients import image_preprocessor_dlib
 from custom_clients import simple_graph
-from custon_clients import id_client
+from custom_clients import id_client
 # from custom_clients import image_preprocessor
 from flask import Flask, request
 from flask.cli import AppGroup
@@ -201,6 +201,8 @@ def receive_entry_image():
     # print(embeddings)
     # print(embeddings.shape)
     # node_id not used here because demo
+    # ret = id_client.check_staff(embeddings)
+    # print(ret)
     result = graph.demo_check_breach(embeddings, timestamp)
     return json.dumps({'Status': result})
 

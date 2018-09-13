@@ -16,7 +16,7 @@ def add_images_dir(path_to_scan):
             if os.path.isfile(dirpath):
                 face_id = item.split('.')[0]
                 ret = add_image(dirpath, face_id)
-                if ret['Status'] == 'success':
+                if ret.json()['Status'] == 'success':
                     os.remove(dirpath)
 
 def add_image(filename, face_id):
