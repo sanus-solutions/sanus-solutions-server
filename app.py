@@ -118,6 +118,8 @@ def receive_sanitizer_image():
     if image_preprocessed.size == 0:
         return json.dumps({'Status': 'no face'})
     embeddings = serving_client.send_inference_request(image_preprocessed)
+    #### Record embedding
+
     # print(embeddings)
     # print(embeddings.shape)
     result = graph.demo_update_node(embeddings, timestamp, node_id)
@@ -147,15 +149,14 @@ def receive_entry_image():
     if image_preprocessed.size == 0:
         return json.dumps({'Status': 'no face'})
     embeddings = serving_client.send_inference_request(image_preprocessed)
-    # print(embeddings)
-    # print(embeddings.shape)
-    # node_id not used here because demo
-    result = graph.demo_check_breach(embeddings, timestamp)
-    return json.dumps({'Status': result})
+    # return json.dumps({'embedding' : np.array2stringeddings)})
+
+    result, staff = graph.demo_check_breach(embeddings, timestamp)
+    return json.dumps({'Status': result, 'Staff': staff})
 
 """
 route to check if high-risk face is a staff or patient
-payload format: 
+payload format:
 {'Image': image_64str}
 """
 @app.route('/sanushost/api/v1.0/check_staff', methods=['POST'])
