@@ -16,17 +16,17 @@ class SimpleGraph():
         self.node_list = {}
         self.time_thresh = 100 # seconds
         self.dist_thresh = 0.15 # TODO: what's a good similarity threshold here????
-        
+
 
         # DEMO USES ONLY ATTRIBUTES BELOW
         self.demo_node_list = {'demo_sanitizer': {'neighbors': ['demo_entry'], 'node_type': 'san', 'embeddings': collections.deque(maxlen=10), 'timestamp': collections.deque(maxlen=10)}, 'demo_entry':{'neighbors': ['demo_entry'], 'node_type': 'ent', 'embeddings': collections.deque(maxlen=10), 'timestamp': collections.deque(maxlen=10)}}
-        
+
     # DEMO USES ONLY METHODS BELOW
     def demo_check_breach(self, embeddings, timestamp):
         # check klaus/luka first:
         for idx, emb in enumerate(embeddings):
             staff = demo_util.check_staff(emb)
-            if staff:
+            if staff[0]:
                 # is staff, now check dispenser
                 print('is staff')
                 node_emb_list = self.demo_node_list['demo_sanitizer']['embeddings']
@@ -36,11 +36,11 @@ class SimpleGraph():
                         print('found person in sanitizer list')
                         time_diff = abs(timestamp[idx] - timestamp_list[node_idx])
                         print(time_diff)
-                        return time_diff > demo_util.TIME_THRESH
+                        return time_diff > demo_util.TIME_THRESH, staff[1]
                     else:
                         continue
                 print('person not in sanitizer list')
-                return True
+                return True, staff[1]
             else:
                 print('not staff')
                 return False
@@ -141,5 +141,3 @@ class SimpleGraph():
                 else:
                     return 1
         return 1
-
-    
