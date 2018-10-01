@@ -1,3 +1,5 @@
+import os, sys
+sys.path.append(os.path.abspath('..'))
 import numpy as np
 import time
 from sanus_face_server.custom_clients import demo_util
@@ -24,11 +26,11 @@ class SimpleGraph():
     # DEMO USES ONLY METHODS BELOW
     def demo_check_breach(self, embeddings, timestamp):
         # check klaus/luka first:
+        current_time = time.time()
         for idx, emb in enumerate(embeddings):
             staff = demo_util.check_staff(emb)
             if staff[0]:
                 # is staff, now check dispenser
-                print('is staff')
                 node_emb_list = self.demo_node_list['demo_sanitizer']['embeddings']
                 timestamp_list = self.demo_node_list['demo_sanitizer']['timestamp']
                 for node_idx, node_emb in enumerate(node_emb_list):
@@ -42,8 +44,9 @@ class SimpleGraph():
                 print('person not in sanitizer list')
                 return True, staff[1]
             else:
-                print('not staff')
-                return False
+                print("None staff's face detected")
+                return (False, name)
+
     def demo_update_node(self, embeddings, timestamp, node_id):
         try:
             for i in range(9):
@@ -55,9 +58,6 @@ class SimpleGraph():
         except KeyError:
             print('Node ' + node_id + ' not found. You fucked up how could you fuck this up when there is only two demo nodes.')
             return False
-
-
-
 
     """loss metrics"""
     def cosine_similarity(self, emb1, emb2):

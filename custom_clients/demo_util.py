@@ -1,4 +1,5 @@
 import numpy as np
+import time
 
 EUC_THRESH = 1.0
 TIME_THRESH = 30.0
@@ -21,6 +22,7 @@ def dist(emb1, emb2):
     return np.sqrt(np.sum(np.square(np.subtract(emb1, emb2))))
 
 def check_staff(emb):
+    current_time = time.time()
     euc_dist_klaus = euclidean_distance(emb, KLAUS_EMB)
     euc_dist_luka = euclidean_distance(emb, LUKA_EMB)
     #print('klaus dist: ' + str(euc_dist_klaus) + ', luka dist: ' + str(euc_dist_luka))
