@@ -1,3 +1,5 @@
+import os, sys
+sys.path.append(os.path.abspath('..'))
 import numpy as np
 import time
 from sanus_face_server.custom_clients import demo_util
@@ -16,34 +18,34 @@ class SimpleGraph():
         self.node_list = {}
         self.time_thresh = 100 # seconds
         self.dist_thresh = 0.15 # TODO: what's a good similarity threshold here????
-        
+
 
         # DEMO USES ONLY ATTRIBUTES BELOW
         self.demo_node_list = {'demo_sanitizer': {'neighbors': ['demo_entry'], 'node_type': 'san', 'embeddings': collections.deque(maxlen=10), 'timestamp': collections.deque(maxlen=10)}, 'demo_entry':{'neighbors': ['demo_entry'], 'node_type': 'ent', 'embeddings': collections.deque(maxlen=10), 'timestamp': collections.deque(maxlen=10)}}
-        
+
     # DEMO USES ONLY METHODS BELOW
     def demo_check_breach(self, embeddings, timestamp):
         # check klaus/luka first:
+        current_time = time.time()
         for idx, emb in enumerate(embeddings):
-            staff = demo_util.check_staff(emb)
+            staff, name = demo_util.check_staff(emb)
             if staff:
                 # is staff, now check dispenser
-                print('is staff')
                 node_emb_list = self.demo_node_list['demo_sanitizer']['embeddings']
                 timestamp_list = self.demo_node_list['demo_sanitizer']['timestamp']
                 for node_idx, node_emb in enumerate(node_emb_list):
                     if self.euclidean_distance(node_emb, emb) < demo_util.EUC_THRESH:
-                        print('found person in sanitizer list')
-                        time_diff = abs(timestamp[idx] - timestamp_list[node_idx])
-                        print(time_diff)
+                        time_diff = abs(timestamp - timestamp_list[node_idx])
+                        print("Staff member last washed hands at: %f s, check breach took: %f s\n" ,time_diff , time.time() - current_time)
                         return time_diff > demo_util.TIME_THRESH
                     else:
                         continue
-                print('person not in sanitizer list')
-                return True
+                print("Staff's face detected, but no hand wash history found. check breach took: %f s\n", time.time() - current_time)
+                return (True, name)
             else:
-                print('not staff')
-                return False
+                print("None staff's face detected")
+                return (False, name)
+
     def demo_update_node(self, embeddings, timestamp, node_id):
         try:
             for i in range(9):
@@ -55,9 +57,6 @@ class SimpleGraph():
         except KeyError:
             print('Node ' + node_id + ' not found. You fucked up how could you fuck this up when there is only two demo nodes.')
             return False
-
-
-
 
     """loss metrics"""
     def cosine_similarity(self, emb1, emb2):
@@ -141,5 +140,3 @@ class SimpleGraph():
                 else:
                     return 1
         return 1
-
-    
