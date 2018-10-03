@@ -36,7 +36,8 @@ class SimpleGraph():
                 for node_idx, node_emb in enumerate(node_emb_list):
                     if self.euclidean_distance(node_emb, emb) < demo_util.EUC_THRESH:
                         print('found person in sanitizer list')
-                        time_diff = abs(timestamp[idx] - timestamp_list[node_idx])
+                        #time_diff = abs(timestamp[idx] - timestamp_list[node_idx])
+                        time_diff = abs(timestamp - timestamp_list[node_idx])
                         print(time_diff)
                         return time_diff > demo_util.TIME_THRESH, staff[1]
                     else:
@@ -45,7 +46,7 @@ class SimpleGraph():
                 return True, staff[1]
             else:
                 print("None staff's face detected")
-                return (False, name)
+                return False, None
 
     def demo_update_node(self, embeddings, timestamp, node_id):
         try:
@@ -58,6 +59,21 @@ class SimpleGraph():
         except KeyError:
             print('Node ' + node_id + ' not found. You fucked up how could you fuck this up when there is only two demo nodes.')
             return False
+
+    ## upgraded method based on demo_update_node()
+    ## tested
+    def demo_update_node_and_return_face(self, embeddings, timestamp, node_id):
+        emb_list = []
+        for emb in embeddings:
+            staff = demo_util.check_staff(emb)
+            if staff[0]:
+                emb_list = emb_list + [staff[1]]
+                self.demo_node_list[node_id]['embeddings'].appendleft(emb)
+                self.demo_node_list[node_id]['timestamp'].appendleft(timestamp)
+        if emb_list:
+            return True, emb_list
+        else:
+            return False, None
 
     """loss metrics"""
     def cosine_similarity(self, emb1, emb2):

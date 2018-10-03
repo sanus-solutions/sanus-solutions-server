@@ -163,16 +163,16 @@ def receive_sanitizer_image():
 
     if image_preprocessed.size == 0:
         return json.dumps({'Status': 'no face'})
-    current_time = time.time()
     embeddings = serving_client.send_inference_request(image_preprocessed)
-    #### Record embedding
 
-    # print(embeddings)
-    # print(embeddings.shape)
     current_time = time.time()
     result = graph.demo_update_node(embeddings, timestamp, node_id)
     print ('update node time:', time.time() - current_time)
     return json.dumps({'Status': 'face'})
+    # if result[0]:
+    #     return json.dumps({'Status': 'face', 'staffID' : ''.join(result[1])})
+    # else:
+    #     return json.dumps({'Status': 'face'})
 
 """
 route for entry clients
@@ -200,12 +200,42 @@ def receive_entry_image():
 
     image_preprocessed = preprocessor.process(image)
     if image_preprocessed.size == 0:
-        return json.dumps({'Status': 'no face'})
+        return json.dumps({'Status': 'no face', 'StaffID': None})
     embeddings = serving_client.send_inference_request(image_preprocessed)
-    # return json.dumps({'embedding' : np.array2stringeddings)})
 
     result, staff = graph.demo_check_breach(embeddings, timestamp)
-    return json.dumps({'Status': result, 'Staff': staff})
+    return json.dumps({'Status': result, 'StaffID': staff})
+
+"""
+route for embedding
+request payload format:
+#TODO: add image shape information in payload
+{'Timestamp': tiemstamp, 'NodeID': node_id, 'Image': image_64str, 'Shape': image_shape}
+Responses: {'embedding' : np.array2stringeddings)}
+"""
+@app.route('/sanushost/api/v1.0/emb_img', methods=['POST'])
+def receive_emb_image():
+    current_time = time.time()
+    json_data = request.get_json()
+    image_str = str.encode(json_data['Image'])
+    timestamp = json_data['Timestamp']
+    node_id = json_data['NodeID']
+    current_time = time.time()
+    image_shape = ast.literal_eval(json_data['Shape'])
+    image = np.frombuffer(base64.b64decode(image_str), dtype=np.float64)
+    image = image.astype(np.uint8)
+    image = np.reshape(image, image_shape)
+
+    if config.USE_MTCNN:
+        image = image[...,::-1]
+
+    image_preprocessed = preprocessor.process(image)
+    if image_preprocessed.size == 0:
+        return json.dumps({'Status': 'no face', 'StaffID': None})
+    embeddings = serving_client.send_inference_request(image_preprocessed)
+    return json.dumps({'embedding' : np.array2stringeddings})
+
+
 
 """
 route to check if high-risk face is a staff or patient
