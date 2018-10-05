@@ -34,4 +34,4 @@ parser = argparse.ArgumentParser(description='Adding face to face collection')
 parser.add_argument('path_to_scan', type=str, help='path of directory to scan')
 args = parser.parse_args()
 
-add_images_dir(args.path_to_scan);
+add_images_dir(args.path_to_scan)

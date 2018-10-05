@@ -2,7 +2,7 @@ import os, sys
 sys.path.append(os.path.abspath('..'))
 import numpy as np
 import time
-from sanus_face_server.custom_clients import demo_util
+from sanus_face_server.custom_clients import id_client
 import collections
 
 """
@@ -14,11 +14,12 @@ class SimpleGraph():
     node_list is a dictionary with node_id as key and info of node as value
     node info is a dictionary with neighbors, node type, latest embeddings, and latest timestamp
     """
-    def __init__(self):
+    def __init__(self, id_client):
         self.node_list = {}
         self.time_thresh = 100 # seconds
         self.dist_thresh = 0.15 # TODO: what's a good similarity threshold here????
-
+        # self.id_client = id_client.IdClient()
+        self.id_client = id_client
 
         # DEMO USES ONLY ATTRIBUTES BELOW
         self.demo_node_list = {'demo_sanitizer': {'neighbors': ['demo_entry'], 'node_type': 'san', 'embeddings': collections.deque(maxlen=10), 'timestamp': collections.deque(maxlen=10)}, 'demo_entry':{'neighbors': ['demo_entry'], 'node_type': 'ent', 'embeddings': collections.deque(maxlen=10), 'timestamp': collections.deque(maxlen=10)}}
@@ -28,18 +29,18 @@ class SimpleGraph():
         # check klaus/luka first:
         current_time = time.time()
         for idx, emb in enumerate(embeddings):
-            staff = demo_util.check_staff(emb)
+            staff = self.id_client.check_staff(emb)
             if staff[0]:
                 # is staff, now check dispenser
                 node_emb_list = self.demo_node_list['demo_sanitizer']['embeddings']
                 timestamp_list = self.demo_node_list['demo_sanitizer']['timestamp']
                 for node_idx, node_emb in enumerate(node_emb_list):
-                    if self.euclidean_distance(node_emb, emb) < demo_util.EUC_THRESH:
+                    if self.euclidean_distance(node_emb, emb) < self.id_client.EUC_THRESH:
                         print('found person in sanitizer list')
                         #time_diff = abs(timestamp[idx] - timestamp_list[node_idx])
                         time_diff = abs(timestamp - timestamp_list[node_idx])
                         print(time_diff)
-                        return time_diff > demo_util.TIME_THRESH, staff[1]
+                        return time_diff > self.id_client.TIME_THRESH, staff[1]
                     else:
                         continue
                 print('person not in sanitizer list')
@@ -65,7 +66,7 @@ class SimpleGraph():
     def demo_update_node_and_return_face(self, embeddings, timestamp, node_id):
         emb_list = []
         for emb in embeddings:
-            staff = demo_util.check_staff(emb)
+            staff = self.id_client.check_staff(emb)
             if staff[0]:
                 emb_list = emb_list + [staff[1]]
                 self.demo_node_list[node_id]['embeddings'].appendleft(emb)

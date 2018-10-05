@@ -5,3 +5,9 @@ __pycache__/
 config/__pycache__/
 custom_clients/__pycache__/
 model/
+*.jpg
+*.jpeg
+*.png
+
+*.pb
+*.dat

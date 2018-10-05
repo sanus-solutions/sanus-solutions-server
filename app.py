@@ -29,8 +29,9 @@ if config.USE_DLIB:
     preprocessor = dlib_preprocessor
 elif config.USE_MTCNN:
     preprocessor = mtcnn_preprocessor
-graph = simple_graph.SimpleGraph()
+
 id_client = id_client.IdClient()
+graph = simple_graph.SimpleGraph(id_client)
 
 """
 CLI tools
@@ -110,8 +111,10 @@ def add_face():
     image = np.frombuffer(base64.b64decode(image_str), dtype=np.float64)
     image = image.astype(np.uint8)
     image = np.reshape(image, image_shape)
-    if config.USE_DLIB:
-        image_preprocessed = dlib_preprocessor.cnn_process(image)
+    if config.USE_MTCNN:
+        image = image[...,::-1]
+
+    image_preprocessed = preprocessor.process(image)
     if image_preprocessed.size == 0:
         return json.dumps({'Status': 'no face'})
     embeddings = serving_client.send_inference_request(image_preprocessed)
