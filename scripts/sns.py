@@ -10,7 +10,7 @@ sns = boto3.client(
 
 # Send a SMS message to the specified phone number
 response = sns.publish(
-    # PhoneNumber='1-678-524-6213',
+    PhoneNumber='1-678-524-6213',
     Message='Sanus Solutions Alert: Luka, you need to focus now.',
 )
 
