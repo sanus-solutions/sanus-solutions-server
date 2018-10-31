@@ -1,7 +1,8 @@
 import numpy as np
 import pickle
+# import boto3 
+import socket
 # TODO import file with face collection data structure
-
 
 class IdClient():
     def __init__(self):
@@ -16,6 +17,7 @@ class IdClient():
                 self.face_collection = {}
                 pickle.dump(dict(), f)
             print('new face collection created')
+
     def cosine_similarity(self, emb1, emb2):
         return np.dot(emb1, emb2)/(np.sqrt(np.sum(np.square(emb1))*np.sum(np.square(emb2))))
 
@@ -41,10 +43,8 @@ class IdClient():
             return 'failed'
 
     def check_staff(self, emb):
-        print(self.face_collection)
         for staff_id in self.face_collection:
             euc_dist = self.euclidean_distance(emb, self.face_collection[staff_id])
-            print (euc_dist)
             if euc_dist < self.EUC_THRESH:
                 return (True, staff_id)
         return (False, None)

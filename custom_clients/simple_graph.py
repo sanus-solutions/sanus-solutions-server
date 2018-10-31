@@ -4,6 +4,7 @@ import numpy as np
 import time
 from sanus_face_server.custom_clients import id_client
 import collections
+import boto3
 
 """
 minimal implementation of graph structure
@@ -24,9 +25,22 @@ class SimpleGraph():
         # DEMO USES ONLY ATTRIBUTES BELOW
         self.demo_node_list = {'demo_sanitizer': {'neighbors': ['demo_entry'], 'node_type': 'san', 'embeddings': collections.deque(maxlen=10), 'timestamp': collections.deque(maxlen=10)}, 'demo_entry':{'neighbors': ['demo_entry'], 'node_type': 'ent', 'embeddings': collections.deque(maxlen=10), 'timestamp': collections.deque(maxlen=10)}}
 
+        #temporary sns 
+        # self.REMOTE_SERVER = "www.google.com"
+        # self.sns = boto3.client(
+        #     'sns',
+        #     aws_access_key_id='AKIAIL7SBOJ2DA3ONVKQ',
+        #     aws_secret_access_key='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',
+        #     region_name='us-east-1'
+        #     )
+        # self.phone_book = {'klaus':'1-404-632-3234', 
+        #     'luka':'1-678-524-6213',
+        #     'billy':'1-404-697-3073',
+        #     'sally': '1-404-242-9547'}
+
+
     # DEMO USES ONLY METHODS BELOW
     def demo_check_breach(self, embeddings, timestamp):
-        # check klaus/luka first:
         current_time = time.time()
         for idx, emb in enumerate(embeddings):
             staff = self.id_client.check_staff(emb)
@@ -37,13 +51,15 @@ class SimpleGraph():
                 for node_idx, node_emb in enumerate(node_emb_list):
                     if self.euclidean_distance(node_emb, emb) < self.id_client.EUC_THRESH:
                         print('found person in sanitizer list')
-                        #time_diff = abs(timestamp[idx] - timestamp_list[node_idx])
                         time_diff = abs(timestamp - timestamp_list[node_idx])
-                        print(time_diff)
                         return time_diff > self.id_client.TIME_THRESH, staff[1]
                     else:
                         continue
-                print('person not in sanitizer list')
+                # print('person not in sanitizer list', self.sns.publish(
+                #     PhoneNumber=self.phone_book[staff[1]],
+                #     Message="Sanus Solutions Alert:" + staff[1] + ", Don't forget to wash your hand",
+                # ))
+                # self.phone_book.pop(staff[1])
                 return True, staff[1]
             else:
                 print("None staff's face detected")
