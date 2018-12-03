@@ -18,7 +18,7 @@ import ast
 import boto3
 import click
 import time
-
+# import threading
 
 app = Flask(__name__)
 serving_client = tf_serving_client.TFServingClient()
