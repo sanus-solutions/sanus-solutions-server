@@ -18,7 +18,7 @@ import ast
 import boto3
 import click
 import time
-
+# import threading
 
 app = Flask(__name__)
 serving_client = tf_serving_client.TFServingClient()
@@ -143,15 +143,11 @@ Responses: {'Status': no face'}/{'Status': 'face'}
 @app.route('/sanushost/api/v1.0/sanitizer_img', methods=['POST'])
 def receive_sanitizer_image():
 
-    current_time = time.time()
     json_data = request.get_json()
     image_str = json_data['Image']
     timestamp = json_data['Timestamp']
     node_id = json_data['NodeID']
-    print ("request time:", time.time() - current_time)
-    current_time = time.time()
     image_shape = ast.literal_eval(json_data['Shape'])
-    print ("eval time:", time.time() - current_time)
 
     # image_str_b64 = base64.b64decode(image_str)
     image = np.frombuffer(base64.b64decode(image_str), dtype=np.float64)
@@ -165,13 +161,35 @@ def receive_sanitizer_image():
 
 
     if image_preprocessed.size == 0:
-        return json.dumps({'Status': 'no face'})
+        return json.dumps({'Status': 'no face', 'Staff' : 'None'})
     embeddings = serving_client.send_inference_request(image_preprocessed)
 
     current_time = time.time()
     result = graph.demo_update_node(embeddings, timestamp, node_id)
+
+    ### Druid Decoration ###
+    staff_id = graph.demo_check_staff(embeddings)
+    if result: 
+        payload = {
+            'time' : timestamp,
+            'type' : 'Dispenser',
+            'nodeID' : node_id,
+            'staffID' : staff_id,
+            'unit' : 'ICU',
+            'room_number' : '25',
+            'response_type' : 'None',
+            'response_message' : 'None',
+        }
+
+        try:
+            result = requests.post('http://192.168.0.107:8200/v1/post/hospital', 
+                json=payload, 
+                headers={'Content_Type': 'application/json'}
+            )
+        except:
+            pass
     print ('update node time:', time.time() - current_time)
-    return json.dumps({'Status': 'face'})
+    return json.dumps({'Status': 'face', 'Staff' : staff_id})
     # if result[0]:
     #     return json.dumps({'Status': 'face', 'staffID' : ''.join(result[1])})
     # else:

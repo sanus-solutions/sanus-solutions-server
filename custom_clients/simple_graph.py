@@ -4,6 +4,7 @@ import numpy as np
 import time
 from sanus_face_server.custom_clients import id_client
 import collections
+import boto3
 
 """
 minimal implementation of graph structure
@@ -26,7 +27,6 @@ class SimpleGraph():
 
     # DEMO USES ONLY METHODS BELOW
     def demo_check_breach(self, embeddings, timestamp):
-        # check klaus/luka first:
         current_time = time.time()
         for idx, emb in enumerate(embeddings):
             staff = self.id_client.check_staff(emb)
@@ -36,15 +36,12 @@ class SimpleGraph():
                 timestamp_list = self.demo_node_list['demo_sanitizer']['timestamp']
                 for node_idx, node_emb in enumerate(node_emb_list):
                     if self.euclidean_distance(node_emb, emb) < self.id_client.EUC_THRESH:
-                        print('found person in sanitizer list')
-                        #time_diff = abs(timestamp[idx] - timestamp_list[node_idx])
                         time_diff = abs(timestamp - timestamp_list[node_idx])
-                        print(time_diff)
-                        return time_diff > self.id_client.TIME_THRESH, staff[1]
+                        print('found person in sanitizer list', time_diff)
+                        return time_diff < self.id_client.TIME_THRESH, staff[1]
                     else:
                         continue
-                print('person not in sanitizer list')
-                return True, staff[1]
+                return False, staff[1]
             else:
                 print("None staff's face detected")
                 return False, None
@@ -54,6 +51,8 @@ class SimpleGraph():
             for i in range(9):
                 self.demo_node_list[node_id]['embeddings'].appendleft(embeddings[i])
                 self.demo_node_list[node_id]['timestamp'].appendleft(timestamp)
+
+            print("Node updated")
             return True
         except IndexError:
             pass
@@ -61,20 +60,13 @@ class SimpleGraph():
             print('Node ' + node_id + ' not found. You fucked up how could you fuck this up when there is only two demo nodes.')
             return False
 
-    ## upgraded method based on demo_update_node()
-    ## tested
-    def demo_update_node_and_return_face(self, embeddings, timestamp, node_id):
-        emb_list = []
-        for emb in embeddings:
+    def demo_check_staff(self, embeddings):
+        for idx, emb in enumerate(embeddings):
             staff = self.id_client.check_staff(emb)
             if staff[0]:
-                emb_list = emb_list + [staff[1]]
-                self.demo_node_list[node_id]['embeddings'].appendleft(emb)
-                self.demo_node_list[node_id]['timestamp'].appendleft(timestamp)
-        if emb_list:
-            return True, emb_list
-        else:
-            return False, None
+                return str(staff[1])
+            else:
+                return 'None'
 
     """loss metrics"""
     def cosine_similarity(self, emb1, emb2):

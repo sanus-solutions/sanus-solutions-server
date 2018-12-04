@@ -1,6 +1,6 @@
 import requests, argparse, os
 
-ADD_FACE_URL = 'http://localhost:5000/sanushost/api/v1.0/remove_face'
+ADD_FACE_URL = 'http://192.168.0.103:5000/sanushost/api/v1.0/remove_face'
 
 def remove_image(name):
     payload = {"ID" : name}
