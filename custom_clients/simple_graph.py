@@ -36,12 +36,12 @@ class SimpleGraph():
                 timestamp_list = self.demo_node_list['demo_sanitizer']['timestamp']
                 for node_idx, node_emb in enumerate(node_emb_list):
                     if self.euclidean_distance(node_emb, emb) < self.id_client.EUC_THRESH:
-                        print('found person in sanitizer list')
                         time_diff = abs(timestamp - timestamp_list[node_idx])
-                        return time_diff > self.id_client.TIME_THRESH, staff[1]
+                        print('found person in sanitizer list', time_diff)
+                        return time_diff < self.id_client.TIME_THRESH, staff[1]
                     else:
                         continue
-                return True, staff[1]
+                return False, staff[1]
             else:
                 print("None staff's face detected")
                 return False, None
@@ -51,7 +51,8 @@ class SimpleGraph():
             for i in range(9):
                 self.demo_node_list[node_id]['embeddings'].appendleft(embeddings[i])
                 self.demo_node_list[node_id]['timestamp'].appendleft(timestamp)
-                ### Druid Decoration ###
+
+            print("Node updated")
             return True
         except IndexError:
             pass
@@ -59,12 +60,13 @@ class SimpleGraph():
             print('Node ' + node_id + ' not found. You fucked up how could you fuck this up when there is only two demo nodes.')
             return False
 
-    def simple_druid_request(self, payload):
-        result = requests.post('http://192.168.0.105:8200/v1/post/hospital', 
-            json=payload, 
-            headers={'Content_Type': 'application/json'}
-        )
-        return result
+    def demo_check_staff(self, embeddings):
+        for idx, emb in enumerate(embeddings):
+            staff = self.id_client.check_staff(emb)
+            if staff[0]:
+                return str(staff[1])
+            else:
+                return 'None'
 
     """loss metrics"""
     def cosine_similarity(self, emb1, emb2):
