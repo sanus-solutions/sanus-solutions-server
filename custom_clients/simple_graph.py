@@ -51,6 +51,7 @@ class SimpleGraph():
             for i in range(9):
                 self.demo_node_list[node_id]['embeddings'].appendleft(embeddings[i])
                 self.demo_node_list[node_id]['timestamp'].appendleft(timestamp)
+                ### Druid Decoration ###
             return True
         except IndexError:
             pass
@@ -58,20 +59,12 @@ class SimpleGraph():
             print('Node ' + node_id + ' not found. You fucked up how could you fuck this up when there is only two demo nodes.')
             return False
 
-    ## upgraded method based on demo_update_node()
-    ## tested
-    def demo_update_node_and_return_face(self, embeddings, timestamp, node_id):
-        emb_list = []
-        for emb in embeddings:
-            staff = self.id_client.check_staff(emb)
-            if staff[0]:
-                emb_list = emb_list + [staff[1]]
-                self.demo_node_list[node_id]['embeddings'].appendleft(emb)
-                self.demo_node_list[node_id]['timestamp'].appendleft(timestamp)
-        if emb_list:
-            return True, emb_list
-        else:
-            return False, None
+    def simple_druid_request(self, payload):
+        result = requests.post('http://192.168.0.105:8200/v1/post/hospital', 
+            json=payload, 
+            headers={'Content_Type': 'application/json'}
+        )
+        return result
 
     """loss metrics"""
     def cosine_similarity(self, emb1, emb2):
