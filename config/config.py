@@ -8,6 +8,12 @@ ASW_REGION = '...'
 SERVER_HOST = 'localhost'
 SERVER_PORT = '5000'
 
+# MONGO GRAPH SETTINGS
+MONGO_HOST = 'localhost'
+MONGO_PORT = 27017
+MONGO_DB_NAME = 'sanus_db'
+MONGO_DB_COL = 'sanus_collection'
+
 # TF SERVING SETTINGS (embeddings)
 TF_HOST = '172.168.0.3'
 TF_PORT = '8500'
