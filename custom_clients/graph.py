@@ -1,5 +1,6 @@
 from pymongo import MongoClient
 from sanus_face_server.config import config
+from sanus_face_server.custom_clients import id_client
 
 class Graph():
     """
@@ -11,6 +12,7 @@ class Graph():
         self.client = MongoClient(config.MONGO_HOST, config.MONGO_PORT)
         self.db = self.client[config.MONGO_DB_NAME]
         self.collection = self.db[config.MONGO_DB_COL]
+        self.staff_collection = self.db['staff']
 
     def add_node(self, name, n):
         # TODO: automatically finds the neighbors?
@@ -40,6 +42,22 @@ class Graph():
         self.collection.delete_one({id: name})
         return 0
 
+    def add_staff(self, emb, name):
+        # staff should be stored in a separate collection
+        new_staff = {id: name, embedding: emb}
+        try:
+            self.staff_collection.insert(new_staff)
+            return 'success'
+        except:
+            return 'failed'
+
+    def remove_staff(self, name):
+        try:
+            self.staff_collection.delete_one({id: name})
+            return 'success'
+        except:
+            return 'failed'
+
     def update_node(self, name, embedding, timestamp):
         rec = self.collection.find({id: name})
         new_timestamps = rec['timestamps'].append(timestamp)
@@ -47,6 +65,12 @@ class Graph():
         self.collection.update_one({id: name}, {"$set": {timestamps: new_timestamps, embeddings: new_embeddings}})
         return 0
 
-    def check_breach(self, embeddings, timestamp, location):
+    def check_breach(self, embeddings, timestamp, id):
+        # TODO: how many depths to check? Only immediate neighbors?
+        # there should only be one record under the id
+        rec = self.collection.find({name: id})
+        for neighbor in rec['neighbors']:
+            for emb in self.collection.find({name: neighbor})['embeddings']:
+
         return 0
 
