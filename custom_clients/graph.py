@@ -1,5 +1,6 @@
 from pymongo import MongoClient
 import numpy as np
+import time
 from sanus_face_server.config import config
 
 
@@ -91,6 +92,7 @@ class Graph():
         # TODO: how many depths to check? Only immediate neighbors?
         # first check staff, if not staff, no breach
         # there should only be one record under the id
+        current_time = time.time()
         rec = self.collection.find({name: id})
         for neighbor in rec['neighbors']:
             for emb in self.collection.find({name: neighbor})['embeddings']:
@@ -98,6 +100,8 @@ class Graph():
                 if !staff:
                     return False
                 else:
+                    
+
                     return 'something'
         return 0
 
