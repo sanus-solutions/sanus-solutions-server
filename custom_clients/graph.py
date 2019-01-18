@@ -93,16 +93,18 @@ class Graph():
         # first check staff, if not staff, no breach
         # there should only be one record under the id
         current_time = time.time()
+        # check if staff
+        staff, id = self.check_staff(embeddings)
+        if !staff:
+            return False, None
         rec = self.collection.find({name: id})
         for neighbor in rec['neighbors']:
-            for emb in self.collection.find({name: neighbor})['embeddings']:
-                staff, id = self.check_staff(emb)
-                if !staff:
-                    return False
+            for idx, emb in enumerate(self.collection.find({name: neighbor})['embeddings']):
+                if self.distance(emb, embeddings) < self.EUC_THRESH:
+                    time_diff = abs(timestamp - self.collection.find({name: neighbor})['timestamps'][idx])
+                    return time_diff < self.TIME_THRESH, id
                 else:
-                    
-
-                    return 'something'
+                    continue
         return 0
 
 
