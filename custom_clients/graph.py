@@ -18,6 +18,7 @@ class Graph():
 
         # constants
         self.EUC_THRESH = 1.0
+        self.TIME_THRESH = 30.0
 
     def add_node(self, name, n):
         # TODO: automatically finds the neighbors?
