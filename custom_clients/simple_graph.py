@@ -26,6 +26,7 @@ class SimpleGraph():
         self.demo_node_list = {'demo_sanitizer': {'neighbors': ['demo_entry'], 'node_type': 'san', 'embeddings': collections.deque(maxlen=10), 'timestamp': collections.deque(maxlen=10)}, 'demo_entry':{'neighbors': ['demo_entry'], 'node_type': 'ent', 'embeddings': collections.deque(maxlen=10), 'timestamp': collections.deque(maxlen=10)}}
 
     # DEMO USES ONLY METHODS BELOW
+    # USED currently
     def demo_check_breach(self, embeddings, timestamp):
         current_time = time.time()
         for idx, emb in enumerate(embeddings):
@@ -46,6 +47,7 @@ class SimpleGraph():
                 print("None staff's face detected")
                 return False, None
 
+    # USED currently
     def demo_update_node(self, embeddings, timestamp, node_id):
         try:
             for i in range(9):
