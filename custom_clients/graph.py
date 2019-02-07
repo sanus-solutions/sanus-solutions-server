@@ -11,14 +11,17 @@ class Graph():
     """
 
     def __init__(self):
+        print('===Starting new graph object.===')
         self.client = MongoClient(config.MONGO_HOST, config.MONGO_PORT)
+        print('===Connected to mongo client.===')
         self.db = self.client[config.MONGO_DB_NAME]
         self.collection = self.db[config.MONGO_DB_COL]
         self.staff_collection = self.db['staff']
-
+        print('======Collections created.======')
         # constants
         self.EUC_THRESH = 1.0
         self.TIME_THRESH = 30.0
+        print('========Graph init done.========')
 
     def add_node(self, name, n):
         # TODO: automatically finds the neighbors?
@@ -26,24 +29,28 @@ class Graph():
         # name: int id
         # neighbors: list of int ids        
         # check if node exists
-        current_count = self.collection.count({id: name})
+        print('Adding new node.')
+        current_count = self.collection.count({'id': name})
         # count should be either 1 or 0
-        if current_count != 0 || current_count != 1:
-            return 'failed'
-        if !current_count:
+        print('Current count: '+str(current_count))
+        # if current_count != 0 or current_count != 1:
+        #     print('something bad')
+        #     return 'failed'
+        if not current_count:
             # no previous record
             try:
-                new_node = {id: name, neighbors: n, timestamps: [], embeddings:[]}
+                new_node = {'id': name, 'neighbors': n, 'timestamps': [], 'embeddings':[]}
                 self.collection.insert(new_node)
                 return 'success'
-            except:
+            except Exception as e:
+                print(str(e))
                 return 'failed'
         else:
             # previous record exists, merge the neighbors
             try:
-                rec = self.collection.find({id: name})
+                rec = self.collection.find({'id': name})
                 new_neighbors = set(rec['neighbors'] + n)
-                self.collection.update_one({id: name}, {'$set': {neighbors: new_neighbors}})
+                self.collection.update_one({'id': name}, {'$set': {'neighbors': new_neighbors}})
                 return 'success'
             except:
                 return 'failed'
@@ -90,13 +97,16 @@ class Graph():
             return 'failed'
 
     def check_breach(self, embeddings, timestamp, id):
+
+        # TODO: change return to {Complied: True/False, StaffID: xxx}
+
         # TODO: how many depths to check? Only immediate neighbors?
         # first check staff, if not staff, no breach
         # there should only be one record under the id
         current_time = time.time()
         # check if staff
         staff, id = self.check_staff(embeddings)
-        if !staff:
+        if not staff:
             return False, None
         rec = self.collection.find({name: id})
         for neighbor in rec['neighbors']:
