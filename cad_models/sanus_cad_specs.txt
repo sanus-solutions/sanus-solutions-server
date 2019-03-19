@@ -1,0 +1,10 @@
+dispenser unit specs:
+    rpi 3 A+
+    rpi cam connected via ribbon cable
+    sharp GPY20D810Z0F with polulu carrier, solered cable and connected go GPIO
+
+main camera unit specs:
+    rpi 3 B+
+    rpi cam connected via ribbon cable
+    PIR motion sensor
+    case from uk works pretty well
