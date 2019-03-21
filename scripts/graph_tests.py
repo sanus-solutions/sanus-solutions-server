@@ -2,13 +2,14 @@ import os, sys
 sys.path.append(os.path.abspath('..'))
 from sanus_face_server.custom_clients import graph
 import numpy as np
-import time
+import time, pprint
 
 # constants
 NUM_TESTS = 100
 LEN_EMB = 512
 
 test_graph = graph.Graph()
+
 
 # ADD/REMOVE NODE TESTS (empty neighbors)
 # one node id test
@@ -38,7 +39,8 @@ except Exception as e:
 try:
     print('adding node again with empty neighbors.')
     test_graph.add_node(str_id, [])
-    rec = test_graph.collection.find({id: str_id})
+    rec = test_graph.collection.find_one({'id': 'str_id'})
+    print(rec)
     assert rec['neighbors'] == []
     print('new neighbors list: ' + rec['neighbors'])
 except Exception as e:
@@ -106,6 +108,6 @@ except Exception as e:
 # r
 
 # random tests
-rand_embs_to_add = np.rand(NUM_TESTS, LEN_EMB)
-for row in rand_embs_to_add:
-    test_graph.add_node()
+# rand_embs_to_add = np.rand(NUM_TESTS, LEN_EMB)
+# for row in rand_embs_to_add:
+#     test_graph.add_node()
