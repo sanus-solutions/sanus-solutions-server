@@ -6,18 +6,21 @@ RUN apt-get update -y && \
 	apt-get install -y \
 		python3-pip \
 		cmake \
+                libgtk2.0-dev \
 		&& \
 	apt-get clean && \
 	rm -rf /var/lib/apt/lists/*
 RUN pip3 --no-cache-dir install \
 	Flask \
 	numpy \
+        opencv-python \ 
 	scipy \
 	requests \
 	grpcio \
 	click \
 	boto3 \
-	tensorflow-serving-api
+	tensorflow-serving-api \ 
+	gunicorn  
 
 COPY . /sanus_face_server
 ENV FLASK_APP=app.py
@@ -25,5 +28,7 @@ ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 EXPOSE 5000
 WORKDIR /sanus_face_server
-ENTRYPOINT ["flask"]
-CMD ["run", "--host=0.0.0.0"]
+#ENTRYPOINT ["flask"]
+ENTRYPOINT ["gunicorn"]
+#CMD ["run", "--host=0.0.0.0"]
+CMD ["-b", "0.0.0.0:5000", "-w", "1", "--log-level", "debug", "app:app"]

@@ -6,6 +6,8 @@ import numpy as np
 import grpc
 from tensorflow_serving.apis import predict_pb2
 from tensorflow_serving.apis import prediction_service_pb2_grpc
+import os, sys
+sys.path.append(os.path.abspath('..'))
 from sanus_face_server.config import config
 import json
 

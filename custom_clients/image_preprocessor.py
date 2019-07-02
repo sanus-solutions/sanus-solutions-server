@@ -9,7 +9,7 @@ import grpc
 from tensorflow_serving.apis import predict_pb2
 from tensorflow_serving.apis import prediction_service_pb2_grpc
 from sanus_face_server.config import config
-import scipy.misc
+import cv2
 
 class MTCNNPreprocessor():
     def __init__(self):
@@ -41,7 +41,8 @@ class MTCNNPreprocessor():
             if scores[idx] < 0.9:
                 continue
             face = image[int(box[0]):int(box[2]), int(box[1]):int(box[3]), :]
-            face = scipy.misc.imresize(face, (face_size, face_size), 'bilinear')
+            #face = scipy.misc.imresize(face, (face_size, face_size), 'bilinear')
+            face = cv2.resize(face, (face_size, face_size))
             faces_list.append(self.prewhiten(face))
         return np.asarray(faces_list)
 

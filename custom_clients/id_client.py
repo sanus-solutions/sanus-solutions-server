@@ -7,7 +7,7 @@ import socket
 class IdClient():
     def __init__(self):
         self.EUC_THRESH = 1.0
-        self.TIME_THRESH = 30.0
+        self.TIME_THRESH = 30 
         try:
             with open('face_collection.pkl', 'rb') as f:
                 self.face_collection = pickle.load(f)
@@ -45,6 +45,7 @@ class IdClient():
     def check_staff(self, emb):
         for staff_id in self.face_collection:
             euc_dist = self.euclidean_distance(emb, self.face_collection[staff_id])
+
             if euc_dist < self.EUC_THRESH:
                 return (True, staff_id)
         return (False, None)
