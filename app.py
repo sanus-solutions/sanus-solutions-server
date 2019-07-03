@@ -12,7 +12,6 @@ from flask import Flask, request
 from flask.cli import AppGroup
 import json, base64
 import tensorflow as tf
-from scipy import misc
 from config import config
 import ast
 import boto3 #Amazon web service 
@@ -216,44 +215,27 @@ def receive_sanitizer_image():
 route for entry clients
 request payload format:
 #TODO: add image shape information in payload
-{'Timestamp': tiemstamp, 'NodeID': node_id, 'Image': image_64str, 'Shape': image_shape}
+{'Timestamp': tiemstamp, 'NodeID': node_id, 'Image': [image_64str], 'Shape': image_shape}
 Responses: {'Status': no face'}/{'Status': 'face'}/{'JobID': job_id}
 """
 @app.route('/sanushost/api/v1.0/entry_img', methods=['POST'])
-def receive_entry_image():
+def receive_entry_image():    
+    ## For debug use, remove when production
     a = time.time()
-    json_data = request.get_json()
-    image_str = str.encode(json_data['Image'])
-    timestamp = json_data['Timestamp']
-    node_id = json_data['NodeID']
-    image_shape = ast.literal_eval(json_data['Shape'])
-    image = np.frombuffer(base64.b64decode(image_str), dtype=np.float64)
-    image = image.astype(np.uint8)
-    image = np.reshape(image, image_shape)
 
-    if config.USE_MTCNN:
-        image = image[...,::-1]
-
-    image_preprocessed = preprocessor.process(image)
-    if image_preprocessed.size == 0:
-        return json.dumps({'Status': 'no face', 'StaffID': None})
-    embeddings = serving_client.send_inference_request(image_preprocessed)
-    result, staff = graph.demo_check_breach(embeddings, timestamp)
-    print("Total process time for node(" + str(node_id) + "): " + str(time.time() - a))
-    return json.dumps({'Status': result, 'StaffID': staff})
-
-"""
-"""
-
-@app.route('/sanushost/api/v1.0/entry_img2', methods=['POST'])
-def receive_entry_image2():    
-    a = time.time()
+    ## TODO implement a check on payload.
+    ## if any format violates the rules, stop the process. 
     json_data = request.get_json()
     timestamp = json_data['Timestamp']
     node_id = json_data['NodeID']
     image_shape = ast.literal_eval(json_data['Shape'])
-    staff_list = []
-    name_list = []
+    
+    ## A dictionary of staff status
+    ## Key: Staff ID
+    ## Value: 0(not clean) or 1(clean)
+    detection_result = {} 
+
+    ## Loop through all photos in a batch, at least one
     for obj in json_data['Image']:
         image_str = str.encode(obj)
         image = np.frombuffer(base64.b64decode(image_str), dtype=np.float64)
@@ -265,17 +247,23 @@ def receive_entry_image2():
         if image_preprocessed.size == 0:
             continue
         embeddings = serving_client.send_inference_request(image_preprocessed)
-        result, staff = graph.demo_check_breach(embeddings, timestamp)
-        print("Total process time for node(" + str(node_id) + "): " + str(time.time() - a))
-        if staff and staff not in name_list:
-            staff_list.append({'Status': result, 'StaffID': staff})
-            name_list.append(staff)
-    
-    if len(staff_list):
-        return json.dumps(staff_list)
-    else:
-        return json.dumps([{'Status': 'no face', 'StaffID': None}])
+        staff_list = graph.demo_check_breach(embeddings, timestamp)
 
+        ## Loop through staff_list, add staff if he/she is in the system
+        for staff in staff_list:
+            if staff[0] in detection_result.keys():
+                continue
+            else:
+                detection_result[staff[0]] = staff[1]
+
+    ## For debug use, remove when production
+    print("Total process time for node(" + str(node_id) + "): " + str(time.time() - a))
+
+    if bool(detection_result): ## isempty
+        return json.dumps({'StaffList' : detection_result})
+    else: 
+        return json.dumps({'StaffList': None})
+    
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', threaded=True)
