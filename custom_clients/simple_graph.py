@@ -23,42 +23,69 @@ class SimpleGraph():
         self.id_client = id_client
 
         # DEMO USES ONLY ATTRIBUTES BELOW
-        self.demo_node_list = {'demo_sanitizer': {'neighbors': ['demo_entry'], 'node_type': 'san', 'embeddings': collections.deque(maxlen=10), 'timestamp': collections.deque(maxlen=10)}, 'demo_entry':{'neighbors': ['demo_entry'], 'node_type': 'ent', 'embeddings': collections.deque(maxlen=10), 'timestamp': collections.deque(maxlen=10)}}
+        # self.demo_node_list = {
+        # 'demo_sanitizer': 
+        #     {'neighbors': ['demo_entry'], 'node_type': 'san', 'embeddings': collections.deque(maxlen=10), 'timestamp': collections.deque(maxlen=10)}, 
+        # 'demo_entry':
+        #     {'neighbors': ['demo_entry'], 'node_type': 'ent', 'embeddings': collections.deque(maxlen=10), 'timestamp': collections.deque(maxlen=10)}
+        # }
+        self.demo_node_list = {}
 
     # DEMO USES ONLY METHODS BELOW
     def demo_check_breach(self, embeddings, timestamp):
-        current_time = time.time()
         for idx, emb in enumerate(embeddings):
             staff = self.id_client.check_staff(emb)
             if staff[0]:
-                # is staff, now check dispenser
-                node_emb_list = self.demo_node_list['demo_sanitizer']['embeddings']
-                timestamp_list = self.demo_node_list['demo_sanitizer']['timestamp']
-                for node_idx, node_emb in enumerate(node_emb_list):
-                    if self.euclidean_distance(node_emb, emb) < self.id_client.EUC_THRESH:
-                        time_diff = abs(timestamp - timestamp_list[node_idx])
-                        print('found person in sanitizer list', time_diff)
-                        return time_diff < self.id_client.TIME_THRESH, staff[1]
-                    else:
-                        continue
+                time_diff = 0
+                for node_id in self.demo_node_list:
+                    node_emb_list = self.demo_node_list[node_id]['embeddings']
+                    node_timestamp_list = self.demo_node_list[node_id]['timestamp']
+
+                    for index, node_timestamp in enumerate(node_timestamp_list):
+                        time_diff = abs(node_timestamp - timestamp)
+                        print(time_diff)
+                        if time_diff < self.id_client.TIME_THRESH + 19: # Offset time difference
+                            if self.euclidean_distance(node_emb_list[index], emb) < self.id_client.EUC_THRESH:
+                                return True, staff[1]
+                        else:
+                            #print(self.demo_node_list[node_id], type(self.demo_node_list[node_id]))
+                            #print(node_emb_list[index], type(node_emb_list[index]))
+                            self.demo_node_list[node_id]['embeddings'].remove(node_emb_list[index])
+                            self.demo_node_list[node_id]['timestamp'].remove(node_timestamp)
+                            print(str(node_id) + " is removed from collection")
                 return False, staff[1]
+
+                # node_emb_list = self.demo_node_list['demo_sanitizer']['embeddings']
+                # timestamp_list = self.demo_node_list['demo_sanitizer']['timestamp']
+                # for node_idx, node_emb in enumerate(node_emb_list):
+                #     if self.euclidean_distance(node_emb, emb) < self.id_client.EUC_THRESH:
+                #         time_diff = abs(timestamp - timestamp_list[node_idx])
+                #         #print('found person in sanitizer list', time_diff)
+                #         return time_diff < self.id_client.TIME_THRESH, staff[1]
+                #     else:
+                #         continue
+                # return False, staff[1]
             else:
-                print("None staff's face detected")
+                #print("None staff's face detected")
                 return False, None
 
     def demo_update_node(self, embeddings, timestamp, node_id):
+        # try:
+        #     for i in range(9):
+        #         ## Hard code
+        #         self.demo_node_list['demo_sanitizer']['embeddings'].appendleft(embeddings[i])
+        #         self.demo_node_list['demo_sanitizer']['timestamp'].appendleft(timestamp)
+        #         # self.demo_node_list[node_id]['embeddings'].appendleft(embeddings[i])
+        #         # self.demo_node_list[node_id]['timestamp'].appendleft(timestamp)
+        #print(self.demo_node_list)    staff_id = graph.demo_check_staff(embeddings)
         try:
-            for i in range(9):
-                self.demo_node_list[node_id]['embeddings'].appendleft(embeddings[i])
-                self.demo_node_list[node_id]['timestamp'].appendleft(timestamp)
-
-            print("Node updated")
-            return True
-        except IndexError:
-            pass
-        except KeyError:
-            print('Node ' + node_id + ' not found. You fucked up how could you fuck this up when there is only two demo nodes.')
-            return False
+            self.demo_node_list[node_id]['embeddings'].append(embeddings[0])
+            self.demo_node_list[node_id]['timestamp'].append(timestamp)
+            #print(node_id + ' updated at time: ' + str(timestamp))
+        except:
+            self.demo_node_list[node_id] = {'embeddings' : [embeddings[0]], 'timestamp' : [timestamp]}
+            #print(node_id + ' created at time: ' + str(timestamp))
+        #print(self.demo_node_list)
 
     def demo_check_staff(self, embeddings):
         for idx, emb in enumerate(embeddings):
@@ -66,7 +93,7 @@ class SimpleGraph():
             if staff[0]:
                 return str(staff[1])
             else:
-                return 'None'
+                return 'None Staff'
 
     """loss metrics"""
     def cosine_similarity(self, emb1, emb2):
@@ -84,12 +111,13 @@ class SimpleGraph():
         node_type should be a string
         embeddings and timestamp default to None
         """
-        try:
+        try:    
+            staff_id = graph.demo_check_staff(embeddings)
             temp = self.node_list[node_id]
-            print('Node exists, with neighbors: ' + str(temp['neighbors']) + 'and type ' + temp['node_type'])
+            #print('Node exists, with neighbors: ' + str(temp['neighbors']) + 'and type ' + temp['node_type'])
             return 0
         except KeyError:
-            print('Adding node now.')
+            #print('Adding node now.')
             self.node_list[node_id] = {'neighbors': neighbors, 'node_type': node_type, 'embeddings': embeddings, 'timestamp': timestamp}
             self.update_neighbors(node_id, neighbors)
             return 1
@@ -97,56 +125,7 @@ class SimpleGraph():
     def remove_node(self, node_id):
         status = self.node_list.pop(node_id, 0)
         if status == 0:
-            print('node removal failed, node_id given was not in the graph.')
+            #print('node removal failed, node_id given was not in the graph.')
             return 0
         else:
             return 1
-
-    def get_graph(self):
-        print(self.node_list)
-        return self.node_list
-
-    def update_neighbors(self, node_id, neighbors):
-        for neighbor in neighbors:
-            try:
-                self.node_list[neighbor]['Neighbors'].append(node_id)
-                print('Neighbor added.')
-            except KeyError:
-                print('Neighbor specified is not in node list yet.')
-                #TODO: something here
-
-    def update_node(self, embeddings, timestamp, node_id):
-        try:
-            self.node_list[node_id]['embeddings'] = embeddings
-            self.node_list[node_id]['timestamp'] = timestamp
-            return 1
-        except KeyError:
-            print('node does not exist in the graph.')
-            return 0
-
-
-    def check_breach(self, embeddings, timestamp, node_id):
-        """
-        return 1 if breach detected, 0 if no breach detected, and 'fail' if check failed
-        this only happens at an entry node
-        # TODO: how many layers of neighbors do we check??? this is for later
-                right now just neighbors
-        """
-        try:
-            node = self.node_list[node_id]
-        except KeyError:
-            print('Node does not exist in the graph.')
-            return 'Fail'
-        neighbors = node['neighbors']
-        for neighbor in neighbors:
-            neighbor_node = self.node_list[neighbor]
-            # TODO: are there situations where we need to check neighboring entry nodes?
-            if neighbor_node['node_type'] == 'san':
-                latest_embeddings = neighbor_node['embeddings']
-                dist = self.euclidean_distance(latest_embeddings, embeddings)
-                time_elapsed = abs(timestamp - neighbor_node['timestamp']) # technically don't need abs here but just in case
-                if time_elapsed < self.time_thresh and dist < self.dist_thresh:
-                    return 0
-                else:
-                    return 1
-        return 1

@@ -12,13 +12,14 @@ from flask import Flask, request
 from flask.cli import AppGroup
 import json, base64
 import tensorflow as tf
-from scipy import misc
 from config import config
 import ast
-import boto3
-import click
+import boto3 #Amazon web service 
+import click 
 import time
-# import threading
+import datetime 
+import requests # This and flask request library are NOT the same thing!
+import cv2 
 
 app = Flask(__name__)
 serving_client = tf_serving_client.TFServingClient()
@@ -109,7 +110,7 @@ def add_face():
     image_shape = ast.literal_eval(json_data['Shape'])
     image_id = json_data['ID']
     image = np.frombuffer(base64.b64decode(image_str), dtype=np.float64)
-    image = image.astype(np.uint8)
+    image = image.astype(np.uint8)    
     image = np.reshape(image, image_shape)
     if config.USE_MTCNN:
         image = image[...,::-1]
@@ -134,7 +135,7 @@ def remove_face():
     status = id_client.remove_staff(remove_id)
     return json.dumps({'Status': status})
 
-"""
+"""    embeddings = serving_client.send_inference_request(image_preprocessed)
 route for sanitizer clients
 request payload format:
 {'NodeID': node_id, 'Timestamp': timestamp, 'Image': image_64str, 'Shape': image_shape}
@@ -142,36 +143,53 @@ Responses: {'Status': no face'}/{'Status': 'face'}
 """
 @app.route('/sanushost/api/v1.0/sanitizer_img', methods=['POST'])
 def receive_sanitizer_image():
-
+    a = time.time()
+    current_time = time.time()
+    current_time1 = time.time()
     json_data = request.get_json()
+    #print("request.get_json time: " + str(time.time() - current_time))
     image_str = json_data['Image']
+    current_time = time.time()
+    #print("json_data['Image'] time: " + str(time.time() - current_time))
     timestamp = json_data['Timestamp']
+    current_time = time.time()
     node_id = json_data['NodeID']
+    #print("json_data['NodeID'] time: " + str(time.time() - current_time))
+    #print("Entire unload json time: " + str(time.time() - current_time1))
+    current_time = time.time()
     image_shape = ast.literal_eval(json_data['Shape'])
 
     # image_str_b64 = base64.b64decode(image_str)
     image = np.frombuffer(base64.b64decode(image_str), dtype=np.float64)
     image = image.astype(np.uint8)
     image = np.reshape(image, image_shape)
+    #print("Reshape Image: " + str(time.time() - current_time))
 
     if config.USE_MTCNN:
         image = image[...,::-1]
 
-    image_preprocessed = preprocessor.process(image)
-
+    current_time = time.time()    
+    image_preprocessed = preprocessor.process(cv2.flip(image, -1))
+    #print("Mtcnn process time: " + str(time.time() - current_time))
 
     if image_preprocessed.size == 0:
         return json.dumps({'Status': 'no face', 'Staff' : 'None'})
+
+    current_time = time.time()    
     embeddings = serving_client.send_inference_request(image_preprocessed)
+    #print("Tensorflow processor time: " + str(time.time() - current_time))
 
     current_time = time.time()
-    result = graph.demo_update_node(embeddings, timestamp, node_id)
+    graph.demo_update_node(embeddings, timestamp, node_id)
+    #print("Update node time: " + str(time.time() - current_time))
 
     ### Druid Decoration ###
+    current_time = time.time()
     staff_id = graph.demo_check_staff(embeddings)
-    if result: 
+    
+    if staff_id: 
         payload = {
-            'time' : timestamp,
+            'time' : datetime.datetime.utcnow().isoformat(),
             'type' : 'Dispenser',
             'nodeID' : node_id,
             'staffID' : staff_id,
@@ -180,70 +198,72 @@ def receive_sanitizer_image():
             'response_type' : 'None',
             'response_message' : 'None',
         }
-
         try:
-            result = requests.post('http://192.168.0.107:8200/v1/post/hospital', 
+            response = requests.post('http://192.168.0.107:8200/v1/post/hospital', 
                 json=payload, 
                 headers={'Content_Type': 'application/json'}
             )
-        except:
-            pass
-    print ('update node time:', time.time() - current_time)
+            print(response.json())
+        except Exception as e:
+            print(e)
+            
+    #print("Druid time: " + str(time.time() - current_time))
+    print("Total process time for node(" + str(node_id) + "): " + str(time.time() - a))
     return json.dumps({'Status': 'face', 'Staff' : staff_id})
-    # if result[0]:
-    #     return json.dumps({'Status': 'face', 'staffID' : ''.join(result[1])})
-    # else:
-    #     return json.dumps({'Status': 'face'})
 
 """
 route for entry clients
 request payload format:
 #TODO: add image shape information in payload
-{'Timestamp': tiemstamp, 'NodeID': node_id, 'Image': image_64str, 'Shape': image_shape}
+{'Timestamp': tiemstamp, 'NodeID': node_id, 'Image': [image_64str], 'Shape': image_shape}
 Responses: {'Status': no face'}/{'Status': 'face'}/{'JobID': job_id}
 """
 @app.route('/sanushost/api/v1.0/entry_img', methods=['POST'])
-def receive_entry_image():
-    current_time = time.time()
+def receive_entry_image():    
+    ## For debug use, remove when production
+    a = time.time()
+
+    ## TODO implement a check on payload.
+    ## if any format violates the rules, stop the process. 
     json_data = request.get_json()
-    image_str = str.encode(json_data['Image'])
-    print ("getJson time:", time.time() - current_time)
     timestamp = json_data['Timestamp']
     node_id = json_data['NodeID']
-    current_time = time.time()
     image_shape = ast.literal_eval(json_data['Shape'])
-    image = np.frombuffer(base64.b64decode(image_str), dtype=np.float64)
-    image = image.astype(np.uint8)
-    image = np.reshape(image, image_shape)
+    
+    ## A dictionary of staff status
+    ## Key: Staff ID
+    ## Value: 0(not clean) or 1(clean)
+    detection_result = {} 
 
-    if config.USE_MTCNN:
-        image = image[...,::-1]
+    ## Loop through all photos in a batch, at least one
+    for obj in json_data['Image']:
+        image_str = str.encode(obj)
+        image = np.frombuffer(base64.b64decode(image_str), dtype=np.float64)
+        image = image.astype(np.uint8)
+        image = np.reshape(image, image_shape)
+        if config.USE_MTCNN:
+            image = image[...,::-1]
+        image_preprocessed = preprocessor.process(image)
+        if image_preprocessed.size == 0:
+            continue
+        embeddings = serving_client.send_inference_request(image_preprocessed)
+        staff_list = graph.demo_check_breach(embeddings, timestamp)
 
-    image_preprocessed = preprocessor.process(image)
-    if image_preprocessed.size == 0:
-        return json.dumps({'Status': 'no face', 'StaffID': None})
-    embeddings = serving_client.send_inference_request(image_preprocessed)
+        ## Loop through staff_list, add staff if he/she is in the system
+        for staff in staff_list:
+            if staff[0] in detection_result.keys():
+                continue
+            else:
+                detection_result[staff[0]] = staff[1]
 
-    result, staff = graph.demo_check_breach(embeddings, timestamp)
-    return json.dumps({'Status': result, 'StaffID': staff})
+    ## For debug use, remove when production
+    print("Total process time for node(" + str(node_id) + "): " + str(time.time() - a))
 
-
-"""
-route to check if high-risk face is a staff or patient
-payload format:
-{'Image': image_64str}
-"""
-@app.route('/sanushost/api/v1.0/check_staff', methods=['POST'])
-def check_staff():
-    # json_data = request.get_json()
-    # image = json_data['Image']
-    # rekog_response = rekog_client.search_faces_by_image(CollectionId='staff',
-    #                                                     Image={'Bytes':image},
-    #                                                     FaceMatchThreshold=70,
-    #                                                     MaxFaces=2)
-    #TODO: desgin response here
-    return 0
-
+    if bool(detection_result): ## isempty
+        return json.dumps({'StaffList' : detection_result})
+    else: 
+        return json.dumps({'StaffList': None})
+    
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', threaded=True)

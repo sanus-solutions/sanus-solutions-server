@@ -30,8 +30,8 @@ def check_staff(emb):
     euc_dist_luka = euclidean_distance(emb, LUKA_EMB)
     euc_dist_kirk = euclidean_distance(emb, KIRK_EMB)
     euc_dist_semeon = euclidean_distance(emb, SEMEON_EMB)
-    print('klaus dist: ' + str(euc_dist_klaus) + ', luka dist: ' + str(euc_dist_luka) +
-        ', kirk dis:' + str(euc_dist_kirk) + ', semeon dis:' + str(euc_dist_semeon))
+    #print('klaus dist: ' + str(euc_dist_klaus) + ', luka dist: ' + str(euc_dist_luka) +
+    #    ', kirk dis:' + str(euc_dist_kirk) + ', semeon dis:' + str(euc_dist_semeon))
     if (euc_dist_klaus < EUC_THRESH):
         #print ("Klaus' face detection took: %f s\n", time.time()-current_time)
         return (True, "klaus")
