@@ -47,5 +47,5 @@ class IdClient():
             euc_dist = self.euclidean_distance(emb, self.face_collection[staff_id])
 
             if euc_dist < self.EUC_THRESH:
-                return (True, staff_id)
-        return (False, None)
+                return (staff_id, 1)
+        return (None, 0)

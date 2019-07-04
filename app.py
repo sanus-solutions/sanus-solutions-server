@@ -250,6 +250,7 @@ def receive_entry_image():
         staff_list = graph.demo_check_breach(embeddings, timestamp)
 
         ## Loop through staff_list, add staff if he/she is in the system
+        ## move this to check_breach
         for staff in staff_list:
             if staff[0] in detection_result.keys():
                 continue
