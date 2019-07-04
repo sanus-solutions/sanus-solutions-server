@@ -33,9 +33,13 @@ class SimpleGraph():
 
     # DEMO USES ONLY METHODS BELOW
     def demo_check_breach(self, embeddings, timestamp):
+        staff_list = []
         for idx, emb in enumerate(embeddings):
+            ## check_staff returns 
+            ## (name, 1)
+            ## (none, 0)
             staff = self.id_client.check_staff(emb)
-            if staff[0]:
+            if staff[1]:
                 time_diff = 0
                 for node_id in self.demo_node_list:
                     node_emb_list = self.demo_node_list[node_id]['embeddings']
@@ -43,31 +47,24 @@ class SimpleGraph():
 
                     for index, node_timestamp in enumerate(node_timestamp_list):
                         time_diff = abs(node_timestamp - timestamp)
-                        print(time_diff)
-                        if time_diff < self.id_client.TIME_THRESH + 19: # Offset time difference
+                        #print(time_diff)
+                        if time_diff < self.id_client.TIME_THRESH: 
                             if self.euclidean_distance(node_emb_list[index], emb) < self.id_client.EUC_THRESH:
-                                return True, staff[1]
+                                #return True, staff[1]
+                                staff_list.append(staff)
+                                continue
                         else:
                             #print(self.demo_node_list[node_id], type(self.demo_node_list[node_id]))
                             #print(node_emb_list[index], type(node_emb_list[index]))
                             self.demo_node_list[node_id]['embeddings'].remove(node_emb_list[index])
                             self.demo_node_list[node_id]['timestamp'].remove(node_timestamp)
                             print(str(node_id) + " is removed from collection")
-                return False, staff[1]
-
-                # node_emb_list = self.demo_node_list['demo_sanitizer']['embeddings']
-                # timestamp_list = self.demo_node_list['demo_sanitizer']['timestamp']
-                # for node_idx, node_emb in enumerate(node_emb_list):
-                #     if self.euclidean_distance(node_emb, emb) < self.id_client.EUC_THRESH:
-                #         time_diff = abs(timestamp - timestamp_list[node_idx])
-                #         #print('found person in sanitizer list', time_diff)
-                #         return time_diff < self.id_client.TIME_THRESH, staff[1]
-                #     else:
-                #         continue
-                # return False, staff[1]
+                        
+                        staff_list.append((staff[0], 0))
             else:
-                #print("None staff's face detected")
-                return False, None
+                ## None staff
+                staff_list.append(staff)
+        return staff_list
 
     def demo_update_node(self, embeddings, timestamp, node_id):
         # try:
