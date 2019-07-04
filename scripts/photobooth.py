@@ -12,7 +12,7 @@ cv2.moveWindow("test", 40,30)
 
 img_counter = 0
 
-url = 'http://192.168.0.101:5000/sanushost/api/v1.0/add_face'
+url = 'http://172.29.135.101:5000/sanushost/api/v1.0/add_face'
 headers = {"Content-Type": "application/json", "Accept": "text/plain"}
 
 while True:
