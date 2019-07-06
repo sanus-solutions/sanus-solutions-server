@@ -1,4 +1,4 @@
-from __future__ import print_function
+afrom __future__ import print_function
 import numpy as np
 import os, sys
 sys.path.append(os.path.abspath(''))
@@ -229,41 +229,23 @@ def receive_entry_image():
     timestamp = json_data['Timestamp']
     node_id = json_data['NodeID']
     image_shape = ast.literal_eval(json_data['Shape'])
-    
-    ## A dictionary of staff status
-    ## Key: Staff ID
-    ## Value: 0(not clean) or 1(clean)
-    detection_result = {} 
+    image_str = str.encode(json_data['Image'])
+    image = np.frombuffer(base64.b64decode(image_str), dtype=np.float64)
+    image = image.astype(np.uint8)
+    image = np.reshape(image, image_shape)
 
-    ## Loop through all photos in a batch, at least one
-    for obj in json_data['Image']:
-        image_str = str.encode(obj)
-        image = np.frombuffer(base64.b64decode(image_str), dtype=np.float64)
-        image = image.astype(np.uint8)
-        image = np.reshape(image, image_shape)
-        if config.USE_MTCNN:
-            image = image[...,::-1]
-        image_preprocessed = preprocessor.process(image)
-        if image_preprocessed.size == 0:
-            continue
-        embeddings = serving_client.send_inference_request(image_preprocessed)
-        staff_list = graph.demo_check_breach(embeddings, timestamp)
-
-        ## Loop through staff_list, add staff if he/she is in the system
-        ## move this to check_breach
-        for staff in staff_list:
-            if staff[0] in detection_result.keys():
-                continue
-            else:
-                detection_result[staff[0]] = staff[1]
+    if config.USE_MTCNN:
+        image = image[...,::-1]
+    image_preprocessed = preprocessor.process(image)
+    if image_preprocessed.size == 0:
+        return json.dumps({'Staff': 0, 'Result': None})
+    embeddings = serving_client.send_inference_request(image_preprocessed)
+    staff_list = graph.demo_check_breach(embeddings, timestamp)
 
     ## For debug use, remove when production
     print("Total process time for node(" + str(node_id) + "): " + str(time.time() - a))
 
-    if bool(detection_result): ## isempty
-        return json.dumps({'StaffList' : detection_result})
-    else: 
-        return json.dumps({'StaffList': None})
+    return json.dumps({'Staff': 1, 'Result': staff_list})
     
 
 if __name__ == '__main__':

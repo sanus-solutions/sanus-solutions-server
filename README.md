@@ -3,6 +3,7 @@
 * Dlib preprocessor (face detector) will not work with large image.
 * Gunicorn experienced error [critical] worker timeout(pid:49). 
 * Face_embedding storage is on local. Every Gunicorn worker has its own copy.
+* Scipy image libraries deprecated. 
 
 # II. Local Server structure  
 There are several main components to the local server:  
@@ -58,7 +59,7 @@ docker run --runtime=nvidia --rm nvidia/cuda:9.0-base nvidia-smi
 
 ## 3. Build the Dockerfiles and run containers  
 There are three containers you need to run (two if using Dlib preprocessor, which is not recommeded because of memory issues with larger images.)  
-### - Flask app container without GPU support for Dlib:  
+### Flask app container without GPU support for Dlib:  
 * This should be used as the default because the default preprocessor using MTCNN will be running in a seperate docker container.  
 * The Dockerfile [Dockerfile.flask-app](https://github.com/sanus-solutions/sanus_face_server/blob/server_dev/Dockerfile.flask-app) builds the container for the Flask app, port 5000 is exposed.  
 * Building the dockerfile(Installing dlib might take a bit.)  : 
@@ -72,7 +73,7 @@ docker run --name <app_container_name> -it -p 5000:5000 --rm <app_image_name_her
 Tags explained: ```-it```: interactive session, ```--rm```: container will be deleted once it exits, ```-p```: allow port traffic.  
 * Dlib will be slower when dealing with larger images since there's no gpu support.  
 
-### - Tensorflow Serving (for Embeddings) with GPU support:  
+### Tensorflow Serving (for Embeddings) with GPU support:  
 * The TF serving container will only run on a Linux host machine because there's no runtime support for macOS and Windows.  
 * The TF serving container with GPU support needs up-to-date NVIDIA driver and the NVIDIA Container Runtime ```nvidia-docker```.  
 * The Dockerfile [Dockerfile.serving-gpu](https://github.com/sanus-solutions/sanus_face_server/blob/server_dev/Dockerfile.serving-gpu) builds the TF serving container with gpu support.  
@@ -85,7 +86,7 @@ docker build -t <serving_image_name_here> -f Dockerfile.serving-gpu .
 docker run --runtime=nvidia --name <serving_container_name> -it -p 8500:8500 --rm <serving_image_name_here>
 ``` 
 
-### - Mtcnn Serving with GPU support:  
+### Mtcnn Serving with GPU support:  
 * The Dockerfile Dockerfile.mtcnn-serving-gpu builds the Mtcnn serving container with gpu support.  
 * Building the Dockerfile: 
 ```sh
@@ -97,7 +98,7 @@ docker run --runtime=nvidia --name <mtcnn_serving_container_name> -it -p 8501:85
 ```  
 
 ## 4. Connecting the Docker containers  
-###First create a docker network using: 
+### First create a docker network using: 
 ```sh
 docker network create --driver=bridge --subnet=<user_specified_subnet> <network_name>
 ```
