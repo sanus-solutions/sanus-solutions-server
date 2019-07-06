@@ -36,45 +36,46 @@ class SimpleGraph():
         staff_list = []
         for idx, emb in enumerate(embeddings):
             ## check_staff returns 
-            ## (name, 1)
-            ## (none, 0)
+            ## (name, 1) if staff exits
+            ## (none, 0) 
             staff = self.id_client.check_staff(emb)
             if staff[1]:
                 time_diff = 0
+                
                 for node_id in self.demo_node_list:
                     node_emb_list = self.demo_node_list[node_id]['embeddings']
                     node_timestamp_list = self.demo_node_list[node_id]['timestamp']
 
+                    ## Case1: don't find any record in the entire graph, 
+                    ## current_staff_list is empty, insert (staff[0], 0)
+                    ## Case2: find multiple records in the graph
+                    ## break the search until the first clean record found insert (staff[0], 1)
+                    ## otherwise insert (staff[0], 0)
+                    ## Average searchtime: O(nm)
+                    current_staff_list = []
                     for index, node_timestamp in enumerate(node_timestamp_list):
                         time_diff = abs(node_timestamp - timestamp)
-                        #print(time_diff)
                         if time_diff < self.id_client.TIME_THRESH: 
                             if self.euclidean_distance(node_emb_list[index], emb) < self.id_client.EUC_THRESH:
-                                #return True, staff[1]
-                                staff_list.append(staff)
-                                continue
+                                current_staff_list.append(staff[0], 1) # (Name, Clean)
+                                break 
                         else:
                             #print(self.demo_node_list[node_id], type(self.demo_node_list[node_id]))
                             #print(node_emb_list[index], type(node_emb_list[index]))
                             self.demo_node_list[node_id]['embeddings'].remove(node_emb_list[index])
                             self.demo_node_list[node_id]['timestamp'].remove(node_timestamp)
-                            print(str(node_id) + " is removed from collection")
-                        
-                        staff_list.append((staff[0], 0))
+                            #print(str(node_id) + " is removed from collection")
+                            
+                    if len(current_staff_list):
+                        staff_list += current_staff_list
+                    else:
+                        staff_list.append(staff[0], 0) # (Name, Not clean)
             else:
                 ## None staff
-                staff_list.append(staff)
+                staff_list.append((None, 0)) # (No name, Not clean)
         return staff_list
 
     def demo_update_node(self, embeddings, timestamp, node_id):
-        # try:
-        #     for i in range(9):
-        #         ## Hard code
-        #         self.demo_node_list['demo_sanitizer']['embeddings'].appendleft(embeddings[i])
-        #         self.demo_node_list['demo_sanitizer']['timestamp'].appendleft(timestamp)
-        #         # self.demo_node_list[node_id]['embeddings'].appendleft(embeddings[i])
-        #         # self.demo_node_list[node_id]['timestamp'].appendleft(timestamp)
-        #print(self.demo_node_list)    staff_id = graph.demo_check_staff(embeddings)
         try:
             self.demo_node_list[node_id]['embeddings'].append(embeddings[0])
             self.demo_node_list[node_id]['timestamp'].append(timestamp)
