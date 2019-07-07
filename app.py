@@ -245,6 +245,7 @@ def receive_entry_image():
     ## For debug use, remove when production
     print("Total process time for node(" + str(node_id) + "): " + str(time.time() - a))
 
+    ## Payload 
     return json.dumps({'Staff': 1, 'Result': staff_list})
     
 
