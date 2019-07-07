@@ -76,14 +76,16 @@ class SimpleGraph():
         return staff_list
 
     def demo_update_node(self, embeddings, timestamp, node_id):
-        try:
-            self.demo_node_list[node_id]['embeddings'].append(embeddings[0])
-            self.demo_node_list[node_id]['timestamp'].append(timestamp)
-            #print(node_id + ' updated at time: ' + str(timestamp))
-        except:
-            self.demo_node_list[node_id] = {'embeddings' : [embeddings[0]], 'timestamp' : [timestamp]}
-            #print(node_id + ' created at time: ' + str(timestamp))
-        #print(self.demo_node_list)
+        for emb in embeddings:
+            staff = self.id_client.check_staff(emb)
+            if staff[1]:
+                ## Remove this try statement later. Node_ID shall exit when a new dispenser unit is added to the location based graph
+                try: 
+                    self.demo_node_list[node_id]['embeddings'].append(emb)
+                    self.demo_node_list[node_id]['timestamp'].append(timestamp)
+                except:
+                    self.demo_node_list[node_id] = {'embeddings' : [embeddings[0]], 'timestamp' : [timestamp]}
+        
 
     def demo_check_staff(self, embeddings):
         for idx, emb in enumerate(embeddings):

@@ -19,7 +19,6 @@ import click
 import time
 import datetime 
 import requests # This and flask request library are NOT the same thing!
-import cv2 
 
 app = Flask(__name__)
 serving_client = tf_serving_client.TFServingClient()
@@ -143,71 +142,53 @@ Responses: {'Status': no face'}/{'Status': 'face'}
 """
 @app.route('/sanushost/api/v1.0/sanitizer_img', methods=['POST'])
 def receive_sanitizer_image():
+    ## For debug use, remove when production
     a = time.time()
-    current_time = time.time()
-    current_time1 = time.time()
-    json_data = request.get_json()
-    #print("request.get_json time: " + str(time.time() - current_time))
-    image_str = json_data['Image']
-    current_time = time.time()
-    #print("json_data['Image'] time: " + str(time.time() - current_time))
-    timestamp = json_data['Timestamp']
-    current_time = time.time()
-    node_id = json_data['NodeID']
-    #print("json_data['NodeID'] time: " + str(time.time() - current_time))
-    #print("Entire unload json time: " + str(time.time() - current_time1))
-    current_time = time.time()
-    image_shape = ast.literal_eval(json_data['Shape'])
 
-    # image_str_b64 = base64.b64decode(image_str)
+    json_data = request.get_json()
+    image_str = json_data['Image']
+    timestamp = json_data['Timestamp']
+    node_id = json_data['NodeID']
+    image_shape = ast.literal_eval(json_data['Shape'])
     image = np.frombuffer(base64.b64decode(image_str), dtype=np.float64)
     image = image.astype(np.uint8)
     image = np.reshape(image, image_shape)
-    #print("Reshape Image: " + str(time.time() - current_time))
 
     if config.USE_MTCNN:
         image = image[...,::-1]
 
     current_time = time.time()    
-    image_preprocessed = preprocessor.process(cv2.flip(image, -1))
+    image_preprocessed = preprocessor.process(image)
     #print("Mtcnn process time: " + str(time.time() - current_time))
 
     if image_preprocessed.size == 0:
-        return json.dumps({'Status': 'no face', 'Staff' : 'None'})
+        return json.dumps({'Staff': 0, 'Result': None})
 
-    current_time = time.time()    
     embeddings = serving_client.send_inference_request(image_preprocessed)
-    #print("Tensorflow processor time: " + str(time.time() - current_time))
-
-    current_time = time.time()
     graph.demo_update_node(embeddings, timestamp, node_id)
-    #print("Update node time: " + str(time.time() - current_time))
 
     ### Druid Decoration ###
-    current_time = time.time()
-    staff_id = graph.demo_check_staff(embeddings)
-    
-    if staff_id: 
-        payload = {
-            'time' : datetime.datetime.utcnow().isoformat(),
-            'type' : 'Dispenser',
-            'nodeID' : node_id,
-            'staffID' : staff_id,
-            'unit' : 'ICU',
-            'room_number' : '25',
-            'response_type' : 'None',
-            'response_message' : 'None',
-        }
-        try:
-            response = requests.post('http://192.168.0.107:8200/v1/post/hospital', 
-                json=payload, 
-                headers={'Content_Type': 'application/json'}
-            )
-            print(response.json())
-        except Exception as e:
-            print(e)
-            
-    #print("Druid time: " + str(time.time() - current_time))
+    # staff_id = graph.demo_check_staff(embeddings)
+    # if staff_id: 
+    #     payload = {
+    #         'time' : datetime.datetime.utcnow().isoformat(),
+    #         'type' : 'Dispenser',
+    #         'nodeID' : node_id,
+    #         'staffID' : staff_id,
+    #         'unit' : 'ICU',
+    #         'room_number' : '25',
+    #         'response_type' : 'None',
+    #         'response_message' : 'None',
+    #     }
+    #     try:
+    #         response = requests.post('http://192.168.0.107:8200/v1/post/hospital', 
+    #             json=payload, 
+    #             headers={'Content_Type': 'application/json'}
+    #         )
+    #         print(response.json())
+    #     except Exception as e:
+    #         print(e)
+
     print("Total process time for node(" + str(node_id) + "): " + str(time.time() - a))
     return json.dumps({'Status': 'face', 'Staff' : staff_id})
 
