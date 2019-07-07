@@ -31,10 +31,7 @@ Send chosen photo to server [loop] times and average the time used from sending 
 
 
 #### 1.multiface_inference_test.py
-- 
-- 
-- 
-- 
+
 
 ## Authors
 
