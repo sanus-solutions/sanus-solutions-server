@@ -1,0 +1,161 @@
+Test Report
+
+Units:
+1. Mac OS (Wireless)
+2. Dell (Wireless)
+3. Entry (Wired)
+4. Dispenser0 (Wireless)
+5. Dispenser3 (Wired)
+
+All requests post at the same time.
+
+Test1:
+ - Staff photo in graph(Search Base): 2 
+
+ 1. Mac OS 
+ 	- Request payload: one photo with one face
+ 	- Number of requests: 100 
+ 	- average time: 14.75611743927002 s
+ 2. Dispenser3 
+ 	- Request payload: one photo with one face
+ 	- Number of requests: 100 
+ 	- average time: 14.9655614781 s
+ 3. Dell 
+ 	- Request payload: one photo with one face
+ 	- Number of requests: 100 
+ 	- average time: 11.432639501094819 s
+ 4. Entry 
+ 	- Request payload: one photo with one face
+ 	- Number of requests: 100 
+ 	- average time: 15.033252739906311 s
+ 5. Dispenser0 
+ 	- Request payload: one photo with one face
+ 	- Number of requests: 100 
+ 	- average time: 15.033252739906311 s 
+
+ Result 
+  - Total request: 500
+  - Total average request time:  14.2441647797 s
+
+Test2: 
+ - Staff photo in graph(Search Base): 2
+
+ 1. Mac OS 
+ 	- Request payload: photo with 11 faces 
+ 	- Number of request: 50
+ 	- average time: 5.743406686782837 s
+ 2. Dispenser3 
+ 	- Request payload: photo with 11 faces 
+ 	- Number of request: 100
+ 	- average time: 3.79296090841 s
+ 3. Dell 
+ 	- Request payload: photo with 11 faces 
+ 	- Number of request: 30
+ 	- average time: 5.647356383005778 s
+ 4. Entry 
+ 	- Request payload: photo with 1 face
+ 	- Number of request: 30
+ 	- average time: 11.584926589330037 s
+ 5. Dispenser0 
+ 	- Request payload: photo with 1 face
+ 	- Number of request: 30
+ 	- average time: 11.869425868988037 s
+
+ Result
+  - Total request: 240
+  - Average time: 5.7276152873
+
+Test3:
+ - Staff photo in graph(Search Base): 2
+
+ 1. Mac OS 
+ 	- Request payload: photo with 30 faces 
+ 	- Number of request: 30
+ 	- average time: 2.5601640224456785 s
+ 2. Dispenser3 
+ 	- Request payload: photo with 30 faces 
+ 	- Number of request: 30
+ 	- average time: 2.7795990785 s
+ 3. Dell 
+ 	- Request payload: photo with 30 faces 
+ 	- Number of request: 30
+ 	- average time: 2.8667250792185466 s
+ 4. Entry 
+ 	- Request payload: photo with 30 face
+ 	- Number of request: 30
+ 	- average time: 2.841283901532491 s
+ 5. Dispenser0 
+ 	- Request payload: photo with 30 face
+ 	- Number of request: 30
+ 	- average time: 2.866438627243042 s
+ 
+ Result
+  - Total request: 150
+  - Average time: 2.78284214179 s
+
+Test4: 
+ - Staff photo in graph(Search Base): 17 
+
+ 1. Mac OS 
+ 	- Request payload: one photo with one face
+ 	- Number of requests: 30
+ 	- average time: 6.844638307889302 s 
+ 2. Dispenser3 
+ 	- Request payload: one photo with one face
+ 	- Number of requests: 30 
+ 	- average time: 14.378323698 s
+ 3. Dell 
+ 	- Request payload: one photo with one face
+ 	- Number of requests: 30 
+ 	- average time: 9.858651614189148 s
+ 4. Entry 
+ 	- Request payload: one photo with one face
+ 	- Number of requests: 30 
+ 	- average time: 14.72294251124064 s
+ 5. Dispenser0 
+ 	- Request payload: one photo with one face
+ 	- Number of requests: 30 
+ 	- average time: 14.796581633885701
+
+ Result 
+  - Total request: 150
+  - Average request time: 12.120227553 s
+
+Test5: 
+ - Staff photo in graph(Search Base): 17 
+
+ 1. Mac OS 
+ 	- Request payload: one photo with one lots of faces
+ 	- Number of requests: 30
+ 	- average time: 3.8736194133758546 s
+ 2. Dispenser3 
+ 	- Request payload: one photo with one face
+ 	- Number of requests: 30 
+ 	- average time: 5.48469928106 s
+ 3. Dell 
+ 	- Request payload: one photo with one face
+ 	- Number of requests: 30 
+ 	- average time: 3.870748178164164 s
+ 4. Entry 
+ 	- Request payload: one photo with one face
+ 	- Number of requests: 30 
+ 	- average time: 3.8962717851003013 s
+ 5. Dispenser0 
+ 	- Request payload: one photo with one face
+ 	- Number of requests: 30 
+ 	- average time: 4.00586154460907 s
+ 	
+ Result 
+  - Total request: 150
+  - Average request time:  4.22624004046 s
+
+
+Summary:
+1. photo with more faces is processed with less time
+2. No error reported on either client or server side.
+3. Increasing number of staff photos in graph decreases search time.(weird)
+
+
+TODO next:
+1. Incrase staff size in graph
+2. Add sanitzer event 
