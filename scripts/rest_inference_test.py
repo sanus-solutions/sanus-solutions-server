@@ -6,10 +6,12 @@ import ast
 import time
 import json 
 
-url = 'http://localhost:5000/sanushost/api/v1.0/entry_img'
-# image = dlib.load_rgb_image('/home/billyzheng/Downloads/klaus2.jpg')
 
-image = np.asarray(Image.open('luka.png'), dtype=np.uint8)
+url = 'http://172.29.135.101:5000/sanushost/api/v1.0/entry_img'
+# url = 'http://172.29.135.101:5000/sanushost/api/v1.0/sanitizer_img'
+# image = dlib.load_rgb_image('/home/billyzheng/Downloads/klaus2.jpg')
+a = time.time()
+image = np.asarray(Image.open('test.png'), dtype=np.uint8)
 # image = dlib.load_rgb_image('rupert.png')
 
 shape_string = str(image.shape)
@@ -23,3 +25,4 @@ payload = {"NodeID": "demo_entry", "Timestamp": time.time(), "Image": img_64, "S
 headers = {'Content-Type': 'application/json', 'Accept': 'text/plain'}
 result = requests.post(url, json=payload, headers=headers)
 print(result.json())
+print(time.time() - a)
