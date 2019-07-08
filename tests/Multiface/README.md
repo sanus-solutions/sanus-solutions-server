@@ -25,6 +25,10 @@ pip install -r requirement.txt
 python3 test_script_you_want_to_run.py
 ```
 
+## Test Results
+
+multiface_inference_test_result.log
+
 ### Detail test functions list
 - average_performance_test(self, img_64, shape_string, url)
 Send chosen photo to server [loop] times and average the time used from sending payload till receving result. 
