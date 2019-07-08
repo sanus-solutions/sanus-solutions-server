@@ -1,4 +1,4 @@
-afrom __future__ import print_function
+from __future__ import print_function
 import numpy as np
 import os, sys
 sys.path.append(os.path.abspath(''))
@@ -162,7 +162,7 @@ def receive_sanitizer_image():
     #print("Mtcnn process time: " + str(time.time() - current_time))
 
     if image_preprocessed.size == 0:
-        return json.dumps({'Staff': 0, 'Result': None})
+        return json.dumps({'Face': 0, 'Result': None})
 
     embeddings = serving_client.send_inference_request(image_preprocessed)
     graph.demo_update_node(embeddings, timestamp, node_id)
@@ -190,7 +190,7 @@ def receive_sanitizer_image():
     #         print(e)
 
     print("Total process time for node(" + str(node_id) + "): " + str(time.time() - a))
-    return json.dumps({'Status': 'face', 'Staff' : staff_id})
+    return json.dumps({'Face': 1, 'Result': "updated"})
 
 """
 route for entry clients
@@ -219,15 +219,15 @@ def receive_entry_image():
         image = image[...,::-1]
     image_preprocessed = preprocessor.process(image)
     if image_preprocessed.size == 0:
-        return json.dumps({'Staff': 0, 'Result': None})
+        return json.dumps({'Face': 0, 'Result': None})
     embeddings = serving_client.send_inference_request(image_preprocessed)
     staff_list = graph.demo_check_breach(embeddings, timestamp)
-
+    print("app.py", staff_list)
     ## For debug use, remove when production
     print("Total process time for node(" + str(node_id) + "): " + str(time.time() - a))
 
     ## Payload 
-    return json.dumps({'Staff': 1, 'Result': staff_list})
+    return json.dumps({'Face': 1, 'Result': staff_list})
     
 
 if __name__ == '__main__':

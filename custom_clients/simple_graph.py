@@ -39,9 +39,11 @@ class SimpleGraph():
             ## (name, 1) if staff exits
             ## (none, 0) 
             staff = self.id_client.check_staff(emb)
+            print("simple_graph.py 1", staff)
             if staff[1]:
                 time_diff = 0
                 
+                current_staff_list = []
                 for node_id in self.demo_node_list:
                     node_emb_list = self.demo_node_list[node_id]['embeddings']
                     node_timestamp_list = self.demo_node_list[node_id]['timestamp']
@@ -52,12 +54,11 @@ class SimpleGraph():
                     ## break the search until the first clean record found insert (staff[0], 1)
                     ## otherwise insert (staff[0], 0)
                     ## Average searchtime: O(nm)
-                    current_staff_list = []
                     for index, node_timestamp in enumerate(node_timestamp_list):
                         time_diff = abs(node_timestamp - timestamp)
                         if time_diff < self.id_client.TIME_THRESH: 
                             if self.euclidean_distance(node_emb_list[index], emb) < self.id_client.EUC_THRESH:
-                                current_staff_list.append(staff[0], 1) # (Name, Clean)
+                                current_staff_list.append((staff[0], 1)) # (Name, Clean)
                                 break 
                         else:
                             #print(self.demo_node_list[node_id], type(self.demo_node_list[node_id]))
@@ -66,10 +67,10 @@ class SimpleGraph():
                             self.demo_node_list[node_id]['timestamp'].remove(node_timestamp)
                             #print(str(node_id) + " is removed from collection")
                             
-                    if len(current_staff_list):
-                        staff_list += current_staff_list
-                    else:
-                        staff_list.append(staff[0], 0) # (Name, Not clean)
+                if len(current_staff_list):
+                    staff_list += current_staff_list
+                else:
+                    staff_list.append((staff[0], 0)) # (Name, Not clean)
             else:
                 ## None staff
                 staff_list.append((None, 0)) # (No name, Not clean)
