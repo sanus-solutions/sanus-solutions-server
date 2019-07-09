@@ -57,15 +57,16 @@ class MultifaceInferenceTest():
     def average_performance_test(self):
         payload = {"NodeID": "demo_entry", "Timestamp": time.time(), "Image": self.photo, "Shape": self.size}
         headers = {'Content-Type': 'application/json', 'Accept': 'text/plain'}
-        total_time = 0
+        time_list = []
         for i in range(int(self.loops)):
             start = time.time()
             result = requests.post(self.url, json=payload, headers=headers)
             tof = time.time() - start 
             self.logger.debug("Request" + str(i) + " takes " + str(tof)
                 )
-            total_time+=tof
-        self.logger.debug("Average request time:" + str(total_time/float(self.loops)))
+            time_list.append(tof)
+        self.logger.debug("Average request time: " + str(np.average(time_list)))
+        self.logger.debug("Standard deviation: " + str(np.std(time_list)))
         return result
 
     def execute_test(self,):
