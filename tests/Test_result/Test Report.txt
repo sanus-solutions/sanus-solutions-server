@@ -159,3 +159,72 @@ Summary:
 TODO next:
 1. Incrase staff size in graph
 2. Add sanitzer event 
+
+###################################################################################################################
+
+Test6: 
+ - Staff photo in graph(Search Base): 2 
+ - 1 second cool down after image_preprocessor process
+
+ 1. Mac OS 
+  - Request payload: one photo with one face
+  - Number of requests: 100
+  - average time: 20.26473378419876
+  - standard deviation: 2.8039755036902503
+ 2. Dispenser3 
+  - Request payload: one photo with one face
+  - Number of requests: 100 
+  - average time: 20.2481592011
+  - standard deviation: 2.78734494815
+ 3. Dell 
+  - Request payload: one photo with one face
+  - Number of requests: 100
+  - average time: 20.2609197640419
+  - standard deviation: 2.605092442
+ 4. Entry 
+  - Request payload: one photo with one face
+  - Number of requests: 100 
+  - average time: 20.44370668172836
+  - standard deviation: 2.072907562
+ 5. Dispenser0 
+  - Request payload: one photo with one face
+  - Number of requests: 100
+  - average time:20.5136223102
+  - standard deviation: 1.80888618763
+  
+ Result 
+  - Total request: 500
+  - Average request time: 
+
+Test7:
+ - Staff photo in graph(Search Base): 2  
+
+  1. Mac OS 
+  - Request payload: one photo with one face
+  - Number of requests: 100
+  - average time: 15.115717837810516
+  - standard deviation: 2.383816115021844
+ 2. Dispenser3 
+  - Request payload: one photo with one face
+  - Number of requests: 100 
+  - average time: 15.298176136
+  - standard deviation: 1.94425620677
+ 3. Dell 
+  - Request payload: one photo with one face
+  - Number of requests: 100
+  - average time: 12.010930562019348
+  - standard deviation: 3.240303497872212
+ 4. Entry 
+  - Request payload: one photo with one face
+  - Number of requests: 100 
+  - average time: 15.2155437255
+  - standard deviation: 1.96354327212
+ 5. Dispenser0 
+  - Request payload: one photo with one face
+  - Number of requests: 100
+  - average time: 15.2757905698
+  - standard deviation: 1.93246602319
+  
+ Result 
+  - Total request: 500
+  - Average request time: 
