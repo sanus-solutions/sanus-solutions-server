@@ -378,20 +378,51 @@ Test20:
  - Average time: 0.194393825531
  - Standard deviation: 0.00950777405331
 
- Test22:
- - Staff photo in graph: 105 (104faces+rupert)
+####################################################################################
+## Single Unit Request - Performance Test (continued)
+####################################################################################
 
- 1. Dispenser3
- - Request payload: rupert.png
+Test22:
+ - Staff photo in graph: 1 (luka)
+
+ 1. Entry
+ - Request payload: billy.png (480p)
  - Number of requests: 100
- - Average time:
- - Standard deviation: 
+ - Average time: 0.204278044701
+ - Standard deviation: 0.0235842497474
 
  Test23:
- - Staff photo in graph: 105 (rupert+104faces)
+ - Staff photo in graph: 1 (luka)
 
- 1. Dispenser3
- - Request payload: Hector.png
+ 1. Entry
+ - Request payload: luka.png (480p)
  - Number of requests: 100
- - Average time:
- - Standard deviation: 
+ - Average time: 0.601601707935
+ - Standard deviation: 0.0221017739892
+
+ Test24:
+ - Staff photo in graph: 105 (luka + 104 faces)
+
+ 1. Entry
+ - Request payload: luka.png
+ - Number of requests: 100
+ - Average time: 0.585059247017
+ - Standard deviation: 0.0178705013416
+
+ Test25:
+ - Staff photo in graph: 105 (104 faces + luka)
+
+ 1. Entry
+ - Request payload: luka.png
+ - Number of requests: 100
+ - Average time: 0.59526655674
+ - Standard deviation: 0.0234334838698
+
+ Test26:
+ - Staff photo in graph: 793 (792 random faces + luka)
+
+ 1. Entry
+ - Request payload: luka.png
+ - Number of requests: 100
+ - Average time: 0.593534069061
+ - Standard deviation: 0.0208819810878
