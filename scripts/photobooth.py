@@ -31,7 +31,7 @@ while True:
         # img_name = "opencv_frame_{}.png".format(img_counter)
         img_name = input("Enter your name:")
 
-        cv2.imwrite(img_name + ".png", cv2.resize(frame, (1920,1080)))
+        cv2.imwrite(img_name + ".png", cv2.resize(frame, (640,480)))
         try:
             image = np.asarray(Image.open(img_name + ".png"), dtype=np.uint8)
             shape_string = str(image.shape)
