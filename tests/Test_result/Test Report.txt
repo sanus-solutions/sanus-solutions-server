@@ -1,5 +1,10 @@
 Test Report
 
+
+####################################################################################
+## Multi Units Performance Test
+####################################################################################
+
 Units:
 1. Mac OS (Wireless)
 2. Dell (Wireless)
@@ -15,23 +20,23 @@ Test1:
  1. Mac OS 
  	- Request payload: one photo with one face
  	- Number of requests: 100 
- 	- average time: 14.75611743927002 s
+ 	- Average time: 14.75611743927002 s
  2. Dispenser3 
  	- Request payload: one photo with one face
  	- Number of requests: 100 
- 	- average time: 14.9655614781 s
+ 	- Average time: 14.9655614781 s
  3. Dell 
  	- Request payload: one photo with one face
  	- Number of requests: 100 
- 	- average time: 11.432639501094819 s
+ 	- Average time: 11.432639501094819 s
  4. Entry 
  	- Request payload: one photo with one face
  	- Number of requests: 100 
- 	- average time: 15.033252739906311 s
+ 	- Average time: 15.033252739906311 s
  5. Dispenser0 
  	- Request payload: one photo with one face
  	- Number of requests: 100 
- 	- average time: 15.033252739906311 s 
+ 	- Average time: 15.033252739906311 s 
 
  Result 
   - Total request: 500
@@ -43,23 +48,23 @@ Test2:
  1. Mac OS 
  	- Request payload: photo with 11 faces 
  	- Number of request: 50
- 	- average time: 5.743406686782837 s
+ 	- Average time: 5.743406686782837 s
  2. Dispenser3 
  	- Request payload: photo with 11 faces 
  	- Number of request: 100
- 	- average time: 3.79296090841 s
+ 	- Average time: 3.79296090841 s
  3. Dell 
  	- Request payload: photo with 11 faces 
  	- Number of request: 30
- 	- average time: 5.647356383005778 s
+ 	- Average time: 5.647356383005778 s
  4. Entry 
  	- Request payload: photo with 1 face
  	- Number of request: 30
- 	- average time: 11.584926589330037 s
+ 	- Average time: 11.584926589330037 s
  5. Dispenser0 
  	- Request payload: photo with 1 face
  	- Number of request: 30
- 	- average time: 11.869425868988037 s
+ 	- Average time: 11.869425868988037 s
 
  Result
   - Total request: 240
@@ -71,23 +76,23 @@ Test3:
  1. Mac OS 
  	- Request payload: photo with 30 faces 
  	- Number of request: 30
- 	- average time: 2.5601640224456785 s
+ 	- Average time: 2.5601640224456785 s
  2. Dispenser3 
  	- Request payload: photo with 30 faces 
  	- Number of request: 30
- 	- average time: 2.7795990785 s
+ 	- Average time: 2.7795990785 s
  3. Dell 
  	- Request payload: photo with 30 faces 
  	- Number of request: 30
- 	- average time: 2.8667250792185466 s
+ 	- Average time: 2.8667250792185466 s
  4. Entry 
  	- Request payload: photo with 30 face
  	- Number of request: 30
- 	- average time: 2.841283901532491 s
+ 	- Average time: 2.841283901532491 s
  5. Dispenser0 
  	- Request payload: photo with 30 face
  	- Number of request: 30
- 	- average time: 2.866438627243042 s
+ 	- Average time: 2.866438627243042 s
  
  Result
   - Total request: 150
@@ -99,23 +104,23 @@ Test4:
  1. Mac OS 
  	- Request payload: one photo with one face
  	- Number of requests: 30
- 	- average time: 6.844638307889302 s 
+ 	- Average time: 6.844638307889302 s 
  2. Dispenser3 
  	- Request payload: one photo with one face
  	- Number of requests: 30 
- 	- average time: 14.378323698 s
+ 	- Average time: 14.378323698 s
  3. Dell 
  	- Request payload: one photo with one face
  	- Number of requests: 30 
- 	- average time: 9.858651614189148 s
+ 	- Average time: 9.858651614189148 s
  4. Entry 
  	- Request payload: one photo with one face
  	- Number of requests: 30 
- 	- average time: 14.72294251124064 s
+ 	- Average time: 14.72294251124064 s
  5. Dispenser0 
  	- Request payload: one photo with one face
  	- Number of requests: 30 
- 	- average time: 14.796581633885701
+ 	- Average time: 14.796581633885701
 
  Result 
   - Total request: 150
@@ -127,23 +132,23 @@ Test5:
  1. Mac OS 
  	- Request payload: one photo with one lots of faces
  	- Number of requests: 30
- 	- average time: 3.8736194133758546 s
+ 	- Average time: 3.8736194133758546 s
  2. Dispenser3 
  	- Request payload: one photo with one face
  	- Number of requests: 30 
- 	- average time: 5.48469928106 s
+ 	- Average time: 5.48469928106 s
  3. Dell 
  	- Request payload: one photo with one face
  	- Number of requests: 30 
- 	- average time: 3.870748178164164 s
+ 	- Average time: 3.870748178164164 s
  4. Entry 
  	- Request payload: one photo with one face
  	- Number of requests: 30 
- 	- average time: 3.8962717851003013 s
+ 	- Average time: 3.8962717851003013 s
  5. Dispenser0 
  	- Request payload: one photo with one face
  	- Number of requests: 30 
- 	- average time: 4.00586154460907 s
+ 	- Average time: 4.00586154460907 s
  	
  Result 
   - Total request: 150
@@ -160,7 +165,9 @@ TODO next:
 1. Incrase staff size in graph
 2. Add sanitzer event 
 
-###################################################################################################################
+####################################################################################
+## Supplemental Multi Units Performance Test
+####################################################################################
 
 Test6: 
  - Staff photo in graph(Search Base): 2 
@@ -169,28 +176,28 @@ Test6:
  1. Mac OS 
   - Request payload: one photo with one face
   - Number of requests: 100
-  - average time: 20.26473378419876
-  - standard deviation: 2.8039755036902503
+  - Average time: 20.26473378419876
+  - Standard deviation: 2.8039755036902503
  2. Dispenser3 
   - Request payload: one photo with one face
   - Number of requests: 100 
-  - average time: 20.2481592011
-  - standard deviation: 2.78734494815
+  - Average time: 20.2481592011
+  - Standard deviation: 2.78734494815
  3. Dell 
   - Request payload: one photo with one face
   - Number of requests: 100
-  - average time: 20.2609197640419
-  - standard deviation: 2.605092442
+  - Average time: 20.2609197640419
+  - Standard deviation: 2.605092442
  4. Entry 
   - Request payload: one photo with one face
   - Number of requests: 100 
-  - average time: 20.44370668172836
-  - standard deviation: 2.072907562
+  - Average time: 20.44370668172836
+  - Standard deviation: 2.072907562
  5. Dispenser0 
   - Request payload: one photo with one face
   - Number of requests: 100
-  - average time:20.5136223102
-  - standard deviation: 1.80888618763
+  - Average time:20.5136223102
+  - Standard deviation: 1.80888618763
   
  Result 
   - Total request: 500
@@ -202,29 +209,189 @@ Test7:
   1. Mac OS 
   - Request payload: one photo with one face
   - Number of requests: 100
-  - average time: 15.115717837810516
-  - standard deviation: 2.383816115021844
+  - Average time: 15.115717837810516
+  - Standard deviation: 2.383816115021844
  2. Dispenser3 
   - Request payload: one photo with one face
   - Number of requests: 100 
-  - average time: 15.298176136
-  - standard deviation: 1.94425620677
+  - Average time: 15.298176136
+  - Standard deviation: 1.94425620677
  3. Dell 
   - Request payload: one photo with one face
   - Number of requests: 100
-  - average time: 12.010930562019348
-  - standard deviation: 3.240303497872212
+  - Average time: 12.010930562019348
+  - Standard deviation: 3.240303497872212
  4. Entry 
   - Request payload: one photo with one face
   - Number of requests: 100 
-  - average time: 15.2155437255
-  - standard deviation: 1.96354327212
+  - Average time: 15.2155437255
+  - Standard deviation: 1.96354327212
  5. Dispenser0 
   - Request payload: one photo with one face
   - Number of requests: 100
-  - average time: 15.2757905698
-  - standard deviation: 1.93246602319
-  
+  - Average time: 15.2757905698
+  - Standard deviation: 1.93246602319
+
  Result 
   - Total request: 500
-  - Average request time: 
+
+####################################################################################
+## Single Unit Request - Performance Test
+####################################################################################
+
+
+## Stage 1 
+
+Test8:
+ - Staff photo in graph: 1 (Klaus)
+ 
+ 1. Dispenser3
+ - Request payload: Hector.png (384x216)
+ - Number of requests: 100
+ - Average time: 0.203487765789
+ - Standard deviation: 0.0299063807949
+
+Test9:
+ - Staff photo in graph: 1 (Klaus)
+
+ 1. Dispenser3
+ - Request payload: Klaus.png (1080p)
+ - Number of requests: 100
+ - Average time: 3.94850538492
+ - Standard deviation: 0.0743864359406
+
+Test10:
+ - Staff photo in graph: 1 (Klaus)
+
+ 1. Dispenser3
+ - Request payload: 11faces.jpg (640x360)
+ - Number of requests: 100
+ - Average time: 0.478489818573
+ - Standard deviation: 0.0246225155641
+
+Test11:
+ - Staff photo in graph: 1 (Klaus)
+
+ 1. Dispenser3
+ - Request payload: 104faces.jpg (640x360)
+ - Number of requests: 100
+ - Average time: 0.829988889694
+ - Standard deviation: 0.0464794532214
+
+
+## Stage 2
+
+Test12:
+ - Staff photo in graph: 12 (Klaus+11faces)
+
+ 1. Dispenser3
+ - Request payload: Hector.png
+ - Number of requests: 100
+ - Average time: 0.19472766161
+ - Standard deviation: 0.0115297679053
+
+Test13:
+ - Staff photo in graph: 12 (Klaus+11faces)
+
+ 1. Dispenser3
+ - Request payload: Klaus.png
+ - Number of requests: 100
+ - Average time: 3.94626776695
+ - Standard deviation: 0.0712853372486
+
+Test14:
+ - Staff photo in graph: 12 (Klaus+11faces)
+
+ 1. Dispenser3
+ - Request payload: 11faces.jpg
+ - Number of requests: 100
+ - Average time: 0.480193078518
+ - Standard deviation: 0.0156137624059
+
+Test15:
+ - Staff photo in graph: 12 (Klaus+11faces)
+
+ 1. Dispenser3
+ - Request payload: 104faces.jpg
+ - Number of requests: 100
+ - Average time: 0.831226568222
+ - Standard deviation: 0.0133482504625
+
+ ## Stage 3 
+
+Test16:
+ - Staff photo in graph: 116 (Klaus+11faces+104faces)
+
+ 1. Dispenser3
+ - Request payload: Hector.png
+ - Number of requests: 100
+ - Average time: 0.194411523342
+ - Standard deviation: 0.00997966156458
+
+Test17:
+ - Staff photo in graph: 116 (Klaus+11faces+104faces)
+
+ 1. Dispenser3
+ - Request payload: Klaus.png
+ - Number of requests: 100
+ - Average time: 3.94810029268
+ - Standard deviation: 0.0688480943267
+
+Test18:
+ - Staff photo in graph: 116 (Klaus+11faces+104faces)
+
+ 1. Dispenser3
+ - Request payload: 11faces.jpg
+ - Number of requests: 100
+ - Average time: 0.487114362717
+ - Standard deviation: 0.0155134189737
+
+Test19:
+ - Staff photo in graph: 116 (Klaus+11faces+104faces)
+
+ 1. Dispenser3
+ - Request payload: 104faces.jpg
+ - Number of requests: 100
+ - Average time: 0.829809987545
+ - Standard deviation: 0.0124907887683
+
+
+####################################################################################
+## Single Unit Request - Performance Test (continued)
+####################################################################################
+
+Test20:
+ - Staff photo in graph: 1 (rupert 457x457)
+
+ 1. Dispenser3
+ - Request payload: rupert.png
+ - Number of requests: 100
+ - Average time: 0.425876972675
+ - Standard deviation: 0.0180013516335
+
+ Test21:
+ - Staff photo in graph: 1 (rupert)
+
+ 1. Dispenser3
+ - Request payload: Hector.png
+ - Number of requests: 100
+ - Average time: 0.194393825531
+ - Standard deviation: 0.00950777405331
+
+ Test22:
+ - Staff photo in graph: 105 (104faces+rupert)
+
+ 1. Dispenser3
+ - Request payload: rupert.png
+ - Number of requests: 100
+ - Average time:
+ - Standard deviation: 
+
+ Test23:
+ - Staff photo in graph: 105 (rupert+104faces)
+
+ 1. Dispenser3
+ - Request payload: Hector.png
+ - Number of requests: 100
+ - Average time:
+ - Standard deviation: 
