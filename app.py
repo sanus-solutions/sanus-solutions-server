@@ -222,10 +222,9 @@ def receive_entry_image():
         return json.dumps({'Face': 0, 'Result': None})
     embeddings = serving_client.send_inference_request(image_preprocessed)
     staff_list = graph.demo_check_breach(embeddings, timestamp)
-    print("app.py", staff_list)
     ## For debug use, remove when production
+    print(staff_list)
     print("Total process time for node(" + str(node_id) + "): " + str(time.time() - a))
-
     ## Payload 
     return json.dumps({'Face': 1, 'Result': staff_list})
     

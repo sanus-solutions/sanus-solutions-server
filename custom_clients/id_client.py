@@ -26,11 +26,14 @@ class IdClient():
 
     def add_staff(self, embs, id):
         for index, emb in enumerate(embs):
-            self.face_collection[id + str(index)] = emb
+            if index:
+                self.face_collection[id + str(index)] = emb
+            else:
+                self.face_collection[id] = emb
         try:
             with open('face_collection.pkl', 'wb') as f:
                 pickle.dump(self.face_collection, f)
-                print(str(len(self.face_collection)) + " added to face collection.")
+                print(str(len(self.face_collection)) + " faces in collection now.")
                 return 'success'
         except:
             return 'failed'
