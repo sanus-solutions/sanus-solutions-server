@@ -24,11 +24,13 @@ class IdClient():
     def euclidean_distance(self, emb1, emb2):
         return np.linalg.norm(emb1 - emb2)
 
-    def add_staff(self, emb, id):
-        self.face_collection[id] = emb
+    def add_staff(self, embs, id):
+        for index, emb in enumerate(embs):
+            self.face_collection[id + str(index)] = emb
         try:
             with open('face_collection.pkl', 'wb') as f:
                 pickle.dump(self.face_collection, f)
+                print(str(len(self.face_collection)) + " added to face collection.")
                 return 'success'
         except:
             return 'failed'
