@@ -37,9 +37,20 @@ sudo apt-get install -y mongodb-org
 
 ### Start MongoDB 
 
+Make sure App is connect to the right mongo ip 
+
 ```
 sudo service mongod start
 ```
+
+Remove lock for pymongo to access mongodb
+```
+sudo rm /var/lib/mongodb/mongod.lock
+mongod --repair
+sudo service mongod start
+```
+
+edit /etc/mongod.conf, bind your server ip to allow remote access
 
 To verify if MongoDB is running, check /var/log/mongodb/mongod.log.
 
@@ -60,6 +71,10 @@ sudo service mongod restart
 ```
 mongo
 ```
+
+## Functions list
+- add_staff(name)
+- remove_staff(name)
 
 ## Authors
 
