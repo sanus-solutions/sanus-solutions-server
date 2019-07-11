@@ -426,3 +426,50 @@ Test22:
  - Number of requests: 100
  - Average time: 0.593534069061
  - Standard deviation: 0.0208819810878
+
+####################################################################################
+## Multi Unit Requests, with MongoDB and 9 GUnicorn Workers
+####################################################################################
+ 
+Units:
+1. Mac OS (Wireless)
+2. Dell (Wireless)
+3. Entry (Wired)
+4. Dispenser0 (Wireless)
+5. Dispenser3 (Wired)
+ 
+ Test27:
+ - Staff photo in graph: 2 (klaus + luka)
+
+ 1. MacOS
+ - Request payload: luka.png(480p)
+ - Number of requests: 100
+ - Average time: 0.7676301741600037
+ - Standard deviation: 0.5896369126127705
+ 2. Dispenser3
+ - Request payload: luka.png(480p)
+ - Number of requests: 100
+ - Average time: 0.604570698738
+ - Standard deviation: 0.0176817325445
+  3. Dell 
+  - Request payload: luka.png(480p)
+  - Number of requests: 100
+  - Average time: 1.5269210457801818
+  - Standard deviation: 0.6533214517278859
+ 4. Entry 
+  - Request payload: luka.png(480p)
+  - Number of requests: 100 
+  - Average time: 0.618529391289
+  - Standard deviation: 0.0341140368844
+ 5. Dispenser0 
+  - Request payload: luka.png(480p)
+  - Number of requests: 100
+  - Average time: 1.76576268196
+  - Standard deviation: 0.654124845571
+
+ Test28:
+ 1. Dispenser3
+ - Request payload: luka.png(480p)
+ - Number of requests: 100
+ - Average time: 0.594089763165
+ - Standard deviation: 0.0163714021351
