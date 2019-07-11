@@ -5,9 +5,9 @@ class MongoClient():
     def __init__(self, db_name, port='mongodb://172.29.135.101:27017/'):
         self.client = pymongo.MongoClient(port)
         self.db = self.client[db_name]
-        print(db_name, "Database created")
         self.face_collection = self.db['FaceCollection']
-        print("FaceCollection initialized")
+        ## DO SOME SORT OF CONNECTION CHECK IN THE FUTURE
+        print("MongoClient-MongoDB connection established.")
 
     def add_staff(self, adict):
         result = self.face_collection.insert_one(adict)
