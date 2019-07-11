@@ -1,22 +1,17 @@
+import os, sys
+sys.path.append(os.path.abspath('..'))
+from sanus_face_server.mongo import mongo_client
 import numpy as np
 import pickle
 # import boto3 
 import socket
-# TODO import file with face collection data structure
+
 
 class IdClient():
     def __init__(self):
         self.EUC_THRESH = 1.0
         self.TIME_THRESH = 30 
-        try:
-            with open('face_collection.pkl', 'rb') as f:
-                self.face_collection = pickle.load(f)
-            print('face collection loaded')
-        except:
-            with open('face_collection.pkl', 'wb') as f:
-                self.face_collection = {}
-                pickle.dump(dict(), f)
-            print('new face collection created')
+        self.mongo_client = mongo_client.MongoClient('Sanus')
 
     def cosine_similarity(self, emb1, emb2):
         return np.dot(emb1, emb2)/(np.sqrt(np.sum(np.square(emb1))*np.sum(np.square(emb2))))
@@ -25,32 +20,26 @@ class IdClient():
         return np.linalg.norm(emb1 - emb2)
 
     def add_staff(self, embs, id):
-        for index, emb in enumerate(embs):
-            if index:
-                self.face_collection[id + str(index)] = emb
-            else:
-                self.face_collection[id] = emb
         try:
-            with open('face_collection.pkl', 'wb') as f:
-                pickle.dump(self.face_collection, f)
-                print(str(len(self.face_collection)) + " faces in collection now.")
-                return 'success'
+            for index, emb in enumerate(embs):
+                if index:
+                    self.mongo_client.add_staff({'Name': id+str(index), 'Embedding': emb.tolist()})
+                else:
+                    self.mongo_client.add_staff({'Name': id, 'Embedding': emb.tolist()})
+            return "Success"
         except:
-            return 'failed'
+            return "Failed"
 
     def remove_staff(self, id):
-        self.face_collection.pop(id)
         try:
-            with open('face_collection.pkl', 'wb') as f:
-                pickle.dump(self.face_collection, f)
-                return 'success'
+            self.mongo_client.remove_staff(id)
+            return 'success'
         except:
             return 'failed'
 
-    def check_staff(self, emb):
-        for staff_id in self.face_collection:
-            euc_dist = self.euclidean_distance(emb, self.face_collection[staff_id])
-
+    def check_staff(self, emb): 
+        for staff in self.mongo_client.find_all():
+            euc_dist = self.euclidean_distance(emb, np.asarray(staff['Embedding']))
             if euc_dist < self.EUC_THRESH:
-                return (staff_id, 1)
+                return (staff['Name'], 1)
         return (None, 0)
