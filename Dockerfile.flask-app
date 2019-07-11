@@ -6,7 +6,7 @@ RUN apt-get update -y && \
 	apt-get install -y \
 		python3-pip \
 		cmake \
-                libgtk2.0-dev \
+        libgtk2.0-dev \ 
 		&& \
 	apt-get clean && \
 	rm -rf /var/lib/apt/lists/*
@@ -20,7 +20,9 @@ RUN pip3 --no-cache-dir install \
 	click \
 	boto3 \
 	tensorflow-serving-api \ 
-	gunicorn  
+	gunicorn  \ 
+	pymongo \ 
+	Flask-PyMongo
 
 COPY . /sanus_face_server
 ENV FLASK_APP=app.py
