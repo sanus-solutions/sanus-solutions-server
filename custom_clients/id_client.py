@@ -20,6 +20,7 @@ class IdClient():
         return np.linalg.norm(emb1 - emb2)
 
     def add_staff(self, embs, id):
+        ## NEED TO REWORK 
         try:
             for index, emb in enumerate(embs):
                 if index:
@@ -31,6 +32,7 @@ class IdClient():
             return "Failed"
 
     def remove_staff(self, id):
+        ## NEED TO RE WORK
         try:
             self.mongo_client.remove_staff(id)
             return 'success'
