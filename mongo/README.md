@@ -43,7 +43,7 @@ Make sure App is connect to the right mongo ip
 sudo service mongod start
 ```
 
-Remove lock for pymongo to access mongodb
+Remove lock for pymongo to access mongodb if being blocked 
 ```
 sudo rm /var/lib/mongodb/mongod.lock
 mongod --repair
@@ -71,6 +71,16 @@ sudo service mongod restart
 ```
 mongo
 ```
+## Mongo Configuration
+[DEFAULT]
+Name = Mongo DB
+LogLevel = DEBUG 
+
+[MONGO]
+URL = mongodb://{ip}:27017/ //binded port to access mongodb
+Database = Hospital // name of the database
+FaceCollection = FaceCollection // name of the embedding collection
+UniqueID = true // no duplicated id/name is allowed if true
 
 ## Functions list
 - add_staff(name)
