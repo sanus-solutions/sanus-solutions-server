@@ -23,12 +23,7 @@ import requests # This and flask request library are NOT the same thing!
 app = Flask(__name__)
 serving_client = tf_serving_client.TFServingClient()
 # rekog_client = boto3.client('rekognition')
-# dlib_preprocessor = image_preprocessor_dlib.DlibPreprocessor()
 mtcnn_preprocessor = image_preprocessor.MTCNNPreprocessor()
-if config.USE_DLIB:
-    preprocessor = dlib_preprocessor
-elif config.USE_MTCNN:
-    preprocessor = mtcnn_preprocessor
 
 id_client = id_client.IdClient()
 graph = simple_graph.SimpleGraph(id_client)
