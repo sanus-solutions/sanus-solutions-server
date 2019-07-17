@@ -43,3 +43,4 @@ termcolor==1.1.0
 urllib3==1.23
 wcwidth==0.1.7
 Werkzeug==0.14.1
+pymongo==3.8.0
