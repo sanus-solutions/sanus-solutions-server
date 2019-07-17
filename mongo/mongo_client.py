@@ -1,9 +1,8 @@
-import pymongo, logging, configparser, json
-from bson import json_util
+import pymongo, logging, configparser
 
 try: 
     config = configparser.ConfigParser()
-    config.read('mongo_config.ini')
+    config.read('config/mongo_config.ini')
 except:
     raise Exception("mongo_config.ini file not found.")
 
@@ -17,7 +16,7 @@ class MongoClient():
         level = self.log_level(config.get('DEFAULT', 'LogLevel'))
         self.logger = logging.getLogger(config.get('DEFAULT', 'Name'))
         self.logger.setLevel(level)
-        ch = logging.StreamHandler()
+        ch = logging.FileHandler("MongoDB.log")
         ch.setLevel(level)
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         ch.setFormatter(formatter)
@@ -35,11 +34,11 @@ class MongoClient():
 
         ## TODO 
         ## If DB has duplicated keys exit when unique ID is true, raise duplicate key errors
-        if config.getboolean('MONGO', 'UniqueID'):
-            ## Need to read more docs on collection index
-            self.face_collection.create_index('user_id', unique=1)
-        else:
-            self.face_collection.drop_indexes()
+        # if config.getboolean('MONGO', 'UniqueID'):
+        #     ## Need to read more docs on collection index
+        #     self.face_collection.create_index('user_id', unique=1)
+        # else:
+        #     self.face_collection.drop_indexes()
 
     def log_level(self, level):
         ## if level doesn't match any, return DEBUG
@@ -56,25 +55,24 @@ class MongoClient():
         else:
             return logging.DEBUG
 
-    def add_staff(self, adict):
+    def add_staff(self, new_dictionary):
         ## Implement a format check here in the future
         try:
-            result = self.face_collection.insert_one(adict)
+            result = self.face_collection.insert_one(new_dictionary)
             self.logger.debug("Staff insertion accepted, job_id: %s", result.inserted_id)
             return result
         except pymongo.errors.DuplicateKeyError:
-            self.logger.debug("Staff alredy exits. Removing old record and reinsert")
 
             ## Temporary solutions - replace_one raise errors because unique id is immutable.
             ## Implement update_one in the future when the dictionary keys are certain
-            self.remove_staff(adict['Name'])
-            result = self.face_collection.insert_one(adict)
-
-            self.logger.debug("Staff insertion accepted, job_id: %s", result.inserted_id)
+            self.remove_staff(new_dictionary['Name'])
+            result = self.face_collection.insert_one(new_dictionary)
+            self.logger.debug("Staff already exits. Removed old record and reinsert, job_id: %s", result.inserted_id)
             return result
         except:
             ## TODO
             self.logger.debug("[Critical] Other uncaught errors.")
+            return None
         
     def get_embedding_by_name(self, name):
         query = {'Name' : name}
@@ -91,6 +89,7 @@ class MongoClient():
         except:
             ## TODO 
             self.logger.debug("[Critical] Other uncaught errors.")
+            return None
 
     def find_all(self,):
         return self.face_collection.find()
@@ -100,14 +99,15 @@ class MongoClient():
 
 if __name__ == '__main__':
     client = MongoClient('hospital')
-    result = client.add_staff({'Name': "luka", "Embedding": "wadafuq"})
+    result = client.add_staff({'user_id': 1, 'Name': "luka", "Embedding": "wadafuq"})
     # print(result, type(result), type(result.inserted_id))
     # result = client.add_staff({'Name': "luka", "Embedding": "wadafuq"})
     # result = client.add_staff({'Name': "luka3", "Embedding": "wadafuq"})
-    # result = client.add_staff({'Name': "luka4", "Embedding": "wadafuq"})
+    result = client.add_staff({'user_id': 2, 'Name': "luka4", "Embedding": "wadafuq"})
     # result = client.get_embedding_by_name('luka')
     # result = client.remove_staff('luka')
+    # print(result.raw_result['n'])
     # client.delete_all()
-    result = client.find_all()
-    for x in result:
-        print(x)
+    # result = client.find_all()
+    # for x in result:
+    #     print(x)
