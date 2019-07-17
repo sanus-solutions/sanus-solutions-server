@@ -23,7 +23,7 @@ import requests # This and flask request library are NOT the same thing!
 app = Flask(__name__)
 serving_client = tf_serving_client.TFServingClient()
 # rekog_client = boto3.client('rekognition')
-mtcnn_preprocessor = image_preprocessor.MTCNNPreprocessor()
+preprocessor = image_preprocessor.MTCNNPreprocessor()
 
 id_client = id_client.IdClient()
 graph = simple_graph.SimpleGraph(id_client)
@@ -218,7 +218,7 @@ def receive_entry_image():
     embeddings = serving_client.send_inference_request(image_preprocessed)
     staff_list = graph.demo_check_breach(embeddings, timestamp)
     ## For debug use, remove when production
-    print(staff_list)
+    # print(staff_list)
     print("Total process time for node(" + str(node_id) + "): " + str(time.time() - a))
     ## Payload 
     return json.dumps({'Face': 1, 'Result': staff_list})
