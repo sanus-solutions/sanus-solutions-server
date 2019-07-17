@@ -2,7 +2,6 @@ import os, sys
 sys.path.append(os.path.abspath('..'))
 from sanus_face_server.mongo import mongo_client
 import numpy as np
-import pickle
 # import boto3 
 import socket
 
@@ -23,6 +22,7 @@ class IdClient():
         ## NEED TO REWORK 
         try:
             for index, emb in enumerate(embs):
+                print(index)
                 if index:
                     self.mongo_client.add_staff({'Name': id+str(index), 'Embedding': emb.tolist()})
                 else:
@@ -33,11 +33,14 @@ class IdClient():
 
     def remove_staff(self, id):
         ## NEED TO RE WORK
-        try:
-            self.mongo_client.remove_staff(id)
-            return 'success'
-        except:
-            return 'failed'
+        result = self.mongo_client.remove_staff(id)
+        if result:
+            if result.raw_result['n']:
+                return "Success"
+            else:
+                return "No such staff found"
+        return "Failed"
+
 
     def check_staff(self, emb): 
         for staff in self.mongo_client.find_all():
