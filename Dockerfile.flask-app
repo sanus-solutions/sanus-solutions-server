@@ -33,4 +33,4 @@ WORKDIR /sanus_face_server
 #ENTRYPOINT ["flask"]
 ENTRYPOINT ["gunicorn"]
 #CMD ["run", "--host=0.0.0.0"]
-CMD ["-b", "0.0.0.0:5000", "-w", "1", "--log-level", "debug", "app:app"]
+CMD ["-b", "0.0.0.0:5000", "-w", "9", "--log-level", "debug", "app:app"]
