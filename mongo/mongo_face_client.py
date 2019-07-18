@@ -2,21 +2,25 @@ import pymongo, logging, configparser
 
 try: 
     config = configparser.ConfigParser()
-    config.read('config/mongo_config.ini')
+    config.read('config/mongo_face_config.ini')
 except:
-    raise Exception("mongo_config.ini file not found.")
+    raise Exception("mongo_face_config.ini file not found.")
 
 class MongoClient():
 
     def __init__(self, 
         db_name=config.get('MONGO', 'Database'),
-        collection_name=config.get('MONGO', 'FaceCollection'), 
+        collection_name=config.get('MONGO', 'Collection'), 
         port=config.get('MONGO', 'URL')):
         ## Logger
         level = self.log_level(config.get('DEFAULT', 'LogLevel'))
         self.logger = logging.getLogger(config.get('DEFAULT', 'Name'))
         self.logger.setLevel(level)
-        ch = logging.FileHandler("MongoDB.log")
+
+        ## Temporary streamhandler for debug 
+        # ch = logging.FileHandler("MongoDB_face.log")
+        ch = logging.StreamHandler()
+
         ch.setLevel(level)
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         ch.setFormatter(formatter)
@@ -30,15 +34,15 @@ class MongoClient():
             self.logger.info('Server not available.')
 
         self.db = self.client[db_name]
-        self.face_collection = self.db[collection_name]
+        self.collection = self.db[collection_name]
 
         ## TODO 
         ## If DB has duplicated keys exit when unique ID is true, raise duplicate key errors
         # if config.getboolean('MONGO', 'UniqueID'):
         #     ## Need to read more docs on collection index
-        #     self.face_collection.create_index('user_id', unique=1)
+        #     self.collection.create_index('user_id', unique=1)
         # else:
-        #     self.face_collection.drop_indexes()
+        #     self.collection.drop_indexes()
 
     def log_level(self, level):
         ## if level doesn't match any, return DEBUG
@@ -58,7 +62,7 @@ class MongoClient():
     def add_staff(self, new_dictionary):
         ## Implement a format check here in the future
         try:
-            result = self.face_collection.insert_one(new_dictionary)
+            result = self.collection.insert_one(new_dictionary)
             self.logger.debug("Staff insertion accepted, job_id: %s", result.inserted_id)
             return result
         except pymongo.errors.DuplicateKeyError:
@@ -66,36 +70,36 @@ class MongoClient():
             ## Temporary solutions - replace_one raise errors because unique id is immutable.
             ## Implement update_one in the future when the dictionary keys are certain
             self.remove_staff(new_dictionary['Name'])
-            result = self.face_collection.insert_one(new_dictionary)
+            result = self.collection.insert_one(new_dictionary)
             self.logger.debug("Staff already exits. Removed old record and reinsert, job_id: %s", result.inserted_id)
             return result
         except:
             ## TODO
-            self.logger.debug("[Critical] Other uncaught errors.")
+            self.logger.debug("[Critical insertion error] Other uncaught errors.")
             return None
         
     def get_embedding_by_name(self, name):
         query = {'Name' : name}
-        result = self.face_collection.find_one(query)['Embedding']
+        result = self.collection.find_one(query)['Embedding']
         return result
 
     def remove_staff(self, name):
         ## Implement a format check here in the future
         try:
             query = {'Name' : name}
-            result = self.face_collection.delete_one(query)
+            result = self.collection.delete_one(query)
             self.logger.debug("Staff deletion %s", result.raw_result)
             return result
         except:
             ## TODO 
-            self.logger.debug("[Critical] Other uncaught errors.")
+            self.logger.debug("[Critical deletion error] Other uncaught errors.")
             return None
 
     def find_all(self,):
-        return self.face_collection.find()
+        return self.collection.find()
 
     def delete_all(self):
-        self.face_collection.delete_many({})
+        self.collection.delete_many({})
 
 if __name__ == '__main__':
     client = MongoClient('hospital')
@@ -103,7 +107,6 @@ if __name__ == '__main__':
     # print(result, type(result), type(result.inserted_id))
     # result = client.add_staff({'Name': "luka", "Embedding": "wadafuq"})
     # result = client.add_staff({'Name': "luka3", "Embedding": "wadafuq"})
-    result = client.add_staff({'user_id': 2, 'Name': "luka4", "Embedding": "wadafuq"})
     # result = client.get_embedding_by_name('luka')
     # result = client.remove_staff('luka')
     # print(result.raw_result['n'])
