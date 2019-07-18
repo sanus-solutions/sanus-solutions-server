@@ -11,7 +11,7 @@ url = 'http://172.29.135.101:5000/sanushost/api/v1.0/entry_img'
 # url = 'http://172.29.135.101:5000/sanushost/api/v1.0/sanitizer_img'
 # image = dlib.load_rgb_image('/home/billyzheng/Downloads/klaus2.jpg')
 a = time.time()
-image = np.asarray(Image.open('rupert.png'), dtype=np.uint8)
+image = np.asarray(Image.open('luka.png'), dtype=np.uint8)
 # image = dlib.load_rgb_image('rupert.png')
 
 shape_string = str(image.shape)

@@ -468,8 +468,31 @@ Units:
   - Standard deviation: 0.654124845571
 
  Test28:
+
  1. Dispenser3
  - Request payload: luka.png(480p)
  - Number of requests: 100
  - Average time: 0.594089763165
  - Standard deviation: 0.0163714021351
+
+####################################################################################
+## With hygiene mongodb set up
+####################################################################################
+Test29:
+ - Staff photo in graph: 2 (rupert + luka)
+
+1. Entry(wired)
+ - Request payload: luka.png(480p)
+ - Number of requests: 100
+ - Average time: 0.60297144413
+ - Standard deviation: 0.0187927231864
+
+Test30:
+ - Staff photo in graph: 2 (rupert + luka)
+ - 1 hygiene record 
+
+1. Entry(wired)
+ - Request payload: luka.png(480p)
+ - Number of requests: 100
+ - Average time: 0.609387545586
+ - Standard deviation: 0.0217111116882
