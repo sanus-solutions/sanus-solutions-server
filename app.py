@@ -160,8 +160,8 @@ def receive_sanitizer_image():
         return json.dumps({'Face': 0, 'Result': None})
 
     embeddings = serving_client.send_inference_request(image_preprocessed)
-    graph.demo_update_node(embeddings, timestamp, node_id)
-
+    result = graph.demo_update_node(embeddings, timestamp, node_id)
+    print('app.py',result)
     ### Druid Decoration ###
     # staff_id = graph.demo_check_staff(embeddings)
     # if staff_id: 
