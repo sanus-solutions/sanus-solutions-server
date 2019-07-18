@@ -1,16 +1,16 @@
 import os, sys
 sys.path.append(os.path.abspath('..'))
-from sanus_face_server.mongo import mongo_client
+from sanus_face_server.mongo import mongo_face_client
 import numpy as np
 # import boto3 
 import socket
 
 
 class IdClient():
-    def __init__(self):
+    def __init__(self,):
         self.EUC_THRESH = 1.0
         self.TIME_THRESH = 30 
-        self.mongo_client = mongo_client.MongoClient('Sanus')
+        self.mongo_client = mongo_face_client.MongoClient()
 
     def cosine_similarity(self, emb1, emb2):
         return np.dot(emb1, emb2)/(np.sqrt(np.sum(np.square(emb1))*np.sum(np.square(emb2))))
@@ -22,7 +22,6 @@ class IdClient():
         ## NEED TO REWORK 
         try:
             for index, emb in enumerate(embs):
-                print(index)
                 if index:
                     self.mongo_client.add_staff({'Name': id+str(index), 'Embedding': emb.tolist()})
                 else:

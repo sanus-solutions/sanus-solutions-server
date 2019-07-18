@@ -1,10 +1,8 @@
-import os, sys
+import os, sys, time, collections, boto3
 sys.path.append(os.path.abspath('..'))
 import numpy as np
-import time
 from sanus_face_server.custom_clients import id_client
-import collections
-import boto3
+from sanus_face_server.mongo import mongo_hygiene_client
 
 """
 minimal implementation of graph structure
@@ -22,14 +20,8 @@ class SimpleGraph():
         # self.id_client = id_client.IdClient()
         self.id_client = id_client
 
-        # DEMO USES ONLY ATTRIBUTES BELOW
-        # self.demo_node_list = {
-        # 'demo_sanitizer': 
-        #     {'neighbors': ['demo_entry'], 'node_type': 'san', 'embeddings': collections.deque(maxlen=10), 'timestamp': collections.deque(maxlen=10)}, 
-        # 'demo_entry':
-        #     {'neighbors': ['demo_entry'], 'node_type': 'ent', 'embeddings': collections.deque(maxlen=10), 'timestamp': collections.deque(maxlen=10)}
-        # }
-        self.demo_node_list = {}
+        ## A temporary 
+        self.hygiene_record = mongo_hygiene_client.MongoClient()
 
     # DEMO USES ONLY METHODS BELOW
     def demo_check_breach(self, embeddings, timestamp):
@@ -39,36 +31,19 @@ class SimpleGraph():
             ## (name, 1) if staff exits
             ## (none, 0) 
             staff = self.id_client.check_staff(emb)
-            print("simple_graph.py 1", staff)
             if staff[1]:
-                time_diff = 0
-                
-                current_staff_list = []
-                for node_id in self.demo_node_list:
-                    node_emb_list = self.demo_node_list[node_id]['embeddings']
-                    node_timestamp_list = self.demo_node_list[node_id]['timestamp']
-
-                    ## Case1: don't find any record in the entire graph, 
-                    ## current_staff_list is empty, insert (staff[0], 0)
-                    ## Case2: find multiple records in the graph
-                    ## break the search until the first clean record found insert (staff[0], 1)
-                    ## otherwise insert (staff[0], 0)
-                    ## Average searchtime: O(nm)
-                    for index, node_timestamp in enumerate(node_timestamp_list):
-                        time_diff = abs(node_timestamp - timestamp)
+                current_staff_records = self.hygiene_record.find('Staff', staff[0])
+                # print(current_staff_records)
+                if current_staff_records.count(): 
+                    for record in current_staff_records:
+                        time_diff = abs(record['Timestamp'] - timestamp)
                         if time_diff < self.id_client.TIME_THRESH: 
-                            if self.euclidean_distance(node_emb_list[index], emb) < self.id_client.EUC_THRESH:
-                                current_staff_list.append((staff[0], 1)) # (Name, Clean)
-                                break 
+                            staff_list.append((staff[0], 1)) # (Name, Clean)
+                            break
                         else:
-                            #print(self.demo_node_list[node_id], type(self.demo_node_list[node_id]))
-                            #print(node_emb_list[index], type(node_emb_list[index]))
-                            self.demo_node_list[node_id]['embeddings'].remove(node_emb_list[index])
-                            self.demo_node_list[node_id]['timestamp'].remove(node_timestamp)
-                            #print(str(node_id) + " is removed from collection")
-                            
-                if len(current_staff_list):
-                    staff_list += current_staff_list
+                            result = self.hygiene_record.remove_record(record['_id'])
+                            ## print result for debug
+                            # print(result.raw_result)
                 else:
                     staff_list.append((staff[0], 0)) # (Name, Not clean)
             else:
@@ -79,14 +54,21 @@ class SimpleGraph():
     def demo_update_node(self, embeddings, timestamp, node_id):
         for emb in embeddings:
             staff = self.id_client.check_staff(emb)
+            # print(staff)
             if staff[1]:
                 ## Remove this try statement later. Node_ID shall exit when a new dispenser unit is added to the location based graph
-                try: 
-                    self.demo_node_list[node_id]['embeddings'].append(emb)
-                    self.demo_node_list[node_id]['timestamp'].append(timestamp)
+                current_dictionary = {
+                'NodeID' : node_id,
+                'Timestamp' : timestamp,
+                'Staff' : staff[0],
+                }
+                # print(current_dictionary)
+                try:
+                    return(self.hygiene_record.insert_record(current_dictionary))
                 except:
-                    self.demo_node_list[node_id] = {'embeddings' : [embeddings[0]], 'timestamp' : [timestamp]}
-        
+                    ## TODO
+                    return None
+        return None
 
     def demo_check_staff(self, embeddings):
         for idx, emb in enumerate(embeddings):
