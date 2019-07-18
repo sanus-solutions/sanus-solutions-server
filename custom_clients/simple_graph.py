@@ -33,7 +33,6 @@ class SimpleGraph():
             staff = self.id_client.check_staff(emb)
             if staff[1]:
                 current_staff_records = self.hygiene_record.find('Staff', staff[0])
-                # print(current_staff_records)
                 if current_staff_records.count(): 
                     for record in current_staff_records:
                         time_diff = abs(record['Timestamp'] - timestamp)
@@ -42,8 +41,6 @@ class SimpleGraph():
                             break
                         else:
                             result = self.hygiene_record.remove_record(record['_id'])
-                            ## print result for debug
-                            # print(result.raw_result)
                 else:
                     staff_list.append((staff[0], 0)) # (Name, Not clean)
             else:
@@ -54,7 +51,6 @@ class SimpleGraph():
     def demo_update_node(self, embeddings, timestamp, node_id):
         for emb in embeddings:
             staff = self.id_client.check_staff(emb)
-            # print(staff)
             if staff[1]:
                 ## Remove this try statement later. Node_ID shall exit when a new dispenser unit is added to the location based graph
                 current_dictionary = {
@@ -62,7 +58,6 @@ class SimpleGraph():
                 'Timestamp' : timestamp,
                 'Staff' : staff[0],
                 }
-                # print(current_dictionary)
                 try:
                     return(self.hygiene_record.insert_record(current_dictionary))
                 except:
