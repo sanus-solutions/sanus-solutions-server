@@ -29,7 +29,7 @@ sudo apt-get install -y mongodb-org
 ```
 ## Run
 ### Start MongoDB 
-Make sure App is connect to the right mongo ip, edit /etc/mongod.conf to bind your ip to allow remote access(Default only localhost is enabled)
+Make sure App is connect to the right mongo ip, edit /etc/mongod.conf to bind your ip to allow remote access(Default only localhost is enabled, ex. bindIp: 127.0.0.1, [your ip])
 ```
 sudo service mongod start
 ```
@@ -40,6 +40,16 @@ mongod --repair
 sudo service mongod start
 ```
 To verify if MongoDB is running, check /var/log/mongodb/mongod.log.
+
+### MongoDB first time set up
+If you are running Mongo DB for the first time, make sure you have the correct configuration and set up mongo db properlly. 
+
+An example set up includes:
+- A mongo db name
+- One or more mongo db collections name(s)
+- In embedding collection, staff name and ID need to be unique. No duplication is allowed.
+- In hygiene record collection, define TTL(must be in UTC). 
+
 ### Stop MongoDB
 ```
 sudo service mongod stop
