@@ -1,10 +1,7 @@
 import unittest
 import pymongo,datetime
 
-
-
-# result = emb_collection.insert_one({'Staff': "luka", 'Embedding': "Test"})
-# result = hygiene_collection.insert_one({'Staff': "luka", 'Timestamp': datetime.datetime.utcnow()})
+## Seperate mongo db init from app
 
 class TestMongoDB(unittest.TestCase):
 

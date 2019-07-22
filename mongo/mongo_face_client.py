@@ -1,5 +1,7 @@
 import pymongo, logging, configparser
 
+
+## Remove these configuration from 
 try: 
     config = configparser.ConfigParser()
     config.read('config/mongo_face_config.ini')
