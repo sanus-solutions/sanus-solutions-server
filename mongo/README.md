@@ -82,10 +82,6 @@ Database = Hospital // name of the database
 FaceCollection = FaceCollection // name of the embedding collection
 UniqueID = true // no duplicated id/name is allowed if true
 
-## Functions list
-- add_staff(name)
-- remove_staff(name)
-
 ## Authors
 
 Klaus

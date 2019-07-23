@@ -38,13 +38,6 @@ class MongoClient():
         self.db = self.client[db_name]
         self.collection = self.db[collection_name]
 
-        ## TODO 
-        ## If DB has duplicated keys exit when unique ID is true, raise duplicate key errors
-        # if config.getboolean('MONGO', 'UniqueID'):
-        #     ## Need to read more docs on collection index
-        #     self.collection.create_index('user_id', unique=1)
-        # else:
-        #     self.collection.drop_indexes()
 
     def log_level(self, level):
         ## if level doesn't match any, return DEBUG
