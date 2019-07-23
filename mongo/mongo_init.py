@@ -1,18 +1,13 @@
 import unittest
 import pymongo,datetime
 
-
-
-# result = emb_collection.insert_one({'Staff': "luka", 'Embedding': "Test"})
-# result = hygiene_collection.insert_one({'Staff': "luka", 'Timestamp': datetime.datetime.utcnow()})
-
 class TestMongoDB(unittest.TestCase):
 
     def setUp(self, ):
         ## Move these variables to a config      
         self.db_name = 'Hospital'
         self.emb_collection_name = 'EmbeddingCollection'
-        self.hygiene_collection_name = 'HygieneRecord'
+        self.hygiene_collection_name = 'HygieneCollection'
         self.port = 'mongodb://localhost:27017/'
         self.client = pymongo.MongoClient(self.port)
         self.db = self.client[self.db_name]
