@@ -38,7 +38,6 @@ class MongoClient():
         self.db = self.client[db_name]
         self.collection = self.db[collection_name]
 
-
     def log_level(self, level):
         ## if level doesn't match any, return DEBUG
         if level == 'INFO':
