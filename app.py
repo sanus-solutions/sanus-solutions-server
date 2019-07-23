@@ -184,7 +184,7 @@ def receive_sanitizer_image():
     #         print(e)
 
     print("Total process time for node(" + str(node_id) + "): " + str(time.time() - a))
-    return json.dumps({'Face': 1, 'Result': "updated"})
+    return json.dumps({'Face': 1, 'Result': result})
 
 """
 route for entry clients
