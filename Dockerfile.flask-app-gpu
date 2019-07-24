@@ -21,7 +21,8 @@ RUN pip3 --no-cache-dir install \
 	grpcio \
 	click \
 	boto3 \
-	tensorflow-serving-api
+	tensorflow-serving-api \
+	gunicorn
 
 # installing dlib from source with GPU support
 RUN mkdir -p /dlib-tmp
@@ -41,5 +42,6 @@ ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 EXPOSE 5000
 WORKDIR /sanus_face_server
-ENTRYPOINT ["flask"]
-CMD ["run", "--host=0.0.0.0"]
+#ENTRYPOINT ["flask"]
+#CMD ["run", "--host=0.0.0.0"]
+CMD ["gunicorn"  , "-b", "0.0.0.0", "app:app"]
