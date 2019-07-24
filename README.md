@@ -69,6 +69,7 @@ Please refer to MongoDB Community for full installation guide([mongo ubuntu](htt
 
 ## Running and Testing
 ### Quick Start
+Navigate to quickstart folder.
 1. Open a terminal and enter(skip ./build_server.sh if built before).
 ```sh
 ./build_server.sh
