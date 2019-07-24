@@ -37,7 +37,6 @@ class SimpleGraph():
                     for record in current_staff_records:
                         timestamp = datetime.datetime.fromtimestamp(timestamp).replace(tzinfo=datetime.timezone.utc)
                         time_diff = abs((record['Timestamp'].replace(tzinfo=datetime.timezone.utc) - timestamp).total_seconds())
-                        print(time_diff)
                         if time_diff < self.id_client.TIME_THRESH: 
                             staff_list.append((staff[0], 1)) # (Name, Clean)
                             break

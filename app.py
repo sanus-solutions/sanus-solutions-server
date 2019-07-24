@@ -102,7 +102,7 @@ def add_face():
     json_data = request.get_json()
     image_str = json_data['Image']
     image_shape = ast.literal_eval(json_data['Shape'])
-    image_id = json_data['ID']
+    image_id = json_data['Staff']
     image = np.frombuffer(base64.b64decode(image_str), dtype=np.float64)
     image = image.astype(np.uint8)    
     image = np.reshape(image, image_shape)

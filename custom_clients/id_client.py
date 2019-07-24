@@ -23,9 +23,9 @@ class IdClient():
         try:
             for index, emb in enumerate(embs):
                 if index:
-                    self.mongo_client.add_staff({'Name': id+str(index), 'Embedding': emb.tolist()})
+                    self.mongo_client.add_staff({'Staff': id+str(index), 'Embedding': emb.tolist()})
                 else:
-                    self.mongo_client.add_staff({'Name': id, 'Embedding': emb.tolist()})
+                    self.mongo_client.add_staff({'Staff': id, 'Embedding': emb.tolist()})
             return "Success"
         except:
             return "Failed"
@@ -45,5 +45,5 @@ class IdClient():
         for staff in self.mongo_client.find_all():
             euc_dist = self.euclidean_distance(emb, np.asarray(staff['Embedding']))
             if euc_dist < self.EUC_THRESH:
-                return (staff['Name'], 1)
+                return (staff['Staff'], 1)
         return (None, 0)
