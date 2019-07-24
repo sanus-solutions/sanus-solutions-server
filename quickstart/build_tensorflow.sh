@@ -1,3 +1,3 @@
 #!/bin/bash
-cd /home/sanus/Desktop/sanus_face_server
+cd /home/sanus/Desktop/sanus_solutions_server
 sudo docker build -t tensorflow -f Dockerfile.serving-gpu . 
