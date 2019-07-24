@@ -160,9 +160,9 @@ def receive_sanitizer_image():
         return json.dumps({'Face': 0, 'Result': None})
 
     embeddings = serving_client.send_inference_request(image_preprocessed)
-    result = graph.demo_update_node(embeddings, timestamp, node_id)
+    result = graph.update_node(embeddings, timestamp, node_id)
     ### Druid Decoration ###
-    # staff_id = graph.demo_check_staff(embeddings)
+    # staff_id = graph.check_staff(embeddings)
     # if staff_id: 
     #     payload = {
     #         'time' : datetime.datetime.utcnow().isoformat(),
@@ -215,13 +215,23 @@ def receive_entry_image():
     if image_preprocessed.size == 0:
         return json.dumps({'Face': 0, 'Result': None})
     embeddings = serving_client.send_inference_request(image_preprocessed)
-    staff_list = graph.demo_check_breach(embeddings, timestamp)
+    staff_list = graph.check_breach(embeddings, timestamp)
     ## For debug use, remove when production
     # print(staff_list)
     print("Total process time for node(" + str(node_id) + "): " + str(time.time() - a))
     ## Payload 
     return json.dumps({'Face': 1, 'Result': staff_list})
     
+
+@app.route('/sanushost/api/v1.0/entry_staff_check', methods=['POST'])
+def receive_entry_staff_check(): 
+    ## TODO implement a check on payload.
+    ## if any format violates the rules, stop the process. 
+    json_data = request.get_json()
+    timestamp = json_data['Timestamp']
+    staff = json_data['Staff']
+
+    return json.dumps(graph.check_breach_by_name(staff, timestamp))
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', threaded=True)
