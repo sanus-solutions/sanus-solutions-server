@@ -35,8 +35,8 @@ class SimpleGraph():
                 current_staff_records = self.hygiene_record.find('Staff', staff[0])
                 if current_staff_records.count(): 
                     for record in current_staff_records:
-                        timestamp = datetime.datetime.fromtimestamp(timestamp).replace(tzinfo=datetime.timezone.utc)
-                        time_diff = abs((record['Timestamp'].replace(tzinfo=datetime.timezone.utc) - timestamp).total_seconds())
+                        current_timestamp = datetime.datetime.fromtimestamp(timestamp).replace(tzinfo=datetime.timezone.utc)
+                        time_diff = abs((record['Timestamp'].replace(tzinfo=datetime.timezone.utc) - current_timestamp).total_seconds())
                         if time_diff < self.id_client.TIME_THRESH: 
                             staff_list.append((staff[0], 1)) # (Name, Clean)
                             break
@@ -51,8 +51,8 @@ class SimpleGraph():
         current_staff_records = self.hygiene_record.find('Staff', staff)
         if current_staff_records.count(): 
             for record in current_staff_records:
-                timestamp = datetime.datetime.fromtimestamp(timestamp).replace(tzinfo=datetime.timezone.utc)
-                time_diff = abs((record['Timestamp'].replace(tzinfo=datetime.timezone.utc) - timestamp).total_seconds())
+                current_timestamp = datetime.datetime.fromtimestamp(timestamp).replace(tzinfo=datetime.timezone.utc)
+                time_diff = abs((record['Timestamp'].replace(tzinfo=datetime.timezone.utc) - current_timestamp).total_seconds())
                 if time_diff < self.id_client.TIME_THRESH: 
                     return (staff, 1) # (Name, Clean)
         

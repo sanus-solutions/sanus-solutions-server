@@ -190,7 +190,7 @@ def receive_sanitizer_image():
 route for entry clients
 request payload format:
 #TODO: add image shape information in payload
-{'Timestamp': tiemstamp, 'NodeID': node_id, 'Image': [image_64str], 'Shape': image_shape}
+{'Timestamp': tiemstamp, 'NodeID': node_id, 'Image': image_64str, 'Shape': image_shape}
 Responses: {'Status': no face'}/{'Status': 'face'}/{'JobID': job_id}
 """
 @app.route('/sanushost/api/v1.0/entry_img', methods=['POST'])
