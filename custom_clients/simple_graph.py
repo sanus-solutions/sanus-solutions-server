@@ -3,6 +3,8 @@ sys.path.append(os.path.abspath('..'))
 import numpy as np
 from sanus_face_server.custom_clients import id_client
 from sanus_face_server.mongo import mongo_hygiene_client
+## logging
+import logging
 
 """
 minimal implementation of graph structure
@@ -23,8 +25,22 @@ class SimpleGraph():
         ## A temporary 
         self.hygiene_record = mongo_hygiene_client.MongoClient()
 
+        ## Logger 
+        level = self.log_level(logging.DEBUG)
+        self.logger = logging.getLogger('SimpleGraph')
+        self.logger.setLevel(level)
+
+        ## Temporary streamhandler for debug 
+        ch = logging.FileHandler("SimpleGraph.log")
+
+        ch.setLevel(level)
+        formatter = logging.Formatter('%(levelname)s - %(name)s - %(asctime)s - %(message)s')
+        ch.setFormatter(formatter)
+        self.logger.addHandler(ch)
+
     # DEMO USES ONLY METHODS BELOW
     def check_breach(self, embeddings, timestamp):
+        check_breach_time_start = time.time()
         staff_list = []
         for idx, emb in enumerate(embeddings):
             ## check_staff returns 
