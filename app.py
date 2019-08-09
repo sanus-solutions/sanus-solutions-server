@@ -161,27 +161,6 @@ def update_staff_status_clean():
 
     embeddings = serving_client.send_inference_request(image_preprocessed)
     result = graph.update_node(embeddings, timestamp, node_id)
-    ### Druid Decoration ###
-    # staff_id = graph.check_staff(embeddings)
-    # if staff_id: 
-    #     payload = {
-    #         'time' : datetime.datetime.utcnow().isoformat(),
-    #         'type' : 'Dispenser',
-    #         'nodeID' : node_id,
-    #         'staffID' : staff_id,
-    #         'unit' : 'ICU',
-    #         'room_number' : '25',
-    #         'response_type' : 'None',
-    #         'response_message' : 'None',
-    #     }
-    #     try:
-    #         response = requests.post('http://192.168.0.107:8200/v1/post/hospital', 
-    #             json=payload, 
-    #             headers={'Content_Type': 'application/json'}
-    #         )
-    #         print(response.json())
-    #     except Exception as e:
-    #         print(e)
 
     print("Total process time for node(" + str(node_id) + "): " + str(time.time() - a))
     return json.dumps({'Face': 1, 'Result': result})
