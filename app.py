@@ -135,8 +135,8 @@ request payload format:
 {'NodeID': node_id, 'Timestamp': timestamp, 'Image': image_64str, 'Shape': image_shape}
 Responses: {'Status': no face'}/{'Status': 'face'}
 """
-@app.route('/sanushost/api/v1.0/sanitizer_img', methods=['POST'])
-def receive_sanitizer_image():
+@app.route('/sanushost/api/v1.0/update_staff_status_clean', methods=['POST'])
+def update_staff_status_clean():
     ## For debug use, remove when production
     a = time.time()
 
@@ -193,8 +193,8 @@ request payload format:
 {'Timestamp': tiemstamp, 'NodeID': node_id, 'Image': image_64str, 'Shape': image_shape}
 Responses: {'Status': no face'}/{'Status': 'face'}/{'JobID': job_id}
 """
-@app.route('/sanushost/api/v1.0/entry_img', methods=['POST'])
-def receive_entry_image():    
+@app.route('/sanushost/api/v1.0/identify_face', methods=['POST'])
+def identify_face():    
     ## For debug use, remove when production
     a = time.time()
 
@@ -223,8 +223,8 @@ def receive_entry_image():
     return json.dumps({'Face': 1, 'Result': staff_list})
     
 
-@app.route('/sanushost/api/v1.0/entry_staff_check', methods=['POST'])
-def receive_entry_staff_check(): 
+@app.route('/sanushost/api/v1.0/check_staff_hygiene_status', methods=['POST'])
+def check_staff_hygiene_status(): 
     ## TODO implement a check on payload.
     ## if any format violates the rules, stop the process. 
     json_data = request.get_json()
