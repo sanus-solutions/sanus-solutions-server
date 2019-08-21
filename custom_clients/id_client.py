@@ -28,6 +28,21 @@ class IdClient():
         ch.setFormatter(formatter)
         self.logger.addHandler(ch)
 
+    def log_level(self, level):
+        ## if level doesn't match any, return DEBUG
+        if level == 'INFO':
+            return logging.INFO
+        elif level == 'DEBUG':
+            return logging.DEBUG
+        elif level == 'WARNING':
+            return logging.WARNING
+        elif level == 'ERROR':
+            return logging.ERROR
+        elif level == 'CRITICAL':
+            return logging.CRITICAL
+        else:
+            return logging.DEBUG
+
     def cosine_similarity(self, emb1, emb2):
         return np.dot(emb1, emb2)/(np.sqrt(np.sum(np.square(emb1))*np.sum(np.square(emb2))))
 
@@ -70,10 +85,10 @@ class IdClient():
                 return (staff['Staff'], 1)
 
         ## Generate random id and add new face embedding to library        
-        self.add_staff(emb, self.generate_serial())
-        self.logger.debug("Embedding is not found in databse, took %s iteration in %s seconds. New embedding is added to database.", 
-            str(counter),
-            str(time.time() - start_time))
+        # self.add_staff(emb, self.generate_serial())
+        # self.logger.debug("Embedding is not found in databse, took %s iteration in %s seconds. New embedding is added to database.", 
+        #     str(counter),
+        #     str(time.time() - start_time))
         return (None, 0)
 
     def generate_serial(self, size=9):
