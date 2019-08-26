@@ -47,16 +47,20 @@ class SimpleGraph():
                 staff_list.append((None, 0)) # (No name, Not clean)
         return staff_list
 
-    def check_breach_by_name(self, staff, timestamp):
-        current_staff_records = self.hygiene_record.find('Staff', staff)
-        if current_staff_records.count(): 
-            for record in current_staff_records:
-                current_timestamp = datetime.datetime.fromtimestamp(timestamp).replace(tzinfo=datetime.timezone.utc)
-                time_diff = abs((record['Timestamp'].replace(tzinfo=datetime.timezone.utc) - current_timestamp).total_seconds())
-                if time_diff < self.id_client.TIME_THRESH: 
-                    return (staff, 1) # (Name, Clean)
-        
-        return (staff, 0) # (Name, Not clean)
+    def check_breach_by_name(self, staff_list, timestamp):
+        result = []
+        for staff in staff_list:
+            current_staff_result = (staff, 0) # (Name, Not clean), default not clean
+            current_staff_records = self.hygiene_record.find('Staff', staff)
+            if current_staff_records.count(): 
+                for record in current_staff_records:
+                    current_timestamp = datetime.datetime.fromtimestamp(timestamp).replace(tzinfo=datetime.timezone.utc)
+                    time_diff = abs((record['Timestamp'].replace(tzinfo=datetime.timezone.utc) - current_timestamp).total_seconds())
+                    if time_diff < self.id_client.TIME_THRESH: 
+                        current_staff_result = (staff, 1) # Replace by 'clean'
+
+            result.append(current_staff_result) 
+        return result
 
     def update_node(self, embeddings, timestamp, node_id):
         for emb in embeddings:
