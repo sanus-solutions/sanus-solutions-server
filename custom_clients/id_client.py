@@ -73,24 +73,8 @@ class IdClient():
 
 
     def check_staff(self, emb): 
-        start_time = time.time()
-        counter = 0
         for staff in self.mongo_client.find_all():
-            counter += 1
             euc_dist = self.euclidean_distance(emb, np.asarray(staff['Embedding']))
             if euc_dist < self.EUC_THRESH:
-                self.logger.debug("Embedding is found in database, took %s iteration in %s seconds.", 
-                    str(counter), 
-                    str(time.time() - start_time))
                 return (staff['Staff'], 1)
-
-        ## Generate random id and add new face embedding to library        
-        # self.add_staff(emb, self.generate_serial())
-        # self.logger.debug("Embedding is not found in databse, took %s iteration in %s seconds. New embedding is added to database.", 
-        #     str(counter),
-        #     str(time.time() - start_time))
         return (None, 0)
-
-    def generate_serial(self, size=9):
-        chars=string.ascii_uppercase + string.digits
-        return ''.join(random.choice(chars) for i in range(size))
