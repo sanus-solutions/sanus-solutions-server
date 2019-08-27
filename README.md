@@ -175,9 +175,9 @@ Summary:
 * Detection Area: 90 +- 45 degrees both in vertical and horizontal.
 * Connection example(Raspberry PI GPIO):
  ![enter image description here](https://raspi.tv/wp-content/uploads/2013/07/Rev2-GPIO-bold-173x300.jpg)
-	* Connect Vdd to a 5V power (Pin4, red)
-	* Connect GND to GND (Pin6, black)
-	* Connect OUT to GPIO4 (Pin7, yellow)
+	* Connect PIR sensor Vdd to Raspberry Pi GPIO 5V power (Pin4, red)
+	* Connect PIR sensor GND to Raspberry Pi GPIO GND (Pin6, black)
+	* Connect PIR sensor OUT to Raspberry Pi GPIO GPIO4 (Pin7, yellow)
 * Python test script(with the above example connection)
 ```
 import RPi.GPIO
