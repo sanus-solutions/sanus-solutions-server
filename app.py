@@ -135,8 +135,8 @@ request payload format:
 {'NodeID': node_id, 'Timestamp': timestamp, 'Image': image_64str, 'Shape': image_shape}
 Responses: {'Status': no face'}/{'Status': 'face'}
 """
-@app.route('/sanushost/api/v1.0/sanitizer_img', methods=['POST'])
-def receive_sanitizer_image():
+@app.route('/sanushost/api/v1.0/update_staff_status_clean', methods=['POST'])
+def update_staff_status_clean():
     ## For debug use, remove when production
     a = time.time()
 
@@ -161,27 +161,6 @@ def receive_sanitizer_image():
 
     embeddings = serving_client.send_inference_request(image_preprocessed)
     result = graph.update_node(embeddings, timestamp, node_id)
-    ### Druid Decoration ###
-    # staff_id = graph.check_staff(embeddings)
-    # if staff_id: 
-    #     payload = {
-    #         'time' : datetime.datetime.utcnow().isoformat(),
-    #         'type' : 'Dispenser',
-    #         'nodeID' : node_id,
-    #         'staffID' : staff_id,
-    #         'unit' : 'ICU',
-    #         'room_number' : '25',
-    #         'response_type' : 'None',
-    #         'response_message' : 'None',
-    #     }
-    #     try:
-    #         response = requests.post('http://192.168.0.107:8200/v1/post/hospital', 
-    #             json=payload, 
-    #             headers={'Content_Type': 'application/json'}
-    #         )
-    #         print(response.json())
-    #     except Exception as e:
-    #         print(e)
 
     print("Total process time for node(" + str(node_id) + "): " + str(time.time() - a))
     return json.dumps({'Face': 1, 'Result': result})
@@ -193,8 +172,8 @@ request payload format:
 {'Timestamp': tiemstamp, 'NodeID': node_id, 'Image': image_64str, 'Shape': image_shape}
 Responses: {'Status': no face'}/{'Status': 'face'}/{'JobID': job_id}
 """
-@app.route('/sanushost/api/v1.0/entry_img', methods=['POST'])
-def receive_entry_image():    
+@app.route('/sanushost/api/v1.0/identify_face', methods=['POST'])
+def identify_face():    
     ## For debug use, remove when production
     a = time.time()
 
@@ -223,15 +202,15 @@ def receive_entry_image():
     return json.dumps({'Face': 1, 'Result': staff_list})
     
 
-@app.route('/sanushost/api/v1.0/entry_staff_check', methods=['POST'])
-def receive_entry_staff_check(): 
+@app.route('/sanushost/api/v1.0/check_staff_hygiene_status', methods=['POST'])
+def check_staff_hygiene_status(): 
     ## TODO implement a check on payload.
     ## if any format violates the rules, stop the process. 
     json_data = request.get_json()
     timestamp = json_data['Timestamp']
-    staff = json_data['Staff']
+    staff_list = json_data['StaffList']
 
-    return json.dumps(graph.check_breach_by_name(staff, timestamp))
+    return json.dumps(graph.check_breach_by_name(staff_list, timestamp))
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', threaded=True)
