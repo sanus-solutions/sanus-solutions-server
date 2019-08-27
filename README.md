@@ -1,3 +1,4 @@
+
 ![Flask](https://img.shields.io/pypi/pyversions/flask.svg)
 # Sanus Solutions Server Project
 ## Getting Started
@@ -164,9 +165,35 @@ sudo docker image remove [image-id]
 ```sh
 sudo docker exec -it <app_container_name> bash
 ```
+## Miscellaneous 
+### Panasonic PIR sensor(EKMC160711x)
+
+Summary:
+![enter image description here](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQtwb89ZXoI98raIz7WKmUY_5gE8raS_MlBYkTw3trRC7EpXByVMQ)
+* Pins in clockwise order are: Vdd, OUT, GND
+* Power Supply Voltage(VDC): Min 3.0, Max6.0. 
+* Detection Area: 90 +- 45 degrees both in vertical and horizontal.
+* Connection example(Raspberry PI GPIO):
+ ![enter image description here](https://raspi.tv/wp-content/uploads/2013/07/Rev2-GPIO-bold-173x300.jpg)
+	* Connect Vdd to a 5V power (Pin4, red)
+	* Connect GND to GND (Pin6, black)
+	* Connect OUT to GPIO4 (Pin7, yellow)
+* Python test script(with the above example connection)
+```
+import RPi.GPIO
+GPIO.setwarnings(False)
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(4, GPIO.IN)
+while 1:
+    print(GPIO.input(4))
+```
+
+For more information, download [specification.pdf](https://b2b-api.panasonic.eu/file_stream/pids/fileversion/4691):
 ## Authors
 * [Billy Zheng](https://github.com/hzheng40) - Docker, tensor-flow, mtcnn, flask
 * [Klaus Zeng](https://github.com/klauszeng) - flask, MongoDB
+
+## 
 
 ## License
 Copyright (c) <2019> <Sanus Solutions>
