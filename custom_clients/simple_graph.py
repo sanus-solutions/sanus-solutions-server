@@ -59,7 +59,7 @@ class SimpleGraph():
                     if time_diff < self.id_client.TIME_THRESH: 
                         current_staff_result = (staff, 1) # Replace by 'clean'
 
-            result.append(current_staff_result) 
+            result.append(current_staff_result)
         return result
 
     def update_node(self, embeddings, timestamp, node_id):
