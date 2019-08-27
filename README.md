@@ -169,7 +169,7 @@ sudo docker exec -it <app_container_name> bash
 ### Panasonic PIR sensor(EKMC160711x)
 
 Summary:
-![enter image description here](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQtwb89ZXoI98raIz7WKmUY_5gE8raS_MlBYkTw3trRC7EpXByVMQ)
+<img width="457" alt="Screen Shot 2019-08-27 at 1 44 25 PM" src="https://user-images.githubusercontent.com/18204443/63794870-cd9ecd00-c8d0-11e9-94b1-dd33a750c20d.png">
 * Pins in clockwise order are: Vdd, OUT, GND
 * Power Supply Voltage(VDC): Min 3.0, Max6.0. 
 * Detection Area: 90 +- 45 degrees both in vertical and horizontal.
