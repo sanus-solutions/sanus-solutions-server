@@ -208,9 +208,9 @@ def check_staff_hygiene_status():
     ## if any format violates the rules, stop the process. 
     json_data = request.get_json()
     timestamp = json_data['Timestamp']
-    staff = json_data['Staff']
+    staff_list = json_data['StaffList']
 
-    return json.dumps(graph.check_breach_by_name(staff, timestamp))
+    return json.dumps(graph.check_breach_by_name(staff_list, timestamp))
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', threaded=True)
