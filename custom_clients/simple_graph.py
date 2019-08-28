@@ -3,7 +3,6 @@ sys.path.append(os.path.abspath('..'))
 import numpy as np
 from sanus_face_server.custom_clients import id_client
 from sanus_face_server.mongo import mongo_hygiene_client
-
 """
 minimal implementation of graph structure
 """
@@ -24,7 +23,8 @@ class SimpleGraph():
         self.hygiene_record = mongo_hygiene_client.MongoClient()
 
     # DEMO USES ONLY METHODS BELOW
-    def demo_check_breach(self, embeddings, timestamp):
+    def check_breach(self, embeddings, timestamp):
+        check_breach_time_start = time.time()
         staff_list = []
         for idx, emb in enumerate(embeddings):
             ## check_staff returns 
@@ -35,9 +35,8 @@ class SimpleGraph():
                 current_staff_records = self.hygiene_record.find('Staff', staff[0])
                 if current_staff_records.count(): 
                     for record in current_staff_records:
-                        timestamp = datetime.datetime.fromtimestamp(timestamp).replace(tzinfo=datetime.timezone.utc)
-                        time_diff = abs((record['Timestamp'].replace(tzinfo=datetime.timezone.utc) - timestamp).total_seconds())
-                        print(time_diff)
+                        current_timestamp = datetime.datetime.fromtimestamp(timestamp).replace(tzinfo=datetime.timezone.utc)
+                        time_diff = abs((record['Timestamp'].replace(tzinfo=datetime.timezone.utc) - current_timestamp).total_seconds())
                         if time_diff < self.id_client.TIME_THRESH: 
                             staff_list.append((staff[0], 1)) # (Name, Clean)
                             break
@@ -48,7 +47,22 @@ class SimpleGraph():
                 staff_list.append((None, 0)) # (No name, Not clean)
         return staff_list
 
-    def demo_update_node(self, embeddings, timestamp, node_id):
+    def check_breach_by_name(self, staff_list, timestamp):
+        result = []
+        for staff in staff_list:
+            current_staff_result = (staff, 0) # (Name, Not clean), default not clean
+            current_staff_records = self.hygiene_record.find('Staff', staff)
+            if current_staff_records.count(): 
+                for record in current_staff_records:
+                    current_timestamp = datetime.datetime.fromtimestamp(timestamp).replace(tzinfo=datetime.timezone.utc)
+                    time_diff = abs((record['Timestamp'].replace(tzinfo=datetime.timezone.utc) - current_timestamp).total_seconds())
+                    if time_diff < self.id_client.TIME_THRESH: 
+                        current_staff_result = (staff, 1) # Replace by 'clean'
+
+            result.append(current_staff_result)
+        return result
+
+    def update_node(self, embeddings, timestamp, node_id):
         for emb in embeddings:
             staff = self.id_client.check_staff(emb)
             if staff[1]:
@@ -67,7 +81,7 @@ class SimpleGraph():
                     return False
         return False
 
-    def demo_check_staff(self, embeddings):
+    def check_staff(self, embeddings):
         for idx, emb in enumerate(embeddings):
             staff = self.id_client.check_staff(emb)
             if staff[0]:
@@ -92,7 +106,7 @@ class SimpleGraph():
         embeddings and timestamp default to None
         """
         try:    
-            staff_id = graph.demo_check_staff(embeddings)
+            staff_id = graph.check_staff(embeddings)
             temp = self.node_list[node_id]
             #print('Node exists, with neighbors: ' + str(temp['neighbors']) + 'and type ' + temp['node_type'])
             return 0

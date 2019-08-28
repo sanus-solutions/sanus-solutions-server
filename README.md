@@ -1,3 +1,4 @@
+
 ![Flask](https://img.shields.io/pypi/pyversions/flask.svg)
 # Sanus Solutions Server Project
 ## Getting Started
@@ -69,6 +70,7 @@ Please refer to MongoDB Community for full installation guide([mongo ubuntu](htt
 
 ## Running and Testing
 ### Quick Start
+Navigate to quickstart folder.
 1. Open a terminal and enter(skip ./build_server.sh if built before).
 ```sh
 ./build_server.sh
@@ -163,9 +165,39 @@ sudo docker image remove [image-id]
 ```sh
 sudo docker exec -it <app_container_name> bash
 ```
+## Miscellaneous 
+### Panasonic PIR sensor(EKMC160711x)
+
+Summary:
+<img width="457" alt="Screen Shot 2019-08-27 at 1 44 25 PM" src="https://user-images.githubusercontent.com/18204443/63794870-cd9ecd00-c8d0-11e9-94b1-dd33a750c20d.png">
+* Pins in clockwise order are: Vdd, OUT, GND
+* Power Supply Voltage(VDC): Min 3.0, Max6.0. 
+* Detection Area: 90 +- 45 degrees both in vertical and horizontal.
+* Connection example(Raspberry PI GPIO):
+ ![enter image description here](https://raspi.tv/wp-content/uploads/2013/07/Rev2-GPIO-bold-173x300.jpg)
+	* Connect PIR sensor Vdd to Raspberry Pi GPIO 5V power (Pin4, red)
+	* Connect PIR sensor GND to Raspberry Pi GPIO GND (Pin6, black)
+	* Connect PIR sensor OUT to Raspberry Pi GPIO GPIO4 (Pin7, yellow)
+* Python test script(with the above example connection)
+```
+import RPi.GPIO
+GPIO.setwarnings(False)
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(4, GPIO.IN)
+while 1:
+    print(GPIO.input(4))
+```
+
+For more information, download [specification.pdf](https://b2b-api.panasonic.eu/file_stream/pids/fileversion/4691).
+
+### Issues 
+PIR sensor is fully functional and tested with Raspberry Pi 3B+, but not when moving to Raspberry Pi 4. On one Pi 4 the signal is always at 1(suspected error caused by disconnection) and on the other Pi 4 is fluctuate between 1 and 0. It's unlikely a sensor issue, rather a Raspberry Pi 4's.
+
 ## Authors
 * [Billy Zheng](https://github.com/hzheng40) - Docker, tensor-flow, mtcnn, flask
 * [Klaus Zeng](https://github.com/klauszeng) - flask, MongoDB
+
+## 
 
 ## License
 Copyright (c) <2019> <Sanus Solutions>
