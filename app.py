@@ -19,6 +19,7 @@ import click
 import time
 import datetime 
 import requests # This and flask request library are NOT the same thing!
+import cv2
 
 app = Flask(__name__)
 serving_client = tf_serving_client.TFServingClient()
@@ -183,9 +184,8 @@ def identify_face():
     timestamp = json_data['Timestamp']
     node_id = json_data['NodeID']
     image_shape = ast.literal_eval(json_data['Shape'])
-    image_str = str.encode(json_data['Image'])
-    image = np.frombuffer(base64.b64decode(image_str), dtype=np.float64)
-    image = image.astype(np.uint8)
+    image_original = base64.b64decode(json_data['Image'])
+    image = np.frombuffer(image_original, dtype=np.uint8)
     image = np.reshape(image, image_shape)
 
     if config.USE_MTCNN:
