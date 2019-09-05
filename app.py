@@ -19,6 +19,7 @@ import click
 import time
 import datetime 
 import requests # This and flask request library are NOT the same thing!
+import cv2
 
 app = Flask(__name__)
 serving_client = tf_serving_client.TFServingClient()
@@ -102,7 +103,7 @@ def add_face():
     json_data = request.get_json()
     image_str = json_data['Image']
     image_shape = ast.literal_eval(json_data['Shape'])
-    image_id = json_data['ID']
+    image_id = json_data['Staff']
     image = np.frombuffer(base64.b64decode(image_str), dtype=np.float64)
     image = image.astype(np.uint8)    
     image = np.reshape(image, image_shape)
@@ -135,8 +136,8 @@ request payload format:
 {'NodeID': node_id, 'Timestamp': timestamp, 'Image': image_64str, 'Shape': image_shape}
 Responses: {'Status': no face'}/{'Status': 'face'}
 """
-@app.route('/sanushost/api/v1.0/sanitizer_img', methods=['POST'])
-def receive_sanitizer_image():
+@app.route('/sanushost/api/v1.0/update_staff_status_clean', methods=['POST'])
+def update_staff_status_clean():
     ## For debug use, remove when production
     a = time.time()
 
@@ -160,41 +161,20 @@ def receive_sanitizer_image():
         return json.dumps({'Face': 0, 'Result': None})
 
     embeddings = serving_client.send_inference_request(image_preprocessed)
-    result = graph.demo_update_node(embeddings, timestamp, node_id)
-    ### Druid Decoration ###
-    # staff_id = graph.demo_check_staff(embeddings)
-    # if staff_id: 
-    #     payload = {
-    #         'time' : datetime.datetime.utcnow().isoformat(),
-    #         'type' : 'Dispenser',
-    #         'nodeID' : node_id,
-    #         'staffID' : staff_id,
-    #         'unit' : 'ICU',
-    #         'room_number' : '25',
-    #         'response_type' : 'None',
-    #         'response_message' : 'None',
-    #     }
-    #     try:
-    #         response = requests.post('http://192.168.0.107:8200/v1/post/hospital', 
-    #             json=payload, 
-    #             headers={'Content_Type': 'application/json'}
-    #         )
-    #         print(response.json())
-    #     except Exception as e:
-    #         print(e)
+    result = graph.update_node(embeddings, timestamp, node_id)
 
     print("Total process time for node(" + str(node_id) + "): " + str(time.time() - a))
-    return json.dumps({'Face': 1, 'Result': "updated"})
+    return json.dumps({'Face': 1, 'Result': result})
 
 """
 route for entry clients
 request payload format:
 #TODO: add image shape information in payload
-{'Timestamp': tiemstamp, 'NodeID': node_id, 'Image': [image_64str], 'Shape': image_shape}
+{'Timestamp': tiemstamp, 'NodeID': node_id, 'Image': image_64str, 'Shape': image_shape}
 Responses: {'Status': no face'}/{'Status': 'face'}/{'JobID': job_id}
 """
-@app.route('/sanushost/api/v1.0/entry_img', methods=['POST'])
-def receive_entry_image():    
+@app.route('/sanushost/api/v1.0/identify_face', methods=['POST'])
+def identify_face():    
     ## For debug use, remove when production
     a = time.time()
 
@@ -204,9 +184,8 @@ def receive_entry_image():
     timestamp = json_data['Timestamp']
     node_id = json_data['NodeID']
     image_shape = ast.literal_eval(json_data['Shape'])
-    image_str = str.encode(json_data['Image'])
-    image = np.frombuffer(base64.b64decode(image_str), dtype=np.float64)
-    image = image.astype(np.uint8)
+    image_original = base64.b64decode(json_data['Image'])
+    image = np.frombuffer(image_original, dtype=np.uint8)
     image = np.reshape(image, image_shape)
 
     if config.USE_MTCNN:
@@ -215,13 +194,23 @@ def receive_entry_image():
     if image_preprocessed.size == 0:
         return json.dumps({'Face': 0, 'Result': None})
     embeddings = serving_client.send_inference_request(image_preprocessed)
-    staff_list = graph.demo_check_breach(embeddings, timestamp)
+    staff_list = graph.check_breach(embeddings, timestamp)
     ## For debug use, remove when production
     # print(staff_list)
     print("Total process time for node(" + str(node_id) + "): " + str(time.time() - a))
     ## Payload 
     return json.dumps({'Face': 1, 'Result': staff_list})
     
+
+@app.route('/sanushost/api/v1.0/check_staff_hygiene_status', methods=['POST'])
+def check_staff_hygiene_status(): 
+    ## TODO implement a check on payload.
+    ## if any format violates the rules, stop the process. 
+    json_data = request.get_json()
+    timestamp = json_data['Timestamp']
+    staff_list = json_data['StaffList']
+
+    return json.dumps(graph.check_breach_by_name(staff_list, timestamp))
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', threaded=True)

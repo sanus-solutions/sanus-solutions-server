@@ -496,3 +496,17 @@ Test30:
  - Number of requests: 100
  - Average time: 0.609387545586
  - Standard deviation: 0.0217111116882
+
+####################################################################################
+## Distance test
+####################################################################################
+
+Test31:
+  - staff photo in graph: 2 (klaus + luka)
+  - no hygiene record
+
+  1. Dispenser2 (wireless)
+   - Request payload: luka.png(480p)
+   - Number of request: 100
+   - Average time: 1.40839240789
+   - Standard deviation: 0.132097257824

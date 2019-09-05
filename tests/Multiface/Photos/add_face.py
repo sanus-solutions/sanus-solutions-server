@@ -9,5 +9,5 @@ image = np.asarray(Image.open('luka.png'), dtype=np.uint8)
 shape_string = str(image.shape)
 image = image.astype(np.float64)
 img_64 = base64.b64encode(image).decode('ascii')
-payload = {"Image": img_64, "Shape": shape_string, "ID": 'luka'}
+payload = {"Image": img_64, "Shape": shape_string, "Staff": 'luka'}
 result = requests.post(url, json=payload, headers=headers)

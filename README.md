@@ -1,25 +1,21 @@
-# I. KNOWN ISSUES:
-* Pretrained models trained on CASIA-WebFace and VGGFace2 has poor performance when it comes to Asian faces.
-* Dlib preprocessor (face detector) will not work with large image.
-* Gunicorn experienced error [critical] worker timeout(pid:49). 
-* Face_embedding storage is on local. Every Gunicorn worker has its own copy.
-* Scipy image libraries deprecated. 
 
-# II. Local Server structure  
+![Flask](https://img.shields.io/pypi/pyversions/flask.svg)
+# Sanus Solutions Server Project
+## Getting Started
+### Server Structure
 There are several main components to the local server:  
-* Docker container for Flask webapp.  (via port 5000 on actual server machine ip)  
-* Docker container for Tensorflow Serving module for MTCNN preprocessor. (via port 8500 on assigned ip on docker network)  
-* Docker container for Tensorflow Serving module for extracting face embeddings. (via port 8500 on assigned ip on docker network)  
-* Docker network that connects all the containers.  
+1. Docker container for Flask webapp.  (via port 5000 on actual server machine ip)  
+2. Docker container for Tensorflow Serving module for extracting face embeddings. (via port 8500 on assigned ip on docker network)  
+3. Docker container for Tensorflow Serving module for MTCNN preprocessor. (via port 8501 on assigned ip on docker network)  
+4. Docker network that connects all the containers.  
+5. MongoDB running on server machine(Temporary).
 
-# III. Install Dependencies for local server:  
+### Prerequisites
+#### 1. Install Docker
+* [Install docker](https://docs.docker.com/install/), follow instruction for the OS where tensorflow serving model server will run (macos or linux).  
+* The docker commands listed below might need be ran with root access: ```sudo```  
 
-## 1. Install Docker
-* Install docker, follow instruction for the OS where tensorflow serving model server will run (macos or linux).  
-* The ```docker``` commands listed below might need be ran with root access: ```sudo docker```  
-
-## 2. Install Nvidia Driver and Nvidia Runtime for docker
-* This section is only for containers with GPU support. If you're only using the minimal containers without GPU support, you can skip this section.    
+#### 2. Install Nvidia Driver and Nvidia Runtime for Docker 
 * All containers with GPU support will only run on Linux host systems because the Nvidia Runtime ```nvidia-docker``` only supports Linux.  
 * First install Nvidia driver for GPU: first check the list of packages for the gpu using: ```sudo ubuntu-drivers devices``` then use apt-get to install the driver package. For example:  
 ```sh
@@ -56,74 +52,154 @@ sudo pkill -SIGHUP dockerd
 # Test nvidia-smi with the latest official CUDA image. 
 docker run --runtime=nvidia --rm nvidia/cuda:9.0-base nvidia-smi
 ```
-
-## 3. Build the Dockerfiles and run containers  
-There are three containers you need to run (two if using Dlib preprocessor, which is not recommeded because of memory issues with larger images.)  
-### Flask app container without GPU support for Dlib:  
-* This should be used as the default because the default preprocessor using MTCNN will be running in a seperate docker container.  
-* The Dockerfile [Dockerfile.flask-app](https://github.com/sanus-solutions/sanus_face_server/blob/server_dev/Dockerfile.flask-app) builds the container for the Flask app, port 5000 is exposed.  
-* Building the dockerfile(Installing dlib might take a bit.)  : 
-```sh
-docker build -t <app_image_name_here> -f Dockerfile.flask-app .
+#### 3. Install MongoDB
+* Import the public key used by the package management system.
 ```
-* Running the docker container: 
+sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
+```
+* Create a list file for MongoDB(Ubuntu18.04).
+```
+echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.0.list
+sudo apt-get update
+```
+* Install the MongoDB packages.
+```
+sudo apt-get install -y mongodb-org
+```
+Please refer to MongoDB Community for full installation guide([mongo ubuntu](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/#install-mongodb-community-edition-using-deb-packages)). 
+
+## Running and Testing
+### Quick Start
+Navigate to quickstart folder.
+1. Open a terminal and enter(skip ./build_server.sh if built before).
 ```sh
-docker run --name <app_container_name> -it -p 5000:5000 --rm <app_image_name_here>
+./build_server.sh
+./run_server.sh
+```
+2. Open a second terminal and enter(skip ./build_tensorflow.sh if built before).
+```sh
+./build_tensorflow.sh
+./run_tensorflow.sh
+```
+3. Open a third terminal and enter(skip ./build_mtcnn.sh if built before).
+```sh
+./build_mtcnn.sh
+./run_mtcnn.sh
+```
+4. Open a forth terminal and enter.
+```sh
+./connect_services.sh
+```
+5. Open a fifth terminal and enter.
+```sh
+./run_mongodb.sh
+```
+
+### Manual Build/Run
+#### Flask App Container with GPU Support for Dlib:  
+* The Dockerfile Dockerfile.flask-app builds the container for the Flask app, port 5000 is exposed.  
+* Building/Running the dockerfile(only needs to build ONCE): 
+```sh
+sudo docker build -t <app_image_name_here> -f Dockerfile.flask-app .
+sudo docker run --name <app_container_name> -it -p 5000:5000 --rm <app_image_name_here>
 ``` 
 Tags explained: ```-it```: interactive session, ```--rm```: container will be deleted once it exits, ```-p```: allow port traffic.  
-* Dlib will be slower when dealing with larger images since there's no gpu support.  
+
 
 ### Tensorflow Serving (for Embeddings) with GPU support:  
 * The TF serving container will only run on a Linux host machine because there's no runtime support for macOS and Windows.  
 * The TF serving container with GPU support needs up-to-date NVIDIA driver and the NVIDIA Container Runtime ```nvidia-docker```.  
 * The Dockerfile [Dockerfile.serving-gpu](https://github.com/sanus-solutions/sanus_face_server/blob/server_dev/Dockerfile.serving-gpu) builds the TF serving container with gpu support.  
-* Building the Dockerfile: 
+* Building/Running the Dockerfile(only needs to build ONCE): 
 ```sh
-docker build -t <serving_image_name_here> -f Dockerfile.serving-gpu .
-```   
-* Running the Docker container: 
-```sh
-docker run --runtime=nvidia --name <serving_container_name> -it -p 8500:8500 --rm <serving_image_name_here>
+sudo docker build -t <serving_image_name_here> -f Dockerfile.serving-gpu .
+sudo docker run --runtime=nvidia --name <serving_container_name> -it -p 8500:8500 --rm <serving_image_name_here>
 ``` 
 
-### Mtcnn Serving with GPU support:  
+### Mtcnn Serving with GPU Support:  
 * The Dockerfile Dockerfile.mtcnn-serving-gpu builds the Mtcnn serving container with gpu support.  
-* Building the Dockerfile: 
+* Building/Running the Dockerfile(only needs to build ONCE): 
 ```sh
-docker build -t <mtcnn_serving_image_name_here> -f Dockerfile.mtcnn-serving-gpu .
-```   
-* Running the Docker container: 
-```sh
-docker run --runtime=nvidia --name <mtcnn_serving_container_name> -it -p 8501:8501 --rm <mtcnn_serving_image_name_here>
+sudo docker build -t <mtcnn_serving_image_name_here> -f Dockerfile.mtcnn-serving-gpu .
+sudo docker run --runtime=nvidia --name <mtcnn_serving_container_name> -it -p 8501:8501 --rm <mtcnn_serving_image_name_here>
 ```  
-
-## 4. Connecting the Docker containers  
-### First create a docker network using: 
+### Connecting the Docker containers  
+* First create a docker network using: 
 ```sh
-docker network create --driver=bridge --subnet=<user_specified_subnet> <network_name>
+sudo docker network create --driver=bridge --subnet=172.168.0.0/16 sanus-network
 ```
-For example: 
+* The subnet ```172.168.0.0/16``` works with the default TF serving container ip address (```TF_HOST```) specified in config.py. The IP address of the Flask app container is not important since the communication with it from the camera nodes will be handled by the host machine, not the containers. Connect the flask app container with: 
 ```sh
-docker network create --driver=bridge --subnet=172.168.0.0/16 sanus-network
-```
-The subnet ```172.168.0.0/16``` works with the default TF serving container ip address (```TF_HOST```) specified in [config.py](https://github.com/sanus-solutions/sanus_face_server/blob/server_dev/config/config.py).
-The IP address of the Flask app container is not important since the communication with it from the camera nodes will be handled by the host machine, not the containers. Connect the flask app container with: 
-```sh
-docker network connect sanus-network flask
+sudo docker network connect sanus-network <app_container_name>
 ```  
-Then we need to connect the TF/Mtcnn serving containers to the network with an assigned ip address so the flask app can send request to the model server. Again, a default ip address is assigned in [config.py](https://github.com/sanus-solutions/sanus_face_server/blob/server_dev/config/config.py). Connect the serving container to the network by: 
+* Then we need to connect the TF/Mtcnn serving containers to the network with an assigned ip address so the flask app can send request to the model server. Again, a default ip address is assigned in config.py. Connect the serving container to the network by: 
 ```sh
-docker network connect --ip <assigned_ip_here> <network_name> <serving_container_name>
-```
-For example: 
-```sh
-docker network connect --ip 172.168.0.3 sanus-network tf_serving_container
-docker network connect --ip 172.168.0.4 sanus-network mtcnn_serving_container
+sudo docker network connect --ip 172.168.0.3 sanus-network <serving_container_name>
+sudo docker network connect --ip 172.168.0.4 sanus-network <mtcnn_serving_container_name>
 ```  
+### MongoDB Setup
+* Edit /etc/mongod.conf to bind your ip to allow remote access.(only the FIRST TIME)
+```sh
+# network interfaces
+net:
+	port 27017
+	bingIp: 127.0.0.1, [IP goes here]
+```
+* Start MongoDB. To verify if MongoDB is running, check /var/log/mongodb/mongod.log
+```sh
+sudo service mongod start
+```
+Refer to mongo folder README for more helpful resources.
 
+## Known Issues and Notes
+### Known issues
+* Pretrained models trained on CASIA-WebFace and VGGFace2 has poor performance when it comes to Asian faces.
+* Dlib preprocessor (face detector) will not work with large image.
+### Docker
+* Regularly check docker image and container usage. Remove any unused image/container if delete flag is not provided. 
+```sh
+sudo docker image ls
+sudo docker image remove [image-id]
+```
+* Runtime log files are saved in container, to access container shell
+```sh
+sudo docker exec -it <app_container_name> bash
+```
+## Miscellaneous 
+### Panasonic PIR sensor(EKMC160711x)
 
-# License
+Summary:
+<img width="457" alt="Screen Shot 2019-08-27 at 1 44 25 PM" src="https://user-images.githubusercontent.com/18204443/63794870-cd9ecd00-c8d0-11e9-94b1-dd33a750c20d.png">
+* Pins in clockwise order are: Vdd, OUT, GND
+* Power Supply Voltage(VDC): Min 3.0, Max6.0. 
+* Detection Area: 90 +- 45 degrees both in vertical and horizontal.
+* Connection example(Raspberry PI GPIO):
+ ![enter image description here](https://raspi.tv/wp-content/uploads/2013/07/Rev2-GPIO-bold-173x300.jpg)
+	* Connect PIR sensor Vdd to Raspberry Pi GPIO 5V power (Pin4, red)
+	* Connect PIR sensor GND to Raspberry Pi GPIO GND (Pin6, black)
+	* Connect PIR sensor OUT to Raspberry Pi GPIO GPIO4 (Pin7, yellow)
+* Python test script(with the above example connection)
+```
+import RPi.GPIO
+GPIO.setwarnings(False)
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(4, GPIO.IN)
+while 1:
+    print(GPIO.input(4))
+```
 
+For more information, download [specification.pdf](https://b2b-api.panasonic.eu/file_stream/pids/fileversion/4691).
+
+### Issues 
+PIR sensor is fully functional and tested with Raspberry Pi 3B+, but not when moving to Raspberry Pi 4. On one Pi 4 the signal is always at 1(suspected error caused by disconnection) and on the other Pi 4 is fluctuate between 1 and 0. It's unlikely a sensor issue, rather a Raspberry Pi 4's.
+
+## Authors
+* [Billy Zheng](https://github.com/hzheng40) - Docker, tensor-flow, mtcnn, flask
+* [Klaus Zeng](https://github.com/klauszeng) - flask, MongoDB
+
+## 
+
+## License
 Copyright (c) <2019> <Sanus Solutions>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
