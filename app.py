@@ -101,12 +101,15 @@ Responses: {'Status': 'no face'}, {'Status': 'success'}, {'Status': 'failed'}
 @app.route('/sanushost/api/v1.0/add_face', methods=['POST'])
 def add_face():
     json_data = request.get_json()
-    image_str = json_data['Image']
     image_shape = ast.literal_eval(json_data['Shape'])
     image_id = json_data['Staff']
-    image = np.frombuffer(base64.b64decode(image_str), dtype=np.float64)
-    image = image.astype(np.uint8)    
+
+    ## Image decoding
+    image_original = base64.b64decode(json_data['Image'])
+    image = np.frombuffer(image_original, dtype=np.uint8)
+    image = cv2.imdecode(image, -1)
     image = np.reshape(image, image_shape)
+
     if config.USE_MTCNN:
         image = image[...,::-1]
 
@@ -146,8 +149,11 @@ def update_staff_status_clean():
     timestamp = json_data['Timestamp']
     node_id = json_data['NodeID']
     image_shape = ast.literal_eval(json_data['Shape'])
-    image = np.frombuffer(base64.b64decode(image_str), dtype=np.float64)
-    image = image.astype(np.uint8)
+
+    ## Image decoding
+    image_original = base64.b64decode(json_data['Image'])
+    image = np.frombuffer(image_original, dtype=np.uint8)
+    image = cv2.imdecode(image, -1)
     image = np.reshape(image, image_shape)
 
     if config.USE_MTCNN:
@@ -184,8 +190,11 @@ def identify_face():
     timestamp = json_data['Timestamp']
     node_id = json_data['NodeID']
     image_shape = ast.literal_eval(json_data['Shape'])
+
+    ## Image decoding
     image_original = base64.b64decode(json_data['Image'])
     image = np.frombuffer(image_original, dtype=np.uint8)
+    image = cv2.imdecode(image, -1)
     image = np.reshape(image, image_shape)
 
     if config.USE_MTCNN:
