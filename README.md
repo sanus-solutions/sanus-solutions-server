@@ -190,8 +190,8 @@ while 1:
 
 For more information, download [specification.pdf](https://b2b-api.panasonic.eu/file_stream/pids/fileversion/4691).
 
-### Issues 
-PIR sensor is fully functional and tested with Raspberry Pi 3B+, but not when moving to Raspberry Pi 4. On one Pi 4 the signal is always at 1(suspected error caused by disconnection) and on the other Pi 4 is fluctuate between 1 and 0. It's unlikely a sensor issue, rather a Raspberry Pi 4's.
+### Issues/Troubleshooting
+Panasonic PIR Sensor needs to be connected precisely in order to work. PIR sensor is fully functional and tested with Raspberry Pi 3B+, but not when moving to Raspberry Pi 4. On one Pi 4 the signal is always at 1(suspected error caused by disconnection) and on the other Pi 4 is fluctuate between 1 and 0. It's unlikely a sensor issue, rather a Raspberry Pi 4's. 
 
 ## Authors
 * [Billy Zheng](https://github.com/hzheng40) - Docker, tensor-flow, mtcnn, flask
