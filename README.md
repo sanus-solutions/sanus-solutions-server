@@ -154,17 +154,8 @@ Refer to mongo folder README for more helpful resources.
 ## Known Issues and Notes
 ### Known issues
 * Pretrained models trained on CASIA-WebFace and VGGFace2 has poor performance when it comes to Asian faces.
-* Dlib preprocessor (face detector) will not work with large image.
-### Docker
-* Regularly check docker image and container usage. Remove any unused image/container if delete flag is not provided. 
-```sh
-sudo docker image ls
-sudo docker image remove [image-id]
-```
-* Runtime log files are saved in container, to access container shell
-```sh
-sudo docker exec -it <app_container_name> bash
-```
+* All server and client code is only tested with python3.6.x. python3.7 doesn't support json library bytes string serialization. 
+
 ## Miscellaneous 
 ### Panasonic PIR sensor(EKMC160711x)
 
