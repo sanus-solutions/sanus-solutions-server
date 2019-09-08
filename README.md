@@ -103,7 +103,13 @@ Navigate to quickstart folder.
 sudo docker build -t <app_image_name_here> -f Dockerfile.flask-app .
 sudo docker run --name <app_container_name> -it -p 5000:5000 --rm <app_image_name_here>
 ``` 
-Tags explained: ```-it```: interactive session, ```--rm```: container will be deleted once it exits, ```-p```: allow port traffic.  
+For debugging, mount your host server directory with container server directory. Any changes in your host server directory will immediately reflect on container as well. 
+```sh
+sudo docker stop flask-container
+sudo docker container remove flask-container
+sudo docker run -it --name=flask-container --mount type=bind,source=/home/sanus/Desktop/sanus_solutions_server,destination=/sanus_face_server -p 5000:5000 flask
+```
+Tags explained: ```-it```: interactive session, ```--rm```: container will be deleted once it exits, ```-p```: allow port traffic. 
 
 
 ### Tensorflow Serving (for Embeddings) with GPU support:  

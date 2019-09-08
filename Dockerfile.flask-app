@@ -24,13 +24,13 @@ RUN pip3 --no-cache-dir install \
 	pymongo \ 
 	Flask-PyMongo
 
-COPY . /sanus_face_server
+COPY . /sanus_server
 ENV FLASK_APP=app.py
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 EXPOSE 5000
-WORKDIR /sanus_face_server
+WORKDIR /sanus_server
 #ENTRYPOINT ["flask"]
 ENTRYPOINT ["gunicorn"]
 #CMD ["run", "--host=0.0.0.0"]
-CMD ["-b", "0.0.0.0:5000", "-w", "9", "--log-level", "debug", "app:app"]
+CMD ["-b", "0.0.0.0:5000", "-w", "9", "--log-level", "debug", "--reload" "app:app"]
