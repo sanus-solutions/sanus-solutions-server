@@ -32,6 +32,18 @@ sudo apt-get install nvidia-410
 ```  
 Currently running nvidia-410(This is meant for the GTX1080 using right now). Refer to Nvidia dev forum for installation guide. 
 
+Run the following after installation to check if driver is successfully installed. 
+```sh
+nvidia-smi 
+```
+If your nvidia-smi failed to communicate but you've installed the driver so many times, check prime-select.
+
+Run ```prime-select query``` to get all possible options. You should see at least nvidia | intel.
+Choose ```prime-select nvidia```.
+If it says nvidia is already selected, select a different one, e.g. ```prime-select intel```, then switch back to nvidia ```prime-select nvidia```
+Reboot and check nvidia-smi.
+
+
 * Then install the [NVIDIA Runtime](https://github.com/NVIDIA/nvidia-docker) ```nvidia-docker```:  
 ```sh
 # If you have nvidia-docker 1.0 installed: we need to remove it and all existing GPU containers
