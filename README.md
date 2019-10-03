@@ -85,8 +85,8 @@ Please refer to MongoDB Community for full installation guide([mongo ubuntu](htt
 ### Quick Start
 1. Open a terminal and enter(skip ./build_server.sh if built before).
 ```sh
-./build_server.sh
-./run_server.sh
+./build_flask.sh
+./run_flask.sh
 ```
 2. Open a second terminal and enter(skip ./build_tensorflow.sh if built before).
 ```sh
