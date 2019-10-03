@@ -28,9 +28,9 @@ driver   : xserver-xorg-video-nouveau - distro free builtin
 
 sudo add-apt-repository ppa:graphics-drivers/ppa
 sudo apt-get update
-sudo apt-get install nvidia-410
+sudo apt-get install nvidia-430
 ```  
-Currently running nvidia-410(This is meant for the GTX1080 using right now). Refer to Nvidia dev forum for installation guide. 
+Currently running nvidia-430(This is meant for the RTX2080 using right now). Refer to Nvidia dev forum for installation guide. 
 
 Run the following after installation to check if driver is successfully installed. 
 ```sh
