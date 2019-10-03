@@ -26,6 +26,8 @@ modalias : pci:v000010DEd00001B80sv00001462sd00003369bc03sc00i00
 driver   : nvidia-384 - distro non-free recommended  
 driver   : xserver-xorg-video-nouveau - distro free builtin
 
+sudo add-apt-repository ppa:graphics-drivers/ppa
+sudo apt-get update
 sudo apt-get install nvidia-410
 ```  
 Currently running nvidia-410(This is meant for the GTX1080 using right now). Refer to Nvidia dev forum for installation guide. 
