@@ -6,7 +6,7 @@ import json
 import cv2
 
 
-url = 'http://192.168.1.101:5000/sanushost/api/v1.0/identify_face'
+url = 'http://192.168.1.31:5000/sanushost/api/v1.0/identify_face'
 # url = 'http://192.168.1.101:5000/sanushost/api/v1.0/update_staff_status_clean'
 # url = 'http://192.168.1.101:5000/sanushost/api/v1.0/check_staff_hygiene_status'
 # image = dlib.load_rgb_image('/home/billyzheng/Downloads/klaus2.jpg')
