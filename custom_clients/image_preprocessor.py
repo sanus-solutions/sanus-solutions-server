@@ -8,7 +8,7 @@ import numpy as np
 import grpc
 from tensorflow_serving.apis import predict_pb2
 from tensorflow_serving.apis import prediction_service_pb2_grpc
-from sanus_face_server.config import config
+from sanus_solutions_server.config import config
 import cv2
 
 class MTCNNPreprocessor():

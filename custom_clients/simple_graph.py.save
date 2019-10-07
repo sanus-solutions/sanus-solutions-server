@@ -1,8 +1,8 @@
-import os, sys, time, collections, boto3, datetime
+ximport os, sys, time, collections, boto3, datetime
 sys.path.append(os.path.abspath('..'))
 import numpy as np
 from sanus_solutions_server.custom_clients import id_client
-from sanus_solutions_server.custom_clients import mongo_hygiene_client
+from sanus_solutions_server.custom_clients.mongo import mongo_hygiene_client
 """
 minimal implementation of graph structure
 """

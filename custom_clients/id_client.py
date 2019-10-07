@@ -1,6 +1,6 @@
 import os, sys
 sys.path.append(os.path.abspath('..'))
-from sanus_face_server.mongo import mongo_face_client
+from sanus_solutions_server.custom_clients import mongo_face_client
 import numpy as np
 # import boto3 
 import socket
