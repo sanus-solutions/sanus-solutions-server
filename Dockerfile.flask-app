@@ -12,7 +12,6 @@ RUN apt-get update -y && \
 	rm -rf /var/lib/apt/lists/*
 RUN pip3 --no-cache-dir install \
 	Flask \
-	numpy \
         opencv-python \ 
 	scipy \
 	requests \
@@ -20,17 +19,20 @@ RUN pip3 --no-cache-dir install \
 	click \
 	boto3 \
 	tensorflow-serving-api \ 
-	gunicorn  \ 
+	gunicorn  \
+        eventlet  \ 
 	pymongo \ 
-	Flask-PyMongo
+	Flask-PyMongo \
+	numpy
 
-COPY . /sanus_server
+## some tensorflow package is depricated with numpy 1.17.2. 
+#RUN pip3 install --no-cache-dir --force-reinstall "numpy==1.16.4" 
+
+COPY . /sanus_solutions_server
 ENV FLASK_APP=app.py
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 EXPOSE 5000
-WORKDIR /sanus_server
-#ENTRYPOINT ["flask"]
+WORKDIR /sanus_solutions_server
 ENTRYPOINT ["gunicorn"]
-#CMD ["run", "--host=0.0.0.0"]
-CMD ["-b", "0.0.0.0:5000", "-w", "9", "--log-level", "debug", "--reload" "app:app"]
+CMD ["-b", "0.0.0.0:5000", "-w", "16", "-k", "eventlet", "--log-level", "debug", "--reload", "app:app"]
