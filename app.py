@@ -14,7 +14,6 @@ import json, base64
 import tensorflow as tf
 from config import config
 import ast
-import boto3 #Amazon web service 
 import click 
 import time
 import datetime 
@@ -23,7 +22,6 @@ import cv2
 
 app = Flask(__name__)
 serving_client = tf_serving_client.TFServingClient()
-# rekog_client = boto3.client('rekognition')
 preprocessor = image_preprocessor.MTCNNPreprocessor()
 
 id_client = id_client.IdClient()
@@ -133,62 +131,16 @@ def remove_face():
     status = id_client.remove_staff(remove_id)
     return json.dumps({'Status': status})
 
-"""    embeddings = serving_client.send_inference_request(image_preprocessed)
-route for sanitizer clients
+"""
+route for detecting face and log it to druid
 request payload format:
-{'NodeID': node_id, 'Timestamp': timestamp, 'Image': image_64str, 'Shape': image_shape}
-Responses: {'Status': no face'}/{'Status': 'face'}
+{Timestamp: time.time(), Image: base64, Shape: tuple(int)}
+Response: {'Face': boolean, 'Result': string} 
 """
-@app.route('/sanushost/api/v1.0/update_staff_status_clean', methods=['POST'])
-def update_staff_status_clean():
-    ## For debug use, remove when production
-    a = time.time()
-
-    json_data = request.get_json()
-    image_str = json_data['Image']
-    timestamp = json_data['Timestamp']
-    node_id = json_data['NodeID']
-    image_shape = ast.literal_eval(json_data['Shape'])
-
-    ## Image decoding
-    image_original = base64.b64decode(json_data['Image'])
-    image = np.frombuffer(image_original, dtype=np.uint8)
-    image = cv2.imdecode(image, -1)
-    image = np.reshape(image, image_shape)
-
-    if config.USE_MTCNN:
-        image = image[...,::-1]
-
-    current_time = time.time()    
-    image_preprocessed = preprocessor.process(image)
-    #print("Mtcnn process time: " + str(time.time() - current_time))
-
-    if image_preprocessed.size == 0:
-        return json.dumps({'Face': 0, 'Result': None})
-
-    embeddings = serving_client.send_inference_request(image_preprocessed)
-    result = graph.update_node(embeddings, timestamp, node_id)
-
-    print("Total process time for node(" + str(node_id) + "): " + str(time.time() - a))
-    return json.dumps({'Face': 1, 'Result': result})
-
-"""
-route for entry clients
-request payload format:
-#TODO: add image shape information in payload
-{'Timestamp': tiemstamp, 'NodeID': node_id, 'Image': image_64str, 'Shape': image_shape}
-Responses: {'Status': no face'}/{'Status': 'face'}/{'JobID': job_id}
-"""
-@app.route('/sanushost/api/v1.0/identify_face', methods=['POST'])
-def identify_face():    
-    ## For debug use, remove when production
-    a = time.time()
-
-    ## TODO implement a check on payload.
-    ## if any format violates the rules, stop the process. 
+@app.route('/sanushost/api/v1.0/log_staff', methods=['POST'])
+def log_staff():
     json_data = request.get_json()
     timestamp = json_data['Timestamp']
-    node_id = json_data['NodeID']
     image_shape = ast.literal_eval(json_data['Shape'])
 
     ## Image decoding
@@ -200,26 +152,13 @@ def identify_face():
     if config.USE_MTCNN:
         image = image[...,::-1]
     image_preprocessed = preprocessor.process(image)
+
     if image_preprocessed.size == 0:
         return json.dumps({'Face': 0, 'Result': None})
+
     embeddings = serving_client.send_inference_request(image_preprocessed)
     staff_list = graph.check_breach(embeddings, timestamp)
-    ## For debug use, remove when production
-    # print(staff_list)
-    print("Total process time for node(" + str(node_id) + "): " + str(time.time() - a))
-    ## Payload 
     return json.dumps({'Face': 1, 'Result': staff_list})
-    
-
-@app.route('/sanushost/api/v1.0/check_staff_hygiene_status', methods=['POST'])
-def check_staff_hygiene_status(): 
-    ## TODO implement a check on payload.
-    ## if any format violates the rules, stop the process. 
-    json_data = request.get_json()
-    timestamp = json_data['Timestamp']
-    staff_list = json_data['StaffList']
-
-    return json.dumps(graph.check_breach_by_name(staff_list, timestamp))
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', threaded=True)
