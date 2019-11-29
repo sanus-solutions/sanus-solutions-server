@@ -9,6 +9,7 @@ model/
 *.jpeg
 *.png
 *.json
-
+*.ini
+*.log
 *.pb
 *.dat
