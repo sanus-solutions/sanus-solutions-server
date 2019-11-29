@@ -50,7 +50,6 @@ class IdClient():
         return np.linalg.norm(emb1 - emb2)
 
     def add_staff(self, embs, id):
-        ## NEED TO REWORK 
         try:
             for index, emb in enumerate(embs):
                 if index:

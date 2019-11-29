@@ -4,7 +4,7 @@ try:
     config = configparser.ConfigParser()
     config.read('config/mongo_face_config.ini')
 except:
-    raise Exception("mongo_hygiene_config.ini file not found.")
+    raise Exception("mongo_face_config.ini file not found.")
 
 
 class MongoClient():
