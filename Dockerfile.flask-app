@@ -18,7 +18,7 @@ RUN pip3 --no-cache-dir install \
 	grpcio \
 	click \
 	boto3 \
-	tensorflow-serving-api \ 
+	tensorflow-serving-api==1.14.0 \ 
 	gunicorn  \
         eventlet  \ 
 	pymongo \ 
@@ -35,4 +35,4 @@ ENV LANG=C.UTF-8
 EXPOSE 5000
 WORKDIR /sanus_solutions_server
 ENTRYPOINT ["gunicorn"]
-CMD ["-b", "0.0.0.0:5000", "-w", "16", "-k", "eventlet", "--log-level", "debug", "--reload", "app:app"]
+CMD ["-b", "0.0.0.0:5000", "-w", "6", "-k", "eventlet", "--reload", "app:app"]
