@@ -140,6 +140,7 @@ Response: {'Face': boolean, 'Result': string}
 @app.route('/sanushost/api/v1.0/log_staff', methods=['POST'])
 def log_staff():
     json_data = request.get_json()
+    node_id = json_data['NodeID']
     timestamp = json_data['Timestamp']
     image_shape = ast.literal_eval(json_data['Shape'])
 
@@ -157,7 +158,7 @@ def log_staff():
         return json.dumps({'Face': 0, 'Result': None})
 
     embeddings = serving_client.send_inference_request(image_preprocessed)
-    staff_list = graph.check_breach(embeddings, timestamp)
+    staff_list = graph.log_staff(node_id,embeddings, timestamp)
     return json.dumps({'Face': 1, 'Result': staff_list})
 
 if __name__ == '__main__':
