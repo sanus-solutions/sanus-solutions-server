@@ -14,11 +14,7 @@ class SimpleGraph():
     """
     def __init__(self, id_client):
         self.node_list = {}
-        self.time_thresh = 100 # seconds
-        self.dist_thresh = 0.15 # TODO: what's a good similarity threshold here????
-        # self.id_client = id_client.IdClient()
         self.id_client = id_client
-        # self.druid_client = druid_client()
 
     # DEMO USES ONLY METHODS BELOW
     def log_staff(self, node_id, embeddings, timestamp):
