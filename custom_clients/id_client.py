@@ -78,9 +78,8 @@ class IdClient():
         for current_staff in self.mongo_client.find_all():
             euc_dist = self.euclidean_distance(emb, np.asarray(current_staff['Embedding']))
             if euc_dist < staff_dist:
-                print(current_staff['Staff'], euc_dist)
+                print(current_staff['Staff'] + " similarity:" + str(euc_dist))
                 staff = current_staff
                 staff_dist = euc_dist
-                
         
         return (staff['Staff'], 1) if staff else (None, 0)
