@@ -11,7 +11,7 @@ import logging, time
 
 class IdClient():
     def __init__(self,):
-        self.EUC_THRESH = 1.0
+        self.EUC_THRESH = 0.7 # 
         self.TIME_THRESH = 30 
         self.mongo_client = mongo_face_client.MongoClient()
 
@@ -72,8 +72,15 @@ class IdClient():
 
 
     def check_staff(self, emb): 
-        for staff in self.mongo_client.find_all():
-            euc_dist = self.euclidean_distance(emb, np.asarray(staff['Embedding']))
-            if euc_dist < self.EUC_THRESH:
-                return (staff['Staff'], 1)
-        return (None, 0)
+        
+        staff = None
+        staff_dist = self.EUC_THRESH
+        for current_staff in self.mongo_client.find_all():
+            euc_dist = self.euclidean_distance(emb, np.asarray(current_staff['Embedding']))
+            if euc_dist < staff_dist:
+                print(current_staff['Staff'], euc_dist)
+                staff = current_staff
+                staff_dist = euc_dist
+                
+        
+        return (staff['Staff'], 1) if staff else (None, 0)
