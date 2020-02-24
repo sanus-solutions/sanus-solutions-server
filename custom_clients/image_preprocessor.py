@@ -38,7 +38,7 @@ class MTCNNPreprocessor():
         faces_list = []
         r, c, _ = image.shape
         for idx, box in enumerate(bbox):
-            if scores[idx] < 0.9:
+            if scores[idx] < 0.99:
                 continue
             face = image[int(box[0]):int(box[2]), int(box[1]):int(box[3]), :]
             #face = scipy.misc.imresize(face, (face_size, face_size), 'bilinear')
